@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clawLogo from '../assets/claw-logo.svg';
@@ -340,32 +341,32 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
-            {/* Lightbox Modal */}
-            {selectedImage && (
+            {/* Lightbox Modal via Portal */}
+            {selectedImage && createPortal(
                 <div
                     style={{
                         position: 'fixed',
                         top: 0,
                         left: 0,
-                        width: '100%',
-                        height: '100%',
+                        width: '100vw',
+                        height: '100vh',
                         backgroundColor: 'rgba(0, 0, 0, 0.9)',
                         backdropFilter: 'blur(10px)',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        zIndex: 1000,
-                        padding: '40px',
+                        zIndex: 9999,
+                        padding: '20px',
                         cursor: 'zoom-out',
-                        animation: 'fadeIn 0.3s ease-out'
+                        animation: 'fadeIn 0.2s ease-out'
                     }}
                     onClick={() => setSelectedImage(null)}
                 >
                     <button
                         style={{
                             position: 'absolute',
-                            top: '30px',
-                            right: '30px',
+                            top: '20px',
+                            right: '20px',
                             background: 'rgba(255, 255, 255, 0.1)',
                             border: '1px solid rgba(255, 255, 255, 0.2)',
                             borderRadius: '50%',
@@ -376,7 +377,7 @@ export default function LandingPage() {
                             alignItems: 'center',
                             color: 'white',
                             cursor: 'pointer',
-                            zIndex: 1001,
+                            zIndex: 10000,
                             transition: 'all 0.2s'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
@@ -389,8 +390,8 @@ export default function LandingPage() {
                         src={selectedImage}
                         alt="Preview"
                         style={{
-                            maxWidth: '90vw',
-                            maxHeight: '85vh',
+                            maxWidth: '95vw',
+                            maxHeight: '90vh',
                             borderRadius: '12px',
                             boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
                             objectFit: 'contain',
@@ -399,7 +400,8 @@ export default function LandingPage() {
                         }}
                         onClick={(e) => e.stopPropagation()}
                     />
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );
