@@ -152,7 +152,7 @@ export default function LandingPage() {
 
                 <div className="container">
                     <img
-                        src="/assets/screenshots/dashboard.png"
+                        src="assets/screenshots/dashboard.png"
                         alt="ClawProxy Dashboard"
                         className="img-showcase delay-1 animate-fade-in"
                         style={{ marginTop: '0' }}
@@ -198,7 +198,7 @@ export default function LandingPage() {
                     </div>
                     <div style={{ flex: '1 1 500px' }}>
                         <img
-                            src="/assets/screenshots/providers.png"
+                            src="assets/screenshots/providers.png"
                             alt="Providers Management"
                             className="img-showcase"
                             style={{ margin: 0 }}
@@ -233,15 +233,15 @@ export default function LandingPage() {
                             How to use AI Assistant
                         </Link>
                     </div>
-                    <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div className="flex-1 flex-col gap-5">
                         <img
-                            src="/assets/screenshots/providers-ai2.png"
+                            src="assets/screenshots/providers-ai2.png"
                             alt="AI Prompt Assistant Feature"
                             className="img-showcase"
                             style={{ margin: 0, boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
                         />
                         <img
-                            src="/assets/screenshots/providers-ai1.png"
+                            src="assets/screenshots/providers-ai1.png"
                             alt="AI Assistant Prompt Generation"
                             className="img-showcase"
                             style={{ margin: 0, width: '80%', alignSelf: 'center', opacity: 0.8 }}
@@ -278,7 +278,7 @@ export default function LandingPage() {
                     </div>
                     <div style={{ flex: '1 1 500px' }}>
                         <img
-                            src="/assets/screenshots/logs.png"
+                            src="assets/screenshots/logs.png"
                             alt="Real-time Request Logs"
                             className="img-showcase"
                             style={{ margin: 0 }}
