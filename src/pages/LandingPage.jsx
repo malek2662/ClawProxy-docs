@@ -1,9 +1,21 @@
-import React from 'react';
-import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clawLogo from '../assets/claw-logo.svg';
 
 export default function LandingPage() {
+    const [selectedImage, setSelectedImage] = useState(null);
+
+    // Prevent body scroll when lightbox is open
+    React.useEffect(() => {
+        if (selectedImage) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [selectedImage]);
+
     const features = [
         {
             title: 'Multi-Provider Routing',
@@ -150,12 +162,14 @@ export default function LandingPage() {
                     </div>
                 </div>
 
-                <div className="container">
+                <div className="container" onClick={() => setSelectedImage('assets/screenshots/dashboard.png')} style={{ cursor: 'pointer' }}>
                     <img
                         src="assets/screenshots/dashboard.png"
                         alt="ClawProxy Dashboard"
                         className="img-showcase delay-1 animate-fade-in"
-                        style={{ marginTop: '0' }}
+                        style={{ marginTop: '0', transition: 'all 0.3s ease' }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                     />
                 </div>
             </section>
@@ -196,12 +210,14 @@ export default function LandingPage() {
                             Read the Documentation
                         </Link>
                     </div>
-                    <div style={{ flex: '1 1 500px' }}>
+                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/providers.png')}>
                         <img
                             src="assets/screenshots/providers.png"
                             alt="Providers Management"
                             className="img-showcase"
-                            style={{ margin: 0 }}
+                            style={{ margin: 0, transition: 'all 0.3s ease' }}
+                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         />
                     </div>
                 </div>
@@ -233,18 +249,39 @@ export default function LandingPage() {
                             How to use AI Assistant
                         </Link>
                     </div>
-                    <div className="flex-1 flex-col gap-5">
+                    <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
                         <img
                             src="assets/screenshots/providers-ai2.png"
                             alt="AI Prompt Assistant Feature"
                             className="img-showcase"
-                            style={{ margin: 0, boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
+                            style={{
+                                margin: 0,
+                                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                position: 'relative',
+                                zIndex: 2
+                            }}
+                            onClick={() => setSelectedImage('assets/screenshots/providers-ai2.png')}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.zIndex = 3; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.zIndex = 2; }}
                         />
                         <img
                             src="assets/screenshots/providers-ai1.png"
                             alt="AI Assistant Prompt Generation"
                             className="img-showcase"
-                            style={{ margin: 0, width: '80%', alignSelf: 'center', opacity: 0.8 }}
+                            style={{
+                                margin: '-40px 0 0 40px',
+                                width: '90%',
+                                opacity: 0.9,
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                border: '1px solid rgba(80, 223, 144, 0.2)',
+                                zIndex: 1
+                            }}
+                            onClick={() => setSelectedImage('assets/screenshots/providers-ai1.png')}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.opacity = '1'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '0.9'; }}
                         />
                     </div>
                 </div>
@@ -276,12 +313,14 @@ export default function LandingPage() {
                             Explore Knowledge Base
                         </Link>
                     </div>
-                    <div style={{ flex: '1 1 500px' }}>
+                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/logs.png')}>
                         <img
                             src="assets/screenshots/logs.png"
                             alt="Real-time Request Logs"
                             className="img-showcase"
-                            style={{ margin: 0 }}
+                            style={{ margin: 0, transition: 'all 0.3s ease' }}
+                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                         />
                     </div>
                 </div>
@@ -301,6 +340,80 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+            {/* Lightbox Modal */}
+            {selectedImage && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backdropFilter: 'blur(10px)',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        zIndex: 1000,
+                        padding: '40px',
+                        cursor: 'zoom-out',
+                        animation: 'fadeIn 0.3s ease-out'
+                    }}
+                    onClick={() => setSelectedImage(null)}
+                >
+                    <button
+                        style={{
+                            position: 'absolute',
+                            top: '30px',
+                            right: '30px',
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '50%',
+                            width: '44px',
+                            height: '44px',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            color: 'white',
+                            cursor: 'pointer',
+                            zIndex: 1001,
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+                        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                        onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+                    >
+                        <X size={24} />
+                    </button>
+                    <img
+                        src={selectedImage}
+                        alt="Preview"
+                        style={{
+                            maxWidth: '90vw',
+                            maxHeight: '85vh',
+                            borderRadius: '12px',
+                            boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
+                            objectFit: 'contain',
+                            cursor: 'default',
+                            animation: 'scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+            )}
         </div>
     );
+}
+
+// Add keyframes for Lightbox
+const styles = `
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+`;
+if (typeof document !== 'undefined') {
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = styles;
+    document.head.appendChild(styleSheet);
 }
