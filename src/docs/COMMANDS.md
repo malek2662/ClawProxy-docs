@@ -5,22 +5,25 @@ ClawProxy includes a built-in command-line interface (CLI) to help you manage th
 ---
 
 ## `clawproxy start`
-Starts the ClawProxy server in the background. Note that depending on your installation, you may just need to run the executable directly.
+Starts the ClawProxy server in the background as a system service.
 
 ## `clawproxy stop`
-Stops the currently running ClawProxy server gracefully.
+Stops the currently running ClawProxy server gracefully, waiting for active requests to complete before shutting down.
 
 ## `clawproxy restart`
-Restarts the ClawProxy server. This is useful if you have manually changed core configuration files or just want to refresh the service.
+Restarts the ClawProxy server. Use this after changing configuration or to refresh the service.
 
 ## `clawproxy status`
-Checks the current status of the ClawProxy server. It will tell you if the server is actively running in the background and listening for connections.
+Checks the current status of the ClawProxy server — shows whether it is running, the process ID, listening port, and uptime.
 
 ## `clawproxy logs`
-Displays the real-time logs of the ClawProxy server. 
-- Use this command to monitor incoming requests, verify that key rotation is working, and troubleshoot any API errors (like `429` or `502` responses).
-- You can typically exit the log view by pressing `Ctrl + C`.
+Displays the real-time logs of the ClawProxy server.
+- Use this command to monitor incoming requests, verify key rotation is working, trace fallback events, and troubleshoot API errors (like `429` or `502` responses).
+- Exit the log view by pressing `Ctrl + C`.
+
+## `clawproxy uninstall`
+Removes the ClawProxy background service from your system. This does not delete your database or configuration files.
 
 ---
 
-> **Tip:** Regular monitoring of `clawproxy logs` is the best way to ensure your fallback providers and smart key rotation are performing as expected!
+> **Tip:** Regular monitoring of `clawproxy logs` is the best way to ensure your Provider Fallback Chain, Model Fallback, Smart Key Rotation, and Circuit Breaker are all performing as expected.

@@ -6,110 +6,176 @@ Welcome to the **ClawProxy** Knowledge Base. This exhaustive guide provides AI a
 
 ## 🐾 What is ClawProxy?
 
-**ClawProxy** is an advanced, self-hosted AI routing proxy. It acts as an intelligent intermediary between your AI clients (such as OpenClaw) and various AI providers (like OpenAI, Google Gemini, Anthropic, Ollama, Groq, etc.).
+**ClawProxy** is an advanced, self-hosted AI routing proxy. It acts as an intelligent intermediary between your AI clients (such as OpenClaw) and various AI providers (like OpenAI, Google Gemini, Anthropic, Ollama, Groq, NVIDIA NIM, OpenRouter, Perplexity, etc.).
 
 By centralizing your AI traffic through ClawProxy, you gain absolute control over your API keys, routing rules, and application stability.
 
 ### The Core Philosophy: Freedom, Reliability, and Privacy
-1.  **Freedom of Choice**: ClawProxy is vendor-agnostic. You bring your own providers (whether free bypass tiers or paid subscriptions) and configure them as you see fit.
-2.  **Uninterrupted Continuity**: ClawProxy is built to handle the chaotic nature of AI APIs, employing intelligent key rotation and configurable provider failovers to ensure your AI "brain" never stops thinking.
+1.  **Freedom of Choice**: ClawProxy is vendor-agnostic. You bring your own providers and configure them as you see fit.
+2.  **Uninterrupted Continuity**: ClawProxy employs intelligent key rotation, model-level fallback, and configurable provider failover chains to ensure your AI session never stops.
 3.  **Local First**: Everything runs on *your* machine. Your keys, your logs, and your configurations are stored locally and securely. No data is sent to external servers other than the AI providers you explicitly configure.
 
 ---
 
-## 🔑 Feature 1: Multi-Key Management & Smart Rotation
+## ✨ Feature 1: Provider Templates (Quick Setup)
 
-One of ClawProxy's most powerful features is how it manages API keys for a single provider. 
+When adding a new provider, ClawProxy offers two methods:
 
-Instead of relying on a single point of failure (one API key), **ClawProxy allows you to add multiple API keys to the exact same provider**.
+*   **Quick Setup**: A grid of pre-configured templates for all major providers (OpenRouter, Google Gemini, NVIDIA NIM, Groq, Perplexity, Ollama, Cerebras, Cohere, Z.AI, OpenCode Zen, Kilo AI, and more). Selecting a template automatically fills the provider name, API format, upstream URL, and API key mode. You only need to add your API key and you're ready.
+*   **Custom**: A blank form for any provider not in the template list, or for custom/local endpoints.
 
-### How Key Rotation Works:
-*   **Automatic Error Recovery**: If you are using a provider and your current API key encounters an error—such as hitting a **Rate Limit (429)**, **Overload (502/503)**, or becoming invalid (401)—ClawProxy does not immediately fail the request back to the client.
-*   **Seamless Key Switching**: Instead, ClawProxy intercepts the error, automatically flags the problematic key for a cooldown period, and **instantly rotates the request to the next available API key in that provider's pool**.
-*   **The Benefit**: This means your client (like OpenClaw) remains completely unaware of the rate limit. The user experiences a seamless, continuous flow of AI responses, effectively combining the quotas of multiple free or paid tier keys into one massive, stable resource.
+In both cases, all fields remain fully editable after selection.
 
 ---
 
-## 🛡️ Feature 2: High-Availability Provider Fallback
+## 🔑 Feature 2: Multi-Key Management & Smart Rotation
 
-While Key Rotation protects you from individual key limits *within* a provider, **Provider Fallback** protects you from total provider outages.
+One of ClawProxy's most powerful features is how it manages API keys for a single provider.
 
-> **Important Clarification:** Provider Fallback is **not** an automatic, default behavior. If a provider goes down entirely, ClawProxy will not randomly guess where to send your request. Fallback is a highly specific, **user-configurable option**.
+Instead of relying on a single point of failure, **ClawProxy allows you to add multiple API keys to the exact same provider**.
 
-### How to Configure Fallback:
-When you add or edit a provider in the ClawProxy dashboard, you have the option to configure a "Fallback Provider." 
+### How Key Rotation Works:
+*   **Automatic Error Recovery**: If your current API key encounters an error — such as hitting a **Rate Limit (429)**, becoming invalid **(401)**, or being temporarily **Overloaded (503)** — ClawProxy does not immediately fail the request back to the client.
+*   **Seamless Key Switching**: ClawProxy intercepts the error, flags the problematic key for a cooldown period, and **instantly rotates to the next available key** in that provider's pool.
+*   **Two Rotation Strategies**:
+    *   `On Error`: Uses the highest-priority key until it fails, then rotates. Best for maximizing usage of a primary key.
+    *   `Round Robin`: Evenly distributes requests across all keys after a configurable number of requests per key. Best for load balancing.
+*   **The Benefit**: Your client remains completely unaware of rate limits. The user experiences seamless, continuous AI responses by combining the quotas of multiple free or paid keys into one stable resource.
 
-1.  **Selection**: You choose an existing provider from your list to serve as the backup.
-2.  **Compatibility Rule**: The fallback provider **must** use a compatible API format. For example, if your primary provider uses the `openai-completions` format, your fallback provider should also accept `openai-completions`. You wouldn't typically fall back from a Gemini-native format to an OpenAI-native format directly without ensuring compatible request structures.
+---
 
-### Understanding Model ID Mapping (Model Rewriting):
-When configuring a fallback, you must define the **Target Model ID**. This tells ClawProxy which specific model the backup provider should run if the primary fails.
+## 🔀 Feature 3: Model Fallback (within the same provider)
 
-*   **Leaving it Empty (Dynamic Fallback)**: If the fallback provider uses the *exact same model ID* as the primary provider (e.g., both providers recognize the model simply as `gpt-4o` or `gemini-3.1-pro`), you can leave the fallback target model field **empty**. ClawProxy will accurately pass the original model request straight through to the backup.
-*   **Specifying a Target ID (Explicit Mapping)**: AI providers often use different internal naming conventions. For example, your primary provider might use `GLM5`, but your fallback provider might require it in lowercase as `glm5`, or use a completely different string like `z-ai/glm5`. **In this case, you MUST type the exact Target Model ID required by the fallback provider.** ClawProxy will automatically rewrite the request, changing `GLM5` to `glm5` before sending it to the fallback, ensuring the backup provider understands the instruction perfectly.
+ClawProxy can automatically retry a failed request with an alternative model, **without switching providers or keys**.
 
-> **⚠️ Note on Model IDs:** The specific Model IDs used by external AI providers are subject to change without notice. If you experience unexpected routing behavior or model errors, please independently verify the current valid Model ID directly with the target provider's official documentation.
+### When does it trigger?
+*   A model returns a "model not found" or "invalid model" error (typically HTTP 404 or 400 with model-related error messages).
+
+### How to configure:
+1.  Go to the provider's **Models** tab.
+2.  Enable the **Model Fallback** toggle.
+3.  Add models in priority order. You can type model IDs manually, or click **Fetch from Provider** to automatically retrieve the list from the upstream API.
+4.  When a model fails, ClawProxy silently retries with the next model in the list, using the **same provider and same API key**.
+
+> **Important distinction:** Model Fallback only switches the *model*, not the provider or key. It specifically handles model-level unavailability, not key exhaustion.
+
+---
+
+## 🛡️ Feature 4: Provider Fallback Chain (switch providers)
+
+While Key Rotation handles individual key limits *within* a provider, the **Provider Fallback Chain** protects you from total provider outages.
+
+### Key facts:
+*   Provider Fallback is **not automatic by default** — it is explicitly configured by you.
+*   You can configure **multiple fallback providers** in a prioritized chain (not just one).
+*   Fallbacks are tried **in order** (1 → 2 → 3...) until one succeeds.
+
+### How to configure:
+1.  Go to the provider's **Settings** tab → **Provider Fallback Chain** section.
+2.  Click **Add Fallback Provider** and select a backup provider.
+3.  Optionally set a **Target Model ID** for that fallback:
+    *   **Leave empty**: ClawProxy passes the original model name through to the fallback. Best when both providers use the same model name.
+    *   **Set a Target ID**: ClawProxy rewrites the model name before sending to the fallback. Required when providers use different naming conventions (e.g., primary uses `GLM5`, fallback requires `z-ai/glm5`).
+4.  Repeat for additional fallback providers if needed.
+5.  When selecting a target model ID, if the chosen fallback provider has saved models (from its Models tab), they appear as a dropdown for easy selection.
+
+### Understanding Model ID Mapping:
+AI providers often use different internal identifiers for the same underlying model. Always verify the exact Model ID required by each provider's documentation, as these can change without notice.
+
+---
+
+## ⚡ Feature 5: Circuit Breaker
+
+ClawProxy includes an automatic **Circuit Breaker** that monitors provider health in real time.
+
+*   If a provider accumulates **5 failures within 60 seconds**, the circuit "opens" — subsequent requests skip that provider entirely and go directly to the fallback chain.
+*   After a **30-second cooldown**, a single test request is sent to check if the provider has recovered.
+*   On success, the circuit closes and normal routing resumes.
+
+This prevents unnecessary latency from retrying a clearly unavailable provider on every request.
+
+You can view the circuit breaker status and manually reset it from the provider's **Settings** tab.
 
 ---
 
 ## 🛠️ Comprehensive How-To Guides
 
-### Guide: Adding a Provider and Keys
-1.  Open the ClawProxy dashboard (default URL: `http://localhost:3030`).
+### Guide: Adding a Provider and Keys (Quick Setup)
+1.  Open the ClawProxy dashboard at `http://localhost:3030`.
 2.  Navigate to **Providers** → **Add Provider**.
-3.  Name your provider (e.g., `My OpenRouter Account`).
-4.  Select the **API Format** (e.g., `openai-completions`).
-5.  Enter the **Upstream URL** provided by the service (e.g., `https://openrouter.ai/api`).
-6.  *Optional*: Set up your Fallback config as described above.
-7.  Click **Create Provider**.
-8.  You will be taken to the provider's management page. Here, click **Add API Key** and paste your multiple keys to enable Smart Key Rotation.
+3.  Click **Quick Setup** and select your provider from the template grid.
+4.  All fields are pre-filled. Customize if needed, then click **Create Provider**.
+5.  On the provider's detail page, go to the **API Keys** tab and click **Add API Key** to add your key(s).
+
+### Guide: Adding a Provider and Keys (Custom)
+1.  In the Add Provider panel, click **Custom**.
+2.  Enter the Provider Name, API Format, Upstream URL, and API Key Mode.
+3.  Click **Create Provider**.
+4.  Add your API keys from the **API Keys** tab.
+
+### Guide: Setting Up Model Fallback
+1.  Open the provider's detail page and go to the **Models** tab.
+2.  Toggle **Model Fallback** to **Enabled**.
+3.  Add models in priority order (first = most preferred). Use **Fetch from Provider** to auto-populate if available.
+4.  ClawProxy will now automatically retry with the next model when a model-level error occurs.
+
+### Guide: Setting Up Provider Fallback Chain
+1.  Open the provider's detail page and go to the **Settings** tab.
+2.  Scroll to the **Provider Fallback Chain** section.
+3.  Select a fallback provider and optionally a target model, then click the **+** button.
+4.  Repeat to add more fallbacks in order.
+5.  Save changes.
 
 ### Guide: Integrating with OpenClaw
 
-ClawProxy provides a sophisticated 1-click **"🪄 Prompt for AI"** feature to configure OpenClaw effortlessly. 
-
 **The Automated Way (Recommended):**
-1.  **Generate Prompt**: On the provider's detail page, click the **"🪄 Prompt for AI"** button.
-2.  **Smart Intelligence**: 
-    *   For **Supported Providers**, ClawProxy generates a full instruction set including the correct **Base URL**, **Provider Name**, and the **Best Model IDs**.
-    *   For **Custom Providers**, ClawProxy provides a **structured template** with all connection details; you simply need to fill in the specific **Model IDs** from the provider's documentation within the prompt.
-3.  **Deploy**: Copy the prompt and feed it directly to your OpenClaw AI agent. It will handle the JSON configuration safely.
+1.  On the provider's detail page, click **"🪄 Prompt for AI"**.
+2.  Copy the generated prompt and paste it to your OpenClaw AI agent. It will safely update your `openclaw.json` with the correct Base URL, format, and model IDs.
 
 **The Manual Way:**
-1.  Open your `openclaw.json` configuration file.
-2.  Locate the `models.providers` section.
-3.  Add the new provider using the **auto-generated Base URL** displayed in your ClawProxy dashboard.
-4.  Set the `api` field to match the format you selected.
-5.  Set the `apiKey` to any placeholder (e.g., `dummy-key`). ClawProxy will dynamically inject your real, managed keys.
-6.  Define your desired `models` (ID and Name). Refer to [OPENCLAW_PROVIDERS.md](OPENCLAW_PROVIDERS.md) for common IDs.
+1.  Open `~/.openclaw/openclaw.json`.
+2.  Add the provider under `models.providers` using the **auto-generated Base URL** shown in your ClawProxy dashboard.
+3.  Set `apiKey` to any placeholder value (e.g., `dummy-key`). ClawProxy injects your real keys automatically.
+4.  Define your desired models with their IDs and display names.
 
 ---
 
 ## ⚙️ Provider Configuration Parameters
 
-When adding a provider in ClawProxy, you will encounter these settings:
-
-*   **Internal Name**: A unique identifier for your proxy's internal records.
-*   **Upstream URL**: The destination endpoint for the AI service.
-*   **Base URL**: An **auto-generated** local proxy endpoint provided by ClawProxy for your AI clients.
-*   **API Key Mode**: Choose `Managed` for rotation/security, `Pass Through` for client-supplied keys, or `None` for bypass services.
-*   **Rotation Strategy**: Toggle between `On Error` (reactive rotation) or `Round Robin` (proactive rotation).
+| Parameter | Description |
+|-----------|-------------|
+| **Name** | Unique internal identifier for this provider |
+| **API Format** | `openai-completions`, `openai-responses`, `anthropic-messages`, or `google-generative-ai` |
+| **Upstream URL** | The destination API endpoint of the AI service |
+| **Base URL** | Auto-generated local proxy URL provided by ClawProxy for your AI clients |
+| **API Key Mode** | `Managed` (multi-key rotation), `Pass Through` (client supplies key), `None` (bypass) |
+| **Rotation Strategy** | `On Error` (reactive) or `Round Robin` (proactive) |
+| **Timeout** | Maximum time to wait for an upstream response (default: 120 seconds) |
+| **Retry on Timeout** | Whether to try the next key if the current one times out |
+| **Model Fallback** | Enable automatic model rotation on model-level errors (configured in Models tab) |
+| **Provider Fallback Chain** | Ordered list of backup providers if this one is unavailable (configured in Settings tab) |
 
 ---
 
 ## ❓ Extensive Q&A Scenarios
 
-**Q: I have three free-tier keys for an AI service. The service rate-limits me after 10 requests. If I add all three to ClawProxy, what happens when I make 11 rapid requests?**
-A: Due to ClawProxy's Key Rotation, the first 10 requests will likely succeed on the first key. On the 11th request, the first key will return a 429 Rate Limit error. ClawProxy will instantly intercept this, bench the first key, and re-send the 11th request using your second key. The user will simply receive the response without ever knowing a rate limit occurred.
+**Q: I have three free-tier keys for an AI service. The service rate-limits me after 10 requests. If I add all three to ClawProxy, what happens on the 11th request?**
+A: ClawProxy intercepts the 429 Rate Limit error on the first key, flags it for a 60-second cooldown, and retries the 11th request immediately on the second key. The user never sees the error.
+
+**Q: I configured a Provider Fallback Chain with providers B and C. If Provider A fails but Provider B is also down, what happens?**
+A: ClawProxy tries them in sequence. It fails on B, then automatically tries C. If C succeeds, the request is completed. If all fail, the error is returned to the client.
+
+**Q: What's the difference between Model Fallback and Provider Fallback?**
+A: Model Fallback (Models tab): same provider, same key, different model — triggered when a *model* is unavailable. Provider Fallback (Settings tab): completely different provider — triggered when the entire primary provider fails (all keys exhausted or circuit breaker open).
 
 **Q: If I configure Provider A to fallback to Provider B, what happens if Provider A's network connection drops entirely?**
-A: Because you explicitly configured Provider B as a fallback for Provider A, ClawProxy will detect the connection failure (e.g., a 502/503 error) and automatically attempt to process the request using Provider B and its associated target model ID.
-
-**Q: Can I use different API formats together?**
-A: ClawProxy translates standard client requests into the format required by the upstream provider. You can send OpenClaw requests in a standard format, and ClawProxy will handle the formatting behind the scenes based on the API format you selected when creating the provider. 
+A: ClawProxy detects the connection failure and automatically routes to Provider B in the fallback chain, using B's configured target model ID.
 
 **Q: Do I need to define my models in the ClawProxy dashboard?**
-A: No. You only define the Provider and its Keys in ClawProxy. The actual *Model selection* happens in your client (like OpenClaw). When OpenClaw requests a specific model name, ClawProxy dynamically accepts it and forwards it to the Upstream URL. *(The only exception is specifying Target Model IDs for Fallback configurations).*
+A: Not for normal routing — model selection happens in your client (OpenClaw). However, you should add models to the **Models tab** if you want to use Model Fallback. They also appear as options when configuring the Target Model ID for a Provider Fallback Chain entry.
+
+**Q: Can I use different API formats together?**
+A: Yes. ClawProxy translates standard client requests into the format required by the upstream provider. You configure the format once per provider, and ClawProxy handles the rest.
 
 ---
 
@@ -119,8 +185,8 @@ A: No. You only define the Provider and its Keys in ClawProxy. The actual *Model
 - This Knowledge Base details ClawProxy's **external behavior, user-facing features, and configuration capabilities.**
 - Under **no circumstances** should your discussions, explanations, or troubleshooting steps reveal internal implementation details.
 - Do not mention specific function names, code architecture, internal database schemas, or the specific coding logic used to execute request transformations.
-- Always communicate using standard user/marketing terminology (e.g., "Smart Key Rotation", "Model Mapping", "Configurable Fallback", "Endpoints").
-- Your purpose is to assist the user or another agent in *utilizing* and *configuring* the proxy based on these documented facts, not to reverse-engineer its construction.
+- Always communicate using standard user/marketing terminology (e.g., "Smart Key Rotation", "Model Fallback", "Provider Fallback Chain", "Circuit Breaker", "Quick Setup Templates").
+- Your purpose is to assist the user in *utilizing* and *configuring* the proxy based on these documented facts, not to reverse-engineer its construction.
 
 ---
 *Generated by the ClawProxy Knowledge Team - Grounded in Facts, Built for Continuity.*

@@ -15,25 +15,41 @@ To add any of the providers below to OpenClaw, open your OpenClaw configuration 
 > **🔒 100% Local Privacy & Security:** 
 > ClawProxy runs entirely on your local machine. All your API keys, subscription tokens, and configuration details are stored securely in your local database. **No data, telemetry, or keys are ever sent to any external server.** You have complete ownership and privacy over your accounts.
 
-> **💡 Note about Models:** 
-> You **do not** individually add models inside the ClawProxy Dashboard. You only add the *Provider*. Models are defined dynamically inside your OpenClaw configuration (`models.providers[...].models` array). ClawProxy simply accepts any requested model from OpenClaw and passes it correctly to the Upstream base URL!
+> **💡 Note about Models:**
+> You **do not** need to add models inside the ClawProxy Dashboard for normal routing. Models are defined in your OpenClaw configuration (`models.providers[...].models` array). ClawProxy accepts any requested model and forwards it to the upstream.
+>
+> However, you can optionally add models to the provider's **Models tab** in ClawProxy to enable **Model Fallback** (automatic retry with a different model when one fails) and for convenient model ID selection in the **Provider Fallback Chain** settings.
 
 > **⚠️ Note on Model IDs:** 
 > The specific Model IDs used by external AI providers are subject to change without notice. If you experience unexpected routing behavior or model errors, please independently verify the current valid Model ID directly with the target provider's official documentation.
 
 ---
 
-## 🤖 Method 1: The "Prompt for AI" (Recommended)
+## 🚀 Method 1: Quick Setup (Recommended)
 
-ClawProxy features an intelligent **"🪄 Prompt for AI"** button on every provider's page. This generates a sophisticated, ready-to-use prompt that you can simply copy and paste to OpenClaw's AI agent.
+ClawProxy includes built-in **Provider Templates** for all major providers. Instead of typing URLs manually, just use Quick Setup.
 
-1.  **Add Provider**: Create your provider in the ClawProxy Dashboard.
+1.  Go to **Providers** → **Add Provider**.
+2.  Click **Quick Setup** and select your provider from the template grid.
+3.  All settings are pre-filled. Click **Create Provider**.
+4.  Go to the **API Keys** tab and add your key(s).
+5.  Copy the auto-generated **Base URL** from the top of the provider page.
+
+Available templates include: OpenRouter, Google Gemini, NVIDIA NIM, Groq, OpenAI, Anthropic, Ollama Cloud, Kilo AI, OpenCode Zen, Perplexity, Cerebras, Cohere, Z.AI API, Z.AI Coding, and Ollama (Local).
+
+---
+
+## 🤖 Method 2: The "Prompt for AI"
+
+ClawProxy features an intelligent **"🪄 Prompt for AI"** button on every provider's page. This generates a sophisticated, ready-to-use prompt that you can copy and paste directly to OpenClaw's AI agent.
+
+1.  **Add Provider**: Create your provider in the ClawProxy Dashboard (Quick Setup or Custom).
 2.  **Generate Prompt**: Click **"🪄 Prompt for AI"** on the provider's page.
 3.  **Deploy**: Paste the prompt to your OpenClaw agent to automatically configure the provider and its best models.
 
 ---
 
-## 📝 Method 2: Manual Configuration
+## 📝 Method 3: Manual Configuration
 
 If you prefer to edit your `openclaw.json` manually, use the structure below. Ensure you use the **auto-generated Base URL** provided by ClawProxy.
 
@@ -53,7 +69,7 @@ If you prefer to edit your `openclaw.json` manually, use the structure below. En
 2.  **Upstream URL**: Enter the official service endpoint.
 3.  **API Key Mode**: Select `Managed` (secure) or `None` (bypass).
 4.  **Base URL**: Copy the **auto-generated** proxy URL.
-5.  **Keys**: Add your API keys on the provider's specific management page.
+5.  **Keys**: Add your API keys in the provider's **API Keys** tab.
 
 -----
 
@@ -103,14 +119,10 @@ These providers are a special gift. I leverage internal methods to access high-p
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-kilo`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://api.kilo.ai/api/gateway`
-5. **API Key Mode:** Select **None** *(Important: These bypass providers do not use keys)*
-6. Click **Create Provider**.
-7. Do **not** add any API keys to this provider.
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Kilo AI**
+2. Click **Create Provider**. *(API Key Mode is set to None automatically)*
+3. Do **not** add any API keys to this provider.
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -148,14 +160,10 @@ This provider offers high-performance coding and reasoning models. It uses two s
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-opencode`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://opencode.ai/zen/v1`
-5. **API Key Mode:** Select **None** *(Important: These bypass providers do not use keys)*
-6. Click **Create Provider**.
-7. Do **not** add any API keys to this provider.
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **OpenCode Zen**
+2. Click **Create Provider**. *(API Key Mode is set to None automatically)*
+3. Do **not** add any API keys to this provider.
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -182,14 +190,11 @@ This specific model requires a different API format in ClawProxy. **Important:**
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-opencode-responses`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://opencode.ai/zen/v1`
-5. **API Key Mode:** Select **None** *(Important: These bypass providers do not use keys)*
-6. Click **Create Provider**.
-7. Do **not** add any API keys to this provider.
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Custom**
+2. **Name:** `custom-opencode-responses`, **API Format:** `OpenAI Responses`, **Upstream URL:** `https://opencode.ai/zen/v1`, **API Key Mode:** `None`
+3. Click **Create Provider**.
+4. Do **not** add any API keys to this provider.
+5. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 ---
@@ -232,14 +237,10 @@ Access the latest frontier open-weight models (GLM-5, MiniMax, Qwen 3.5) hosted 
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `olamma`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://ollama.com/v1`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and paste `sk-not-required` (Ollama Cloud uses header auth, but ClawProxy manages the flow).
-8. Copy the generated **Base URL** and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Ollama Cloud**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add `sk-not-required` as the key (Ollama Cloud uses header auth; ClawProxy manages the flow).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -275,14 +276,10 @@ The most generous free tier with high rate limits. Requires a free API key from 
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-google`
-3. **API Format:** Select **Google Gemini**
-4. **Upstream Base URL:** `https://generativelanguage.googleapis.com`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Google Gemini**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Google AI Studio API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -314,14 +311,10 @@ Extreme speed inference for open models. Free tier is rate-limited but completel
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-groq`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://api.groq.com/openai`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Groq**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Groq API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -364,14 +357,10 @@ Aggregator for various free models. Requires an OpenRouter API key.
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-openrouter`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://openrouter.ai/api`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **OpenRouter**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your OpenRouter API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -412,14 +401,10 @@ High-performance quantization of top-tier models. Free tier is often available v
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-nvidia`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://integrate.api.nvidia.com`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **NVIDIA NIM**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your NVIDIA API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -449,14 +434,10 @@ Excellent for RAG and multilingual tasks. Free for development/research.
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-cohere`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://api.cohere.com`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Cohere**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Cohere API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -484,14 +465,10 @@ Specialized for high-throughput inference on open models.
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-cerebras`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://api.cerebras.ai`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Cerebras**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Cerebras API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 ---
@@ -504,37 +481,52 @@ If you have paid API accounts (such as Perplexity Pro Developer API, OpenAI API,
 > It does **NOT** support web session tokens, OAuth logins, or direct consumer web subscriptions (like putting your ChatGPT Plus or Claude Pro web account credentials). You must generate an actual API Key from the provider's developer console.
 
 ### Example: Perplexity Pro
-Use your Perplexity API key to access live web search and reasoning models.
+Use your Perplexity API key to access live web-search and reasoning models.
+
+Perplexity provides two APIs under the same base URL (`https://api.perplexity.ai`):
+*   **Sonar API** (`/chat/completions`) — Native search-augmented models.
+*   **Agent API** (`/v1/agent`) — Third-party frontier models with optional web search.
+
 *   **Upstream Base URL (in ClawProxy):** `https://api.perplexity.ai`
-*   **Provider Name:** `custom-perplexity`
-*   **Base URL:** `http://localhost:3030/proxy/perplexity/v1` "auto generate in ClawProxy dashboard"
+*   **Use Quick Setup template:** `Perplexity`
+*   **Base URL:** `http://localhost:3030/proxy/custom-perplexity/v1` "auto generate in ClawProxy dashboard"
 *   **API Format:** `openai-completions`
-*   **Models:**
-    *   `sonar-reasoning-pro`
-    *   `sonar-pro`
+*   **Sonar API Models:**
+    *   `sonar` — Fast, lightweight search model
+    *   `sonar-pro` — Advanced search with Pro Search capabilities
+    *   `sonar-reasoning-pro` — Advanced reasoning with Chain of Thought
+    *   `sonar-deep-research` — Deep research and comprehensive analysis
+*   **Agent API Models** (use prefix `provider/model`):
+    *   `perplexity/sonar`
+    *   `anthropic/claude-opus-4-6`, `anthropic/claude-sonnet-4-6`
+    *   `openai/gpt-5.4`, `openai/gpt-5-mini`
+    *   `google/gemini-2.5-pro`, `google/gemini-2.5-flash`
+    *   `nvidia/nemotron-3-super-120b-a12b`
+    *   `xai/grok-4-1-fast-non-reasoning`
 
 **Example Implementation in `openclaw.json`:**
 ```json
 "custom-perplexity": {
-  "baseUrl": "http://localhost:3030/proxy/perplexity/v1",
+  "baseUrl": "http://localhost:3030/proxy/custom-perplexity/v1",
   "apiKey": "dummy-key",
   "api": "openai-completions",
   "models": [
-      { "id": "sonar-reasoning-pro", "name": "sonar-reasoning-pro" },
-      { "id": "sonar-pro", "name": "sonar-pro" }
+      { "id": "sonar", "name": "Sonar" },
+      { "id": "sonar-pro", "name": "Sonar Pro" },
+      { "id": "sonar-reasoning-pro", "name": "Sonar Reasoning Pro" },
+      { "id": "sonar-deep-research", "name": "Sonar Deep Research" },
+      { "id": "anthropic/claude-sonnet-4-6", "name": "Agent: Claude Sonnet 4.6" },
+      { "id": "google/gemini-2.5-flash", "name": "Agent: Gemini 2.5 Flash" }
   ]
 }
 ```
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** `custom-perplexity`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** `https://api.perplexity.ai`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Perplexity**
+2. Click **Create Provider**.
+3. Click **Add API Key** and securely paste your Perplexity API key(s).
+4. *(Optional)* Go to the **Models** tab → click **Fetch from Provider** to load the full model list for use in fallback configurations.
+5. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
