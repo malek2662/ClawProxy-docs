@@ -50,110 +50,176 @@ Welcome to the **ClawProxy** Knowledge Base. This exhaustive guide provides AI a
 
 ## 🐾 What is ClawProxy?
 
-**ClawProxy** is an advanced, self-hosted AI routing proxy. It acts as an intelligent intermediary between your AI clients (such as OpenClaw) and various AI providers (like OpenAI, Google Gemini, Anthropic, Ollama, Groq, etc.).
+**ClawProxy** is an advanced, self-hosted AI routing proxy. It acts as an intelligent intermediary between your AI clients (such as OpenClaw) and various AI providers (like OpenAI, Google Gemini, Anthropic, Ollama, Groq, NVIDIA NIM, OpenRouter, Perplexity, etc.).
 
 By centralizing your AI traffic through ClawProxy, you gain absolute control over your API keys, routing rules, and application stability.
 
 ### The Core Philosophy: Freedom, Reliability, and Privacy
-1.  **Freedom of Choice**: ClawProxy is vendor-agnostic. You bring your own providers (whether free bypass tiers or paid subscriptions) and configure them as you see fit.
-2.  **Uninterrupted Continuity**: ClawProxy is built to handle the chaotic nature of AI APIs, employing intelligent key rotation and configurable provider failovers to ensure your AI "brain" never stops thinking.
+1.  **Freedom of Choice**: ClawProxy is vendor-agnostic. You bring your own providers and configure them as you see fit.
+2.  **Uninterrupted Continuity**: ClawProxy employs intelligent key rotation, model-level fallback, and configurable provider failover chains to ensure your AI session never stops.
 3.  **Local First**: Everything runs on *your* machine. Your keys, your logs, and your configurations are stored locally and securely. No data is sent to external servers other than the AI providers you explicitly configure.
 
 ---
 
-## 🔑 Feature 1: Multi-Key Management & Smart Rotation
+## ✨ Feature 1: Provider Templates (Quick Setup)
 
-One of ClawProxy's most powerful features is how it manages API keys for a single provider. 
+When adding a new provider, ClawProxy offers two methods:
 
-Instead of relying on a single point of failure (one API key), **ClawProxy allows you to add multiple API keys to the exact same provider**.
+*   **Quick Setup**: A grid of pre-configured templates for all major providers (OpenRouter, Google Gemini, NVIDIA NIM, Groq, Perplexity, Ollama, Cerebras, Cohere, Z.AI, OpenCode Zen, Kilo AI, and more). Selecting a template automatically fills the provider name, API format, upstream URL, and API key mode. You only need to add your API key and you're ready.
+*   **Custom**: A blank form for any provider not in the template list, or for custom/local endpoints.
 
-### How Key Rotation Works:
-*   **Automatic Error Recovery**: If you are using a provider and your current API key encounters an error—such as hitting a **Rate Limit (429)**, **Overload (502/503)**, or becoming invalid (401)—ClawProxy does not immediately fail the request back to the client.
-*   **Seamless Key Switching**: Instead, ClawProxy intercepts the error, automatically flags the problematic key for a cooldown period, and **instantly rotates the request to the next available API key in that provider's pool**.
-*   **The Benefit**: This means your client (like OpenClaw) remains completely unaware of the rate limit. The user experiences a seamless, continuous flow of AI responses, effectively combining the quotas of multiple free or paid tier keys into one massive, stable resource.
+In both cases, all fields remain fully editable after selection.
 
 ---
 
-## 🛡️ Feature 2: High-Availability Provider Fallback
+## 🔑 Feature 2: Multi-Key Management & Smart Rotation
 
-While Key Rotation protects you from individual key limits *within* a provider, **Provider Fallback** protects you from total provider outages.
+One of ClawProxy's most powerful features is how it manages API keys for a single provider.
 
-> **Important Clarification:** Provider Fallback is **not** an automatic, default behavior. If a provider goes down entirely, ClawProxy will not randomly guess where to send your request. Fallback is a highly specific, **user-configurable option**.
+Instead of relying on a single point of failure, **ClawProxy allows you to add multiple API keys to the exact same provider**.
 
-### How to Configure Fallback:
-When you add or edit a provider in the ClawProxy dashboard, you have the option to configure a "Fallback Provider." 
+### How Key Rotation Works:
+*   **Automatic Error Recovery**: If your current API key encounters an error — such as hitting a **Rate Limit (429)**, becoming invalid **(401)**, or being temporarily **Overloaded (503)** — ClawProxy does not immediately fail the request back to the client.
+*   **Seamless Key Switching**: ClawProxy intercepts the error, flags the problematic key for a cooldown period, and **instantly rotates to the next available key** in that provider's pool.
+*   **Two Rotation Strategies**:
+    *   \`On Error\`: Uses the highest-priority key until it fails, then rotates. Best for maximizing usage of a primary key.
+    *   \`Round Robin\`: Evenly distributes requests across all keys after a configurable number of requests per key. Best for load balancing.
+*   **The Benefit**: Your client remains completely unaware of rate limits. The user experiences seamless, continuous AI responses by combining the quotas of multiple free or paid keys into one stable resource.
 
-1.  **Selection**: You choose an existing provider from your list to serve as the backup.
-2.  **Compatibility Rule**: The fallback provider **must** use a compatible API format. For example, if your primary provider uses the \`openai-completions\` format, your fallback provider should also accept \`openai-completions\`. You wouldn't typically fall back from a Gemini-native format to an OpenAI-native format directly without ensuring compatible request structures.
+---
 
-### Understanding Model ID Mapping (Model Rewriting):
-When configuring a fallback, you must define the **Target Model ID**. This tells ClawProxy which specific model the backup provider should run if the primary fails.
+## 🔀 Feature 3: Model Fallback (within the same provider)
 
-*   **Leaving it Empty (Dynamic Fallback)**: If the fallback provider uses the *exact same model ID* as the primary provider (e.g., both providers recognize the model simply as \`gpt-4o\` or \`gemini-3.1-pro\`), you can leave the fallback target model field **empty**. ClawProxy will accurately pass the original model request straight through to the backup.
-*   **Specifying a Target ID (Explicit Mapping)**: AI providers often use different internal naming conventions. For example, your primary provider might use \`GLM5\`, but your fallback provider might require it in lowercase as \`glm5\`, or use a completely different string like \`z-ai/glm5\`. **In this case, you MUST type the exact Target Model ID required by the fallback provider.** ClawProxy will automatically rewrite the request, changing \`GLM5\` to \`glm5\` before sending it to the fallback, ensuring the backup provider understands the instruction perfectly.
+ClawProxy can automatically retry a failed request with an alternative model, **without switching providers or keys**.
 
-> **⚠️ Note on Model IDs:** The specific Model IDs used by external AI providers are subject to change without notice. If you experience unexpected routing behavior or model errors, please independently verify the current valid Model ID directly with the target provider's official documentation.
+### When does it trigger?
+*   A model returns a "model not found" or "invalid model" error (typically HTTP 404 or 400 with model-related error messages).
+
+### How to configure:
+1.  Go to the provider's **Models** tab.
+2.  Enable the **Model Fallback** toggle.
+3.  Add models in priority order. You can type model IDs manually, or click **Fetch from Provider** to automatically retrieve the list from the upstream API.
+4.  When a model fails, ClawProxy silently retries with the next model in the list, using the **same provider and same API key**.
+
+> **Important distinction:** Model Fallback only switches the *model*, not the provider or key. It specifically handles model-level unavailability, not key exhaustion.
+
+---
+
+## 🛡️ Feature 4: Provider Fallback Chain (switch providers)
+
+While Key Rotation handles individual key limits *within* a provider, the **Provider Fallback Chain** protects you from total provider outages.
+
+### Key facts:
+*   Provider Fallback is **not automatic by default** — it is explicitly configured by you.
+*   You can configure **multiple fallback providers** in a prioritized chain (not just one).
+*   Fallbacks are tried **in order** (1 → 2 → 3...) until one succeeds.
+
+### How to configure:
+1.  Go to the provider's **Settings** tab → **Provider Fallback Chain** section.
+2.  Click **Add Fallback Provider** and select a backup provider.
+3.  Optionally set a **Target Model ID** for that fallback:
+    *   **Leave empty**: ClawProxy passes the original model name through to the fallback. Best when both providers use the same model name.
+    *   **Set a Target ID**: ClawProxy rewrites the model name before sending to the fallback. Required when providers use different naming conventions (e.g., primary uses \`GLM5\`, fallback requires \`z-ai/glm5\`).
+4.  Repeat for additional fallback providers if needed.
+5.  When selecting a target model ID, if the chosen fallback provider has saved models (from its Models tab), they appear as a dropdown for easy selection.
+
+### Understanding Model ID Mapping:
+AI providers often use different internal identifiers for the same underlying model. Always verify the exact Model ID required by each provider's documentation, as these can change without notice.
+
+---
+
+## ⚡ Feature 5: Circuit Breaker
+
+ClawProxy includes an automatic **Circuit Breaker** that monitors provider health in real time.
+
+*   If a provider accumulates **5 failures within 60 seconds**, the circuit "opens" — subsequent requests skip that provider entirely and go directly to the fallback chain.
+*   After a **30-second cooldown**, a single test request is sent to check if the provider has recovered.
+*   On success, the circuit closes and normal routing resumes.
+
+This prevents unnecessary latency from retrying a clearly unavailable provider on every request.
+
+You can view the circuit breaker status and manually reset it from the provider's **Settings** tab.
 
 ---
 
 ## 🛠️ Comprehensive How-To Guides
 
-### Guide: Adding a Provider and Keys
-1.  Open the ClawProxy dashboard (default URL: \`http://localhost:3030\`).
+### Guide: Adding a Provider and Keys (Quick Setup)
+1.  Open the ClawProxy dashboard at \`http://localhost:3030\`.
 2.  Navigate to **Providers** → **Add Provider**.
-3.  Name your provider (e.g., \`My OpenRouter Account\`).
-4.  Select the **API Format** (e.g., \`openai-completions\`).
-5.  Enter the **Upstream URL** provided by the service (e.g., \`https://openrouter.ai/api\`).
-6.  *Optional*: Set up your Fallback config as described above.
-7.  Click **Create Provider**.
-8.  You will be taken to the provider's management page. Here, click **Add API Key** and paste your multiple keys to enable Smart Key Rotation.
+3.  Click **Quick Setup** and select your provider from the template grid.
+4.  All fields are pre-filled. Customize if needed, then click **Create Provider**.
+5.  On the provider's detail page, go to the **API Keys** tab and click **Add API Key** to add your key(s).
+
+### Guide: Adding a Provider and Keys (Custom)
+1.  In the Add Provider panel, click **Custom**.
+2.  Enter the Provider Name, API Format, Upstream URL, and API Key Mode.
+3.  Click **Create Provider**.
+4.  Add your API keys from the **API Keys** tab.
+
+### Guide: Setting Up Model Fallback
+1.  Open the provider's detail page and go to the **Models** tab.
+2.  Toggle **Model Fallback** to **Enabled**.
+3.  Add models in priority order (first = most preferred). Use **Fetch from Provider** to auto-populate if available.
+4.  ClawProxy will now automatically retry with the next model when a model-level error occurs.
+
+### Guide: Setting Up Provider Fallback Chain
+1.  Open the provider's detail page and go to the **Settings** tab.
+2.  Scroll to the **Provider Fallback Chain** section.
+3.  Select a fallback provider and optionally a target model, then click the **+** button.
+4.  Repeat to add more fallbacks in order.
+5.  Save changes.
 
 ### Guide: Integrating with OpenClaw
 
-ClawProxy provides a sophisticated 1-click **"🪄 Prompt for AI"** feature to configure OpenClaw effortlessly. 
-
 **The Automated Way (Recommended):**
-1.  **Generate Prompt**: On the provider's detail page, click the **"🪄 Prompt for AI"** button.
-2.  **Smart Intelligence**: 
-    *   For **Supported Providers**, ClawProxy generates a full instruction set including the correct **Base URL**, **Provider Name**, and the **Best Model IDs**.
-    *   For **Custom Providers**, ClawProxy provides a **structured template** with all connection details; you simply need to fill in the specific **Model IDs** from the provider's documentation within the prompt.
-3.  **Deploy**: Copy the prompt and feed it directly to your OpenClaw AI agent. It will handle the JSON configuration safely.
+1.  On the provider's detail page, click **"🪄 Prompt for AI"**.
+2.  Copy the generated prompt and paste it to your OpenClaw AI agent. It will safely update your \`openclaw.json\` with the correct Base URL, format, and model IDs.
 
 **The Manual Way:**
-1.  Open your \`openclaw.json\` configuration file.
-2.  Locate the \`models.providers\` section.
-3.  Add the new provider using the **auto-generated Base URL** displayed in your ClawProxy dashboard.
-4.  Set the \`api\` field to match the format you selected.
-5.  Set the \`apiKey\` to any placeholder (e.g., \`dummy-key\`). ClawProxy will dynamically inject your real, managed keys.
-6.  Define your desired \`models\` (ID and Name). Refer to [OPENCLAW_PROVIDERS.md](OPENCLAW_PROVIDERS.md) for common IDs.
+1.  Open \`~/.openclaw/openclaw.json\`.
+2.  Add the provider under \`models.providers\` using the **auto-generated Base URL** shown in your ClawProxy dashboard.
+3.  Set \`apiKey\` to any placeholder value (e.g., \`dummy-key\`). ClawProxy injects your real keys automatically.
+4.  Define your desired models with their IDs and display names.
 
 ---
 
 ## ⚙️ Provider Configuration Parameters
 
-When adding a provider in ClawProxy, you will encounter these settings:
-
-*   **Internal Name**: A unique identifier for your proxy's internal records.
-*   **Upstream URL**: The destination endpoint for the AI service.
-*   **Base URL**: An **auto-generated** local proxy endpoint provided by ClawProxy for your AI clients.
-*   **API Key Mode**: Choose \`Managed\` for rotation/security, \`Pass Through\` for client-supplied keys, or \`None\` for bypass services.
-*   **Rotation Strategy**: Toggle between \`On Error\` (reactive rotation) or \`Round Robin\` (proactive rotation).
+| Parameter | Description |
+|-----------|-------------|
+| **Name** | Unique internal identifier for this provider |
+| **API Format** | \`openai-completions\`, \`openai-responses\`, \`anthropic-messages\`, or \`google-generative-ai\` |
+| **Upstream URL** | The destination API endpoint of the AI service |
+| **Base URL** | Auto-generated local proxy URL provided by ClawProxy for your AI clients |
+| **API Key Mode** | \`Managed\` (multi-key rotation), \`Pass Through\` (client supplies key), \`None\` (bypass) |
+| **Rotation Strategy** | \`On Error\` (reactive) or \`Round Robin\` (proactive) |
+| **Timeout** | Maximum time to wait for an upstream response (default: 120 seconds) |
+| **Retry on Timeout** | Whether to try the next key if the current one times out |
+| **Model Fallback** | Enable automatic model rotation on model-level errors (configured in Models tab) |
+| **Provider Fallback Chain** | Ordered list of backup providers if this one is unavailable (configured in Settings tab) |
 
 ---
 
 ## ❓ Extensive Q&A Scenarios
 
-**Q: I have three free-tier keys for an AI service. The service rate-limits me after 10 requests. If I add all three to ClawProxy, what happens when I make 11 rapid requests?**
-A: Due to ClawProxy's Key Rotation, the first 10 requests will likely succeed on the first key. On the 11th request, the first key will return a 429 Rate Limit error. ClawProxy will instantly intercept this, bench the first key, and re-send the 11th request using your second key. The user will simply receive the response without ever knowing a rate limit occurred.
+**Q: I have three free-tier keys for an AI service. The service rate-limits me after 10 requests. If I add all three to ClawProxy, what happens on the 11th request?**
+A: ClawProxy intercepts the 429 Rate Limit error on the first key, flags it for a 60-second cooldown, and retries the 11th request immediately on the second key. The user never sees the error.
+
+**Q: I configured a Provider Fallback Chain with providers B and C. If Provider A fails but Provider B is also down, what happens?**
+A: ClawProxy tries them in sequence. It fails on B, then automatically tries C. If C succeeds, the request is completed. If all fail, the error is returned to the client.
+
+**Q: What's the difference between Model Fallback and Provider Fallback?**
+A: Model Fallback (Models tab): same provider, same key, different model — triggered when a *model* is unavailable. Provider Fallback (Settings tab): completely different provider — triggered when the entire primary provider fails (all keys exhausted or circuit breaker open).
 
 **Q: If I configure Provider A to fallback to Provider B, what happens if Provider A's network connection drops entirely?**
-A: Because you explicitly configured Provider B as a fallback for Provider A, ClawProxy will detect the connection failure (e.g., a 502/503 error) and automatically attempt to process the request using Provider B and its associated target model ID.
-
-**Q: Can I use different API formats together?**
-A: ClawProxy translates standard client requests into the format required by the upstream provider. You can send OpenClaw requests in a standard format, and ClawProxy will handle the formatting behind the scenes based on the API format you selected when creating the provider. 
+A: ClawProxy detects the connection failure and automatically routes to Provider B in the fallback chain, using B's configured target model ID.
 
 **Q: Do I need to define my models in the ClawProxy dashboard?**
-A: No. You only define the Provider and its Keys in ClawProxy. The actual *Model selection* happens in your client (like OpenClaw). When OpenClaw requests a specific model name, ClawProxy dynamically accepts it and forwards it to the Upstream URL. *(The only exception is specifying Target Model IDs for Fallback configurations).*
+A: Not for normal routing — model selection happens in your client (OpenClaw). However, you should add models to the **Models tab** if you want to use Model Fallback. They also appear as options when configuring the Target Model ID for a Provider Fallback Chain entry.
+
+**Q: Can I use different API formats together?**
+A: Yes. ClawProxy translates standard client requests into the format required by the upstream provider. You configure the format once per provider, and ClawProxy handles the rest.
 
 ---
 
@@ -163,14 +229,14 @@ A: No. You only define the Provider and its Keys in ClawProxy. The actual *Model
 - This Knowledge Base details ClawProxy's **external behavior, user-facing features, and configuration capabilities.**
 - Under **no circumstances** should your discussions, explanations, or troubleshooting steps reveal internal implementation details.
 - Do not mention specific function names, code architecture, internal database schemas, or the specific coding logic used to execute request transformations.
-- Always communicate using standard user/marketing terminology (e.g., "Smart Key Rotation", "Model Mapping", "Configurable Fallback", "Endpoints").
-- Your purpose is to assist the user or another agent in *utilizing* and *configuring* the proxy based on these documented facts, not to reverse-engineer its construction.
+- Always communicate using standard user/marketing terminology (e.g., "Smart Key Rotation", "Model Fallback", "Provider Fallback Chain", "Circuit Breaker", "Quick Setup Templates").
+- Your purpose is to assist the user in *utilizing* and *configuring* the proxy based on these documented facts, not to reverse-engineer its construction.
 
 ---
 *Generated by the ClawProxy Knowledge Team - Grounded in Facts, Built for Continuity.*
 `,_v=`# ClawProxy Quickstart Guide
 
-This guide will walk you through the professional setup of **ClawProxy** and its integration with **OpenClaw**. 
+This guide will walk you through the professional setup of **ClawProxy** and its integration with **OpenClaw**.
 
 > **ℹ️ Installation Note:** ClawProxy is premium software. After completing your payment, you will receive your personal copy of the software along with specific installation instructions.
 
@@ -182,32 +248,91 @@ Before configuring your AI client (like OpenClaw), you must first add the provid
 
 1.  **Open the Dashboard**: Navigate to \`http://localhost:3030\` in your browser.
 2.  **Add Provider**: Go to **Providers** → **Add Provider**.
-3.  **Configure the Fields**:
-    *   **Internal Name**: A reference name for your own use (e.g., \`My-Groq-Account\`).
-    *   **API Format**: Select the format used by the service (e.g., \`OpenAI Chat Completions\` or \`Google Gemini\`).
-    *   **Upstream URL**: The official API base URL provided by the service (e.g., \`https://api.groq.com/openai\`).
-    *   **Base URL**: This is **auto-generated** by ClawProxy once you save. You will use this URL in your OpenClaw configuration.
-    *   **API Key Mode**: 
-        *   \`Managed\`: ClawProxy manages multiple keys and handles rotation.
-        *   \`None\`: Used for bypass providers that require no keys.
-        *   \`Pass Through\`: Directly passes the client's key to the upstream.
-    *   **Rotation Strategy**: Choose between \`On Error\` (rotates only when a limit is hit) or \`Round Robin\` (rotates keys for every request).
-4.  **Save and Manage Keys**: After clicking **Create**, go to the provider's detail page and click **Add API Key** to securely store your keys.
+3.  **Choose your setup method:**
 
 ---
 
-## ⚡ Step 2: Configuring OpenClaw (The Easy Way)
+### ⚡ Method A: Quick Setup (Recommended)
 
-Once your provider is running in ClawProxy, adding it to OpenClaw is completely effortless using our intelligent automation.
+ClawProxy includes built-in **Provider Templates** for all major AI providers. Instead of manually entering URLs and settings, simply click **Quick Setup**, and you'll see a grid of ready-to-use providers.
 
-### 🪄 The "Prompt for AI" Feature
+1.  Click **Quick Setup** in the Add Provider panel.
+2.  Select your provider from the grid (e.g., OpenRouter, NVIDIA NIM, Groq, Gemini, Perplexity, etc.).
+3.  All fields are **automatically filled**: Name, API Format, Upstream URL, and API Key Mode.
+4.  You can still customize any field after selecting the template.
+5.  Click **Create Provider**.
+6.  Go to the provider's **API Keys** tab and add your keys.
 
-ClawProxy features a sophisticated **"Prompt for AI"** button on every provider's page. This feature generates a perfectly tailored instruction set for your OpenClaw AI agent.
+---
+
+### 🛠️ Method B: Custom Provider
+
+For providers not listed in the templates, or any custom/local endpoint:
+
+1.  Click **Custom** in the Add Provider panel.
+2.  **Configure the Fields**:
+    *   **Provider Name**: A reference name for your own use (e.g., \`My-Groq-Account\`).
+    *   **API Format**: Select the format used by the service (e.g., \`OpenAI Chat Completions\` or \`Google Gemini\`).
+    *   **Upstream URL**: The official API base URL provided by the service (e.g., \`https://api.groq.com/openai/v1\`).
+    *   **Base URL**: This is **auto-generated** by ClawProxy once you save. You will use this URL in your OpenClaw configuration.
+    *   **API Key Mode**:
+        *   \`Managed\`: ClawProxy manages multiple keys and handles rotation.
+        *   \`None\`: Used for bypass providers that require no keys.
+        *   \`Pass Through\`: Directly passes the client's key to the upstream.
+    *   **Rotation Strategy**: Choose between \`On Error\` (rotates only when a limit is hit) or \`Round Robin\` (rotates keys evenly across every request).
+3.  Click **Create Provider**.
+4.  Go to the provider's **API Keys** tab and add your keys.
+
+---
+
+## ⚙️ Step 2: Advanced Configuration (Optional)
+
+After creating a provider, you can configure advanced reliability features from the provider's detail page.
+
+### 🔀 Model Fallback (within the same provider)
+
+Found in the **Models** tab of any provider.
+
+If a specific model becomes unavailable (e.g., returns a "model not found" error), ClawProxy can automatically retry with the **next model in your priority list** — using the same provider and the same API key.
+
+1.  Go to the provider's **Models** tab.
+2.  Enable the **Model Fallback** toggle.
+3.  Add your models in priority order. You can:
+    *   Type model IDs manually.
+    *   Click **Fetch from Provider** to automatically retrieve the available model list from the upstream API.
+4.  If a model fails, ClawProxy silently retries with the next one in the list.
+
+> **Note:** This only switches the *model*, not the provider or key. It's for model-level errors, not key exhaustion.
+
+---
+
+### 🛡️ Provider Fallback Chain (switch to a different provider)
+
+Found in the **Settings** tab of any provider.
+
+If the **entire provider** fails (all keys exhausted, or the provider is down), ClawProxy will automatically route to a backup provider in order.
+
+1.  Go to the provider's **Settings** tab → **Provider Fallback Chain** section.
+2.  Click **Add Fallback Provider** and select a backup provider.
+3.  Optionally specify a **Target Model ID** for the fallback provider. If the fallback provider has saved models (from its Models tab), they will appear as a dropdown to choose from.
+4.  Add multiple fallback providers — they will be tried in order (1 → 2 → 3...) until one succeeds.
+
+> **Key difference:** Model Fallback = same provider, different model. Provider Fallback Chain = different provider entirely.
+
+---
+
+## 🪄 Step 3: Configuring OpenClaw (The Easy Way)
+
+Once your provider is running in ClawProxy, adding it to OpenClaw is effortless using our built-in automation.
+
+### The "Prompt for AI" Feature
+
+ClawProxy features a sophisticated **"🪄 Prompt for AI"** button on every provider's page. This generates a perfectly tailored instruction set for your OpenClaw AI agent.
 
 1.  Click the **"🪄 Prompt for AI"** button on the provider's detail page.
 2.  **Copy the Generated Prompt**:
-    *   **For Supported Providers**: If the provider is officially supported, the prompt will automatically include the **Base URL**, **Provider Name**, and a curated list of the **Best Model IDs** and names.
-    *   **For Custom Providers**: If you are using a unique provider, ClawProxy provides a **comprehensive template**. In this case, you will see all connection details, but you must manually insert the specific **Model IDs** and names from the provider's official documentation into the prompt template.
+    *   **For Supported Providers**: The prompt automatically includes the **Base URL**, **Provider Name**, and a curated list of the **Best Model IDs**.
+    *   **For Custom Providers**: ClawProxy provides a comprehensive template with all connection details; you insert the specific Model IDs from the provider's documentation.
 3.  **Paste to OpenClaw**: Feed this prompt directly to your OpenClaw AI agent. It will update your \`openclaw.json\` configuration safely and without errors.
 
 ---
@@ -234,15 +359,18 @@ If you prefer manual editing, follow this structure in your \`~/.openclaw/opencl
 For the best experience, we recommend starting with these high-performance options:
 
 ### 1. Kilo Provider (Bypass - No Key Required)
+*   **Use Quick Setup template:** \`Kilo AI\`
 *   **Upstream URL**: \`https://api.kilo.ai/api/gateway\`
 *   **Top Models**: \`giga-potato-thinking\`, \`minimax/minimax-m2.5:free\`
 
 ### 2. OpenCode Provider (Bypass - Optimized for Coding)
+*   **Use Quick Setup template:** \`OpenCode Zen\`
 *   **Upstream URL**: \`https://opencode.ai/zen/v1\`
 *   **Top Models**: \`minimax-m2.5-free\`, \`big-pickle\`
 
 ### 3. Google AI Studio (Official Free Tier)
-*   **Upstream URL**: \`https://generativelanguage.googleapis.com\`
+*   **Use Quick Setup template:** \`Google Gemini\`
+*   **Upstream URL**: \`https://generativelanguage.googleapis.com/v1beta\`
 *   **Top Models**: \`gemini-3.1-pro-preview\`, \`gemini-2.5-flash\`
 
 ---
@@ -263,7 +391,7 @@ Get in touch with the developer or join our community for support and updates.
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
     <span>GitHub</span>
   </a>
-  
+
   <a href="https://reddit.com/user/Malek262" target="_blank" style="text-decoration: none; color: var(--text-main); display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-light); transition: all 0.2s;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M17 12h-5V7"></path></svg>
     <span>Reddit</span>
@@ -293,25 +421,41 @@ To add any of the providers below to OpenClaw, open your OpenClaw configuration 
 > **🔒 100% Local Privacy & Security:** 
 > ClawProxy runs entirely on your local machine. All your API keys, subscription tokens, and configuration details are stored securely in your local database. **No data, telemetry, or keys are ever sent to any external server.** You have complete ownership and privacy over your accounts.
 
-> **💡 Note about Models:** 
-> You **do not** individually add models inside the ClawProxy Dashboard. You only add the *Provider*. Models are defined dynamically inside your OpenClaw configuration (\`models.providers[...].models\` array). ClawProxy simply accepts any requested model from OpenClaw and passes it correctly to the Upstream base URL!
+> **💡 Note about Models:**
+> You **do not** need to add models inside the ClawProxy Dashboard for normal routing. Models are defined in your OpenClaw configuration (\`models.providers[...].models\` array). ClawProxy accepts any requested model and forwards it to the upstream.
+>
+> However, you can optionally add models to the provider's **Models tab** in ClawProxy to enable **Model Fallback** (automatic retry with a different model when one fails) and for convenient model ID selection in the **Provider Fallback Chain** settings.
 
 > **⚠️ Note on Model IDs:** 
 > The specific Model IDs used by external AI providers are subject to change without notice. If you experience unexpected routing behavior or model errors, please independently verify the current valid Model ID directly with the target provider's official documentation.
 
 ---
 
-## 🤖 Method 1: The "Prompt for AI" (Recommended)
+## 🚀 Method 1: Quick Setup (Recommended)
 
-ClawProxy features an intelligent **"🪄 Prompt for AI"** button on every provider's page. This generates a sophisticated, ready-to-use prompt that you can simply copy and paste to OpenClaw's AI agent.
+ClawProxy includes built-in **Provider Templates** for all major providers. Instead of typing URLs manually, just use Quick Setup.
 
-1.  **Add Provider**: Create your provider in the ClawProxy Dashboard.
+1.  Go to **Providers** → **Add Provider**.
+2.  Click **Quick Setup** and select your provider from the template grid.
+3.  All settings are pre-filled. Click **Create Provider**.
+4.  Go to the **API Keys** tab and add your key(s).
+5.  Copy the auto-generated **Base URL** from the top of the provider page.
+
+Available templates include: OpenRouter, Google Gemini, NVIDIA NIM, Groq, OpenAI, Anthropic, Ollama Cloud, Kilo AI, OpenCode Zen, Perplexity, Cerebras, Cohere, Z.AI API, Z.AI Coding, and Ollama (Local).
+
+---
+
+## 🤖 Method 2: The "Prompt for AI"
+
+ClawProxy features an intelligent **"🪄 Prompt for AI"** button on every provider's page. This generates a sophisticated, ready-to-use prompt that you can copy and paste directly to OpenClaw's AI agent.
+
+1.  **Add Provider**: Create your provider in the ClawProxy Dashboard (Quick Setup or Custom).
 2.  **Generate Prompt**: Click **"🪄 Prompt for AI"** on the provider's page.
 3.  **Deploy**: Paste the prompt to your OpenClaw agent to automatically configure the provider and its best models.
 
 ---
 
-## 📝 Method 2: Manual Configuration
+## 📝 Method 3: Manual Configuration
 
 If you prefer to edit your \`openclaw.json\` manually, use the structure below. Ensure you use the **auto-generated Base URL** provided by ClawProxy.
 
@@ -331,7 +475,7 @@ If you prefer to edit your \`openclaw.json\` manually, use the structure below. 
 2.  **Upstream URL**: Enter the official service endpoint.
 3.  **API Key Mode**: Select \`Managed\` (secure) or \`None\` (bypass).
 4.  **Base URL**: Copy the **auto-generated** proxy URL.
-5.  **Keys**: Add your API keys on the provider's specific management page.
+5.  **Keys**: Add your API keys in the provider's **API Keys** tab.
 
 -----
 
@@ -381,14 +525,10 @@ These providers are a special gift. I leverage internal methods to access high-p
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-kilo\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://api.kilo.ai/api/gateway\`
-5. **API Key Mode:** Select **None** *(Important: These bypass providers do not use keys)*
-6. Click **Create Provider**.
-7. Do **not** add any API keys to this provider.
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Kilo AI**
+2. Click **Create Provider**. *(API Key Mode is set to None automatically)*
+3. Do **not** add any API keys to this provider.
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -426,14 +566,10 @@ This provider offers high-performance coding and reasoning models. It uses two s
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-opencode\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://opencode.ai/zen/v1\`
-5. **API Key Mode:** Select **None** *(Important: These bypass providers do not use keys)*
-6. Click **Create Provider**.
-7. Do **not** add any API keys to this provider.
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **OpenCode Zen**
+2. Click **Create Provider**. *(API Key Mode is set to None automatically)*
+3. Do **not** add any API keys to this provider.
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -460,14 +596,11 @@ This specific model requires a different API format in ClawProxy. **Important:**
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-opencode-responses\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://opencode.ai/zen/v1\`
-5. **API Key Mode:** Select **None** *(Important: These bypass providers do not use keys)*
-6. Click **Create Provider**.
-7. Do **not** add any API keys to this provider.
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Custom**
+2. **Name:** \`custom-opencode-responses\`, **API Format:** \`OpenAI Responses\`, **Upstream URL:** \`https://opencode.ai/zen/v1\`, **API Key Mode:** \`None\`
+3. Click **Create Provider**.
+4. Do **not** add any API keys to this provider.
+5. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 ---
@@ -510,14 +643,10 @@ Access the latest frontier open-weight models (GLM-5, MiniMax, Qwen 3.5) hosted 
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`olamma\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://ollama.com/v1\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and paste \`sk-not-required\` (Ollama Cloud uses header auth, but ClawProxy manages the flow).
-8. Copy the generated **Base URL** and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Ollama Cloud**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add \`sk-not-required\` as the key (Ollama Cloud uses header auth; ClawProxy manages the flow).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -553,14 +682,10 @@ The most generous free tier with high rate limits. Requires a free API key from 
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-google\`
-3. **API Format:** Select **Google Gemini**
-4. **Upstream Base URL:** \`https://generativelanguage.googleapis.com\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Google Gemini**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Google AI Studio API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -592,14 +717,10 @@ Extreme speed inference for open models. Free tier is rate-limited but completel
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-groq\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://api.groq.com/openai\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Groq**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Groq API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -642,14 +763,10 @@ Aggregator for various free models. Requires an OpenRouter API key.
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-openrouter\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://openrouter.ai/api\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **OpenRouter**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your OpenRouter API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -690,14 +807,10 @@ High-performance quantization of top-tier models. Free tier is often available v
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-nvidia\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://integrate.api.nvidia.com\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **NVIDIA NIM**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your NVIDIA API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -727,14 +840,10 @@ Excellent for RAG and multilingual tasks. Free for development/research.
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-cohere\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://api.cohere.com\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Cohere**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Cohere API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -762,14 +871,10 @@ Specialized for high-throughput inference on open models.
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-cerebras\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://api.cerebras.ai\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Cerebras**
+2. Click **Create Provider**.
+3. Go to the **API Keys** tab and add your Cerebras API key(s).
+4. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 ---
@@ -782,37 +887,52 @@ If you have paid API accounts (such as Perplexity Pro Developer API, OpenAI API,
 > It does **NOT** support web session tokens, OAuth logins, or direct consumer web subscriptions (like putting your ChatGPT Plus or Claude Pro web account credentials). You must generate an actual API Key from the provider's developer console.
 
 ### Example: Perplexity Pro
-Use your Perplexity API key to access live web search and reasoning models.
+Use your Perplexity API key to access live web-search and reasoning models.
+
+Perplexity provides two APIs under the same base URL (\`https://api.perplexity.ai\`):
+*   **Sonar API** (\`/chat/completions\`) — Native search-augmented models.
+*   **Agent API** (\`/v1/agent\`) — Third-party frontier models with optional web search.
+
 *   **Upstream Base URL (in ClawProxy):** \`https://api.perplexity.ai\`
-*   **Provider Name:** \`custom-perplexity\`
-*   **Base URL:** \`http://localhost:3030/proxy/perplexity/v1\` "auto generate in ClawProxy dashboard"
+*   **Use Quick Setup template:** \`Perplexity\`
+*   **Base URL:** \`http://localhost:3030/proxy/custom-perplexity/v1\` "auto generate in ClawProxy dashboard"
 *   **API Format:** \`openai-completions\`
-*   **Models:**
-    *   \`sonar-reasoning-pro\`
-    *   \`sonar-pro\`
+*   **Sonar API Models:**
+    *   \`sonar\` — Fast, lightweight search model
+    *   \`sonar-pro\` — Advanced search with Pro Search capabilities
+    *   \`sonar-reasoning-pro\` — Advanced reasoning with Chain of Thought
+    *   \`sonar-deep-research\` — Deep research and comprehensive analysis
+*   **Agent API Models** (use prefix \`provider/model\`):
+    *   \`perplexity/sonar\`
+    *   \`anthropic/claude-opus-4-6\`, \`anthropic/claude-sonnet-4-6\`
+    *   \`openai/gpt-5.4\`, \`openai/gpt-5-mini\`
+    *   \`google/gemini-2.5-pro\`, \`google/gemini-2.5-flash\`
+    *   \`nvidia/nemotron-3-super-120b-a12b\`
+    *   \`xai/grok-4-1-fast-non-reasoning\`
 
 **Example Implementation in \`openclaw.json\`:**
 \`\`\`json
 "custom-perplexity": {
-  "baseUrl": "http://localhost:3030/proxy/perplexity/v1",
+  "baseUrl": "http://localhost:3030/proxy/custom-perplexity/v1",
   "apiKey": "dummy-key",
   "api": "openai-completions",
   "models": [
-      { "id": "sonar-reasoning-pro", "name": "sonar-reasoning-pro" },
-      { "id": "sonar-pro", "name": "sonar-pro" }
+      { "id": "sonar", "name": "Sonar" },
+      { "id": "sonar-pro", "name": "Sonar Pro" },
+      { "id": "sonar-reasoning-pro", "name": "Sonar Reasoning Pro" },
+      { "id": "sonar-deep-research", "name": "Sonar Deep Research" },
+      { "id": "anthropic/claude-sonnet-4-6", "name": "Agent: Claude Sonnet 4.6" },
+      { "id": "google/gemini-2.5-flash", "name": "Agent: Gemini 2.5 Flash" }
   ]
 }
 \`\`\`
 
 **How to configure in ClawProxy Dashboard:**
-1. Go to **Providers** → **Add Provider**
-2. **Name:** \`custom-perplexity\`
-3. **API Format:** Select **OpenAI Chat Completions**
-4. **Upstream Base URL:** \`https://api.perplexity.ai\`
-5. **API Key Mode:** Select **Managed**
-6. Click **Create Provider**.
-7. Click **Add API Key** inside the provider page and securely paste your key(s).
-8. Copy the generated **Base URL** (shown at the top of the provider page) and use it in your OpenClaw JSON.
+1. Go to **Providers** → **Add Provider** → **Quick Setup** → select **Perplexity**
+2. Click **Create Provider**.
+3. Click **Add API Key** and securely paste your Perplexity API key(s).
+4. *(Optional)* Go to the **Models** tab → click **Fetch from Provider** to load the full model list for use in fallback configurations.
+5. Copy the generated **Base URL** and use it in your OpenClaw JSON.
 
 
 
@@ -837,25 +957,28 @@ ClawProxy includes a built-in command-line interface (CLI) to help you manage th
 ---
 
 ## \`clawproxy start\`
-Starts the ClawProxy server in the background. Note that depending on your installation, you may just need to run the executable directly.
+Starts the ClawProxy server in the background as a system service.
 
 ## \`clawproxy stop\`
-Stops the currently running ClawProxy server gracefully.
+Stops the currently running ClawProxy server gracefully, waiting for active requests to complete before shutting down.
 
 ## \`clawproxy restart\`
-Restarts the ClawProxy server. This is useful if you have manually changed core configuration files or just want to refresh the service.
+Restarts the ClawProxy server. Use this after changing configuration or to refresh the service.
 
 ## \`clawproxy status\`
-Checks the current status of the ClawProxy server. It will tell you if the server is actively running in the background and listening for connections.
+Checks the current status of the ClawProxy server — shows whether it is running, the process ID, listening port, and uptime.
 
 ## \`clawproxy logs\`
-Displays the real-time logs of the ClawProxy server. 
-- Use this command to monitor incoming requests, verify that key rotation is working, and troubleshoot any API errors (like \`429\` or \`502\` responses).
-- You can typically exit the log view by pressing \`Ctrl + C\`.
+Displays the real-time logs of the ClawProxy server.
+- Use this command to monitor incoming requests, verify key rotation is working, trace fallback events, and troubleshoot API errors (like \`429\` or \`502\` responses).
+- Exit the log view by pressing \`Ctrl + C\`.
+
+## \`clawproxy uninstall\`
+Removes the ClawProxy background service from your system. This does not delete your database or configuration files.
 
 ---
 
-> **Tip:** Regular monitoring of \`clawproxy logs\` is the best way to ensure your fallback providers and smart key rotation are performing as expected!
+> **Tip:** Regular monitoring of \`clawproxy logs\` is the best way to ensure your Provider Fallback Chain, Model Fallback, Smart Key Rotation, and Circuit Breaker are all performing as expected.
 `,bv=`# Frequently Asked Questions (FAQ)
 
 Here are the most common questions regarding **ClawProxy** configuration and usage.
@@ -865,33 +988,66 @@ Here are the most common questions regarding **ClawProxy** configuration and usa
 ## 🔑 Providers & Keys
 
 ### Do I need to define my models in the ClawProxy dashboard?
-**No.** You only define the Provider and its Keys in ClawProxy. The actual Model selection happens in your client (like OpenClaw). When OpenClaw requests a specific model name, ClawProxy dynamically accepts it and forwards it to the Upstream URL. *(The only exception is specifying Target Model IDs for Fallback configurations).*
+**Generally, no.** You only define the Provider and its Keys in ClawProxy. The actual Model selection happens in your client (like OpenClaw). When OpenClaw requests a specific model name, ClawProxy accepts it and forwards it to the upstream.
+
+The **exception** is when you want to use **Model Fallback** — in that case, you add models to the provider's **Models** tab so ClawProxy knows what to fall back to. These saved models also appear as a convenient dropdown when configuring Target Model IDs in the Provider Fallback Chain.
+
+### What's the fastest way to add a new provider?
+Use the **Quick Setup** option in the Add Provider panel. It displays a grid of pre-built templates for all major providers (OpenRouter, Gemini, NVIDIA NIM, Groq, Perplexity, Ollama, Cerebras, Cohere, Z.AI, and more). Selecting one auto-fills the name, API format, upstream URL, and key mode — you only need to add your API key.
 
 ### Can I use different API formats together?
-**Yes.** ClawProxy translates standard client requests into the format required by the upstream provider. You can send OpenClaw requests in a standard format, and ClawProxy will handle the formatting behind the scenes based on the API format you selected when creating the provider.
+**Yes.** ClawProxy translates requests into the format required by each upstream provider. You configure the format once per provider, and ClawProxy handles all translation behind the scenes. You can also set a Provider Fallback Chain that routes between providers with different API formats.
 
 ### Why am I getting "Model Not Found" or routing errors?
-The specific Model IDs used by external AI providers are subject to change without notice. If you experience unexpected routing behavior or model errors, please independently verify the current valid Model ID directly with the target provider's official documentation.
+The specific Model IDs used by external AI providers are subject to change without notice. If you experience model errors, verify the current valid Model ID directly with the target provider's official documentation. You can also enable **Model Fallback** in the provider's Models tab, so ClawProxy will automatically retry with another model from your saved list when this happens.
 
 ---
 
 ## 🛡️ Reliability & Rotation
 
-### I have three free-tier keys for an AI service. The service rate-limits me after 10 requests. What happens in ClawProxy?
-Due to ClawProxy's Key Rotation, the first 10 requests will likely succeed on the first key. On the 11th request, the first key will return a 429 Rate Limit error. ClawProxy will instantly intercept this, bench the first key, and re-send the 11th request using your second key. The user will simply receive the response without ever knowing a rate limit occurred.
+### I have three free-tier keys for an AI service. What happens when I hit a rate limit?
+Due to ClawProxy's Smart Key Rotation, when your active key hits a 429 rate limit error, ClawProxy instantly flags that key for a cooldown period and re-sends the request using your second key. The user receives the response without ever knowing a rate limit occurred.
 
-### If I configure Provider A to fallback to Provider B, what happens if Provider A's network connection drops entirely?
-Because you explicitly configured Provider B as a fallback for Provider A, ClawProxy will detect the connection failure (e.g., a 502/503 error) and automatically attempt to process the request using Provider B and its associated Target Model ID.
+### What's the difference between Model Fallback and Provider Fallback?
+
+**Model Fallback** (configured in the **Models** tab):
+*   Stays within the *same provider* and *same API key*.
+*   Triggers when a specific *model* is unavailable (HTTP 404/400 with a model error).
+*   Retries with the next model in your priority list.
+*   Use this when you want automatic model switching within a single provider.
+
+**Provider Fallback Chain** (configured in the **Settings** tab):
+*   Switches to a *completely different provider*.
+*   Triggers when the entire primary provider fails (all keys exhausted, or the circuit breaker opens).
+*   You can configure multiple fallbacks tried in order (1 → 2 → 3...).
+*   Each fallback entry can optionally target a specific model on that provider.
+
+### If I configure a Provider Fallback Chain with Provider B and C, but B is also down, does it try C?
+**Yes.** ClawProxy tries each provider in the chain in order until one succeeds. If B fails, it automatically tries C.
+
+### If I configure Provider A to fallback to Provider B, what happens if Provider A's connection drops entirely?
+ClawProxy detects the failure (network error or HTTP 5xx) and automatically routes to Provider B and its associated Target Model ID. If you have a chain of fallbacks, it will try each one in order.
+
+### What is the Circuit Breaker?
+The Circuit Breaker is an automatic health monitor. If a provider accumulates 5 failures within 60 seconds, ClawProxy stops sending requests to it for 30 seconds (the "cooldown"). During cooldown, all requests go directly to your configured fallback chain — eliminating the latency of waiting for a clearly unavailable provider to fail on each request.
+
+After the cooldown, ClawProxy sends a single test request to check recovery. On success, normal routing resumes automatically. You can also manually reset the circuit breaker from the provider's **Settings** tab.
 
 ---
 
 ## 🛠️ General Troubleshooting
 
 ### Where can I see what the proxy is doing?
-Use the ClawProxy CLI! Simply open your terminal in the installation directory and run \`clawproxy logs\` to monitor real-time traffic, error intercepts, and see which keys are being rotated.
+Use the **Logs** section in the ClawProxy dashboard for a real-time and historical view of all requests, responses, errors, and fallback events. You can also use the CLI: run \`clawproxy logs\` in your terminal to monitor live traffic.
 
-### How do I restart the proxy if I get stuck?
-You can use the \`clawproxy restart\` command to quickly reboot the service.
+### How do I restart the proxy?
+Run \`clawproxy restart\` from your terminal to quickly reboot the service.
+
+### How do I fetch the available models for a provider?
+Go to the provider's **Models** tab and click **Fetch from Provider**. ClawProxy will query the upstream API and display the available models. Select any you want to add to your saved list. For providers without a public models endpoint (like Perplexity or Anthropic), ClawProxy returns the known supported model list automatically.
+
+### The dashboard is slow to load when I have many providers — is that normal?
+On large setups with many providers and extensive logs, initial loading can take a few seconds. This is expected behavior and resolves quickly once data is loaded.
 
 > **Still need help?** Reach out through GitHub, Reddit, or Email as listed in the documentation.
 `,xv=e=>e.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{E0020}-\u{E007F}\u{FE0F}\u{200D}\u{1F400}-\u{1F4FF}]/gu,``).trim();function Sv(e){let t=new Zf,n=e.split(`
