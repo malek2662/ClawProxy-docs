@@ -19,9 +19,9 @@ export default function LandingPage() {
 
     const features = [
         {
-            title: 'Multi-Provider Routing',
-            desc: 'Route requests via per-provider endpoints. Manage OpenAI, Anthropic, Gemini and more from a single interface.',
-            icon: <Layers className="feature-icon" />
+            title: 'Quick Setup Templates',
+            desc: 'Get running in seconds with pre-configured templates for all major AI providers. Simply select, add key, and go.',
+            icon: <Zap className="feature-icon" />
         },
         {
             title: 'Smart Key Rotation',
@@ -29,9 +29,14 @@ export default function LandingPage() {
             icon: <RefreshCw className="feature-icon" />
         },
         {
-            title: 'Provider Fallback',
-            desc: 'Auto-failover to backup providers with automatic model rewriting. If your primary provider fails, your AI brain keeps thinking.',
+            title: 'Advanced Failover',
+            desc: 'Model-level fallback and multi-provider failover chains ensure your AI brain keeps thinking even during outages.',
             icon: <Shield className="feature-icon" />
+        },
+        {
+            title: 'Multi-Provider Routing',
+            desc: 'Route requests via per-provider endpoints. Manage OpenAI, Anthropic, Gemini and more from a single interface.',
+            icon: <Layers className="feature-icon" />
         },
         {
             title: 'Zero-Buffer Streaming',
@@ -42,11 +47,6 @@ export default function LandingPage() {
             title: 'Real-time Dashboard',
             desc: 'Professional dark-themed React dashboard for configuration and monitoring. Add keys, check logs, and manage providers easily.',
             icon: <Server className="feature-icon" />
-        },
-        {
-            title: 'ClawProxy Knowledge Base',
-            desc: 'Detailed documentation to help you configure, maximize utility, and understand the internal workings of ClawProxy.',
-            icon: <Search className="feature-icon" />
         }
     ];
 
@@ -199,7 +199,7 @@ export default function LandingPage() {
 
             {/* Showcase Sections */}
 
-            {/* 1. Providers Management (Moved to Top) */}
+            {/* 1. Providers Management */}
             <section style={{ padding: '80px 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
                 <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
                     <div style={{ flex: '1 1 400px' }}>
@@ -224,7 +224,103 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* 2. [NEW] AI Prompt Assistant Section */}
+            {/* 2. Quick Setup & Templates (NEW) */}
+            <section style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
+                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
+                    <div style={{ flex: '1 1 400px' }}>
+                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Quick Setup Templates</h2>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
+                            Get up and running in seconds. ClawProxy provides a rich library of pre-configured templates for all popular AI providers. Select a template, add your API key, and you're ready to start routing.
+                        </p>
+                        <Link to="/docs?tab=knowledgeBase&anchor=feature-1-provider-templates-quick-setup" className="btn-secondary">
+                            View Provider Templates
+                        </Link>
+                    </div>
+                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/providers-templat.png')}>
+                        <img
+                            src="assets/screenshots/providers-templat.png"
+                            alt="Quick Setup Templates"
+                            className="img-showcase"
+                            style={{ margin: 0, transition: 'all 0.3s ease' }}
+                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* 3. Advanced Failover & Fallback (NEW) */}
+            <section style={{ padding: '80px 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
+                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 400px' }}>
+                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Advanced Failover & Fallback</h2>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
+                            Ensure maximum uptime with multi-layered redundancy. ClawProxy handles both model-level unavailability and total provider outages seamlessly.
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div>
+                                <h4 style={{ color: 'var(--primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <RefreshCw size={18} /> Model Fallback
+                                </h4>
+                                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', margin: 0 }}>
+                                    Silently retry with alternative models within the same provider if the primary model is unavailable.
+                                </p>
+                                <Link to="/docs?tab=knowledgeBase&anchor=feature-3-model-fallback-within-the-same-provider" style={{ color: 'var(--primary)', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
+                                    Learn about Model Fallback →
+                                </Link>
+                            </div>
+                            <div>
+                                <h4 style={{ color: 'var(--primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Shield size={18} /> Provider Fallback Chain
+                                </h4>
+                                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', margin: 0 }}>
+                                    Configure prioritized chains of backup providers. If a provider goes down, ClawProxy automatically switches to the next one in line.
+                                </p>
+                                <Link to="/docs?tab=knowledgeBase&anchor=feature-4-provider-fallback-chain-switch-providers" style={{ color: 'var(--primary)', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
+                                    Learn about Fallback Chains →
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                    <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
+                        <img
+                            src="assets/screenshots/Model-Fallback.png"
+                            alt="Model Fallback Configuration"
+                            className="img-showcase"
+                            style={{
+                                margin: 0,
+                                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                position: 'relative',
+                                zIndex: 2
+                            }}
+                            onClick={() => setSelectedImage('assets/screenshots/Model-Fallback.png')}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.zIndex = 3; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.zIndex = 2; }}
+                        />
+                        <img
+                            src="assets/screenshots/Provider-Fallback-Chain.png"
+                            alt="Provider Fallback Chain Configuration"
+                            className="img-showcase"
+                            style={{
+                                margin: '-40px 0 0 40px',
+                                width: '90%',
+                                opacity: 0.9,
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                border: '1px solid rgba(80, 223, 144, 0.2)',
+                                zIndex: 1
+                            }}
+                            onClick={() => setSelectedImage('assets/screenshots/Provider-Fallback-Chain.png')}
+                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.opacity = '1'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '0.9'; }}
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* 4. AI Prompt Assistant */}
             <section style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
                 <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
                     <div style={{ flex: '1 1 400px' }}>
@@ -288,8 +384,8 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* 3. Logs Showcase Section */}
-            <section style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
+            {/* 5. Logs Showcase Section */}
+            <section style={{ padding: '80px 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
                 <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Real-time Request Logs</h2>
