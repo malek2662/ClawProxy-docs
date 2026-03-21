@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search, X } from 'lucide-react';
+import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search, X, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clawLogo from '../assets/claw-logo.svg';
 
@@ -47,6 +47,11 @@ export default function LandingPage() {
             title: 'Real-time Dashboard',
             desc: 'Professional dark-themed React dashboard for configuration and monitoring. Add keys, check logs, and manage providers easily.',
             icon: <Server className="feature-icon" />
+        },
+        {
+            title: 'Smart Notifications',
+            desc: 'Instant alerts for key rotations, circuit breaker events, and fallback activations — delivered live via WebSocket directly to your dashboard.',
+            icon: <Bell className="feature-icon" />
         }
     ];
 
@@ -418,6 +423,55 @@ export default function LandingPage() {
                             style={{ margin: 0, transition: 'all 0.3s ease' }}
                             onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                             onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* 6. Real-time Notifications */}
+            <section style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
+                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
+                    <div style={{ flex: '1 1 400px' }}>
+                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>🔔 Real-time Notifications</h2>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
+                            Stay ahead of every event without watching logs. ClawProxy's built-in notification system delivers instant alerts for key rotations, circuit breaker trips, fallback activations, and more — all via WebSocket, directly in the dashboard.
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
+                            {[
+                                { label: 'Key Disabled', color: '#ef4444', desc: 'Instant alert when an API key is permanently disabled' },
+                                { label: 'Circuit Open', color: '#ef4444', desc: 'Know the moment a provider trips its circuit breaker' },
+                                { label: 'Model / Provider Fallback', color: '#f59e0b', desc: 'See every automatic fallback as it happens' },
+                                { label: 'Recovered', color: '#22c55e', desc: 'Confirmed when a provider comes back online' },
+                            ].map((item) => (
+                                <div key={item.label} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                    <span style={{ background: `${item.color}20`, color: item.color, border: `1px solid ${item.color}40`, borderRadius: '6px', padding: '2px 10px', fontSize: '0.78rem', fontWeight: '600', whiteSpace: 'nowrap', marginTop: '2px' }}>
+                                        {item.label}
+                                    </span>
+                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.5' }}>{item.desc}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <Link to="/docs?tab=knowledgeBase&anchor=feature-6-real-time-notifications" className="btn-secondary">
+                            Learn about Notifications →
+                        </Link>
+                    </div>
+                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/notifications.png')}>
+                        <img
+                            src="assets/screenshots/notifications.png"
+                            alt="Real-time Notifications"
+                            className="img-showcase"
+                            style={{ margin: 0, transition: 'all 0.3s ease' }}
+                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                            onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.parentElement.innerHTML = `
+                                    <div style="background:rgba(255,255,255,0.03);border:2px dashed rgba(255,255,255,0.1);border-radius:12px;padding:60px 40px;text-align:center;color:rgba(255,255,255,0.3);">
+                                        <div style="font-size:3rem;margin-bottom:12px;">🔔</div>
+                                        <div style="font-size:0.9rem;">Screenshot coming soon</div>
+                                        <div style="font-size:0.75rem;margin-top:6px;opacity:0.6;">Add: assets/screenshots/notifications.png</div>
+                                    </div>`;
+                            }}
                         />
                     </div>
                 </div>
