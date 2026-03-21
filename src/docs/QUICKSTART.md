@@ -3,6 +3,8 @@
 This guide will walk you through the professional setup of **ClawProxy** and its integration with **OpenClaw**.
 
 > **ℹ️ Installation Note:** ClawProxy is premium software. After completing your payment, you will receive your personal copy of the software along with specific installation instructions.
+>
+> **Version 1.0.8**
 
 ---
 
@@ -77,11 +79,24 @@ Found in the **Settings** tab of any provider.
 If the **entire provider** fails (all keys exhausted, or the provider is down), ClawProxy will automatically route to a backup provider in order.
 
 1.  Go to the provider's **Settings** tab → **Provider Fallback Chain** section.
-2.  Click **Add Fallback Provider** and select a backup provider.
-3.  Optionally specify a **Target Model ID** for the fallback provider. If the fallback provider has saved models (from its Models tab), they will appear as a dropdown to choose from.
+2.  Click **Add Fallback Provider** — the list automatically shows only providers with the **same API format** as your current provider (e.g., an OpenAI-format provider will only show other OpenAI-format providers).
+3.  Optionally specify a **Target Model ID**. If the fallback provider has saved models, they appear as a dropdown.
 4.  Add multiple fallback providers — they will be tried in order (1 → 2 → 3...) until one succeeds.
+5.  Each entry is saved immediately — no need to click a separate Save button for the chain.
 
 > **Key difference:** Model Fallback = same provider, different model. Provider Fallback Chain = different provider entirely.
+
+---
+
+### 🔔 Monitoring with Notifications
+
+ClawProxy features a built-in **notification bell** in the dashboard sidebar. It delivers real-time alerts for every important event:
+
+*   A key getting rate-limited or disabled
+*   A circuit breaker tripping or recovering
+*   A model or provider fallback being activated
+
+Click any notification to navigate directly to the affected provider. Use this alongside the **Logs** section for full visibility into what ClawProxy is doing on your behalf.
 
 ---
 
