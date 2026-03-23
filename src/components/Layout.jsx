@@ -1,14 +1,14 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Github, Book, Home, Settings, Code } from 'lucide-react';
+import { Book, Home, Mail } from 'lucide-react';
 import clawLogo from '../assets/claw-logo.svg';
 
 export default function Layout() {
     const location = useLocation();
 
     const navLinks = [
-        { name: 'Home', path: '/', icon: <Home size={18} /> },
-        { name: 'Documentation', path: '/docs', icon: <Book size={18} /> }
+        { name: 'Home', path: '/', icon: <Home size={16} /> },
+        { name: 'Documentation', path: '/docs', icon: <Book size={16} /> }
     ];
 
     return (
@@ -23,51 +23,49 @@ export default function Layout() {
                     </Link>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                        <div style={{ display: 'flex', gap: '16px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
                             {navLinks.map((link) => {
                                 const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
-                                if (link.name === 'Documentation') {
-                                    return (
-                                        <Link
-                                            key={link.path}
-                                            to={link.path}
-                                            className={isActive ? "btn-primary" : "btn-secondary"}
-                                            style={{ padding: '6px 14px', fontSize: '0.9rem' }}
-                                        >
-                                            {link.icon}
-                                            <span style={{ display: 'none', '@media (min-width: 768px)': { display: 'inline' } }}>
-                                                {link.name}
-                                            </span>
-                                        </Link>
-                                    )
-                                }
                                 return (
                                     <Link
                                         key={link.path}
                                         to={link.path}
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '8px',
-                                            color: isActive ? 'var(--primary)' : 'var(--text-muted)',
-                                            fontWeight: isActive ? '500' : '400',
-                                            transition: 'color 0.2s',
-                                        }}
+                                        className={isActive ? "btn-primary" : "btn-secondary"}
+                                        style={{ padding: '6px 14px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
                                     >
                                         {link.icon}
-                                        <span style={{ display: 'none', '@media (min-width: 768px)': { display: 'inline' } }}>
-                                            {link.name}
-                                        </span>
+                                        {link.name}
                                     </Link>
-                                )
+                                );
                             })}
                         </div>
 
                         <div style={{ width: '1px', height: '24px', background: 'var(--border-light)' }}></div>
 
-                        <a href="https://github.com/malek262/clawproxy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)' }}>
-                            <Github size={20} />
-                        </a>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <a
+                                href="mailto:malekqq1@gmail.com"
+                                title="Contact via Email"
+                                style={{ color: 'var(--text-muted)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                            >
+                                <Mail size={20} />
+                            </a>
+                            <a
+                                href="https://reddit.com/user/Malek262"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Contact via Reddit"
+                                style={{ color: 'var(--text-muted)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
+                                onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                                onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Reddit">
+                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"/>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -108,7 +106,6 @@ export default function Layout() {
                             <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: '600', margin: 0 }}>Project</h4>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <Link to="/docs" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'var(--text-muted)'}>Documentation</Link>
-                                <a href="https://github.com/malek262/clawproxy" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'var(--text-muted)'}>GitHub Repository</a>
                                 <Link to="/docs" style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'var(--text-muted)'}>Quickstart Guide</Link>
                             </div>
                         </div>
@@ -117,14 +114,13 @@ export default function Layout() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: '600', margin: 0 }}>Connect</h4>
                             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                                <a href="mailto:malekqq1@gmail.com" title="Email" style={{ color: 'var(--text-muted)', transition: 'all 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                                <a href="mailto:malekqq1@gmail.com" title="Email" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path><rect width="20" height="16" x="2" y="4" rx="2"></rect></svg>
                                 </a>
-                                <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" style={{ color: 'var(--text-muted)', transition: 'all 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.25a1.25 1.25 0 0 1-2.498.051l-2.497.553.504 2.417c1.589.12 3.026.66 4.095 1.489.345-.308.8-.499 1.301-.499a1.93 1.93 0 0 1 1.93 1.93c0 .736-.41 1.377-1.02 1.701.012.157.017.317.017.477 0 2.383-2.671 4.314-5.966 4.314-3.295 0-5.966-1.931-5.966-4.314 0-.153.006-.306.015-.458a1.86 1.86 0 0 1-1.1-1.701c0-1.066.864-1.93 1.93-1.93.52 0 .991.205 1.343.541 1.082-.816 2.532-1.341 4.128-1.442l-.634-2.885 2.126-.47a1.24 1.24 0 0 1 .195-.015zM8.122 12.14a1.14 1.14 0 1 0 0 2.28 1.14 1.14 0 0 0 0-2.28zm7.755 0a1.14 1.14 0 1 0 0 2.28 1.14 1.14 0 0 0 0-2.28zm-5.048 3.51c.36.36.945.36 1.305 0a.395.395 0 0 1 .559.559c-.669.669-1.754.669-2.423 0a.395.395 0 0 1 .559-.559z" /></svg>
-                                </a>
-                                <a href="https://github.com/malek262" target="_blank" rel="noopener noreferrer" title="GitHub" style={{ color: 'var(--text-muted)', transition: 'all 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                                    <Github size={24} />
+                                <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-label="Reddit">
+                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"/>
+                                    </svg>
                                 </a>
                             </div>
                         </div>
@@ -148,7 +144,7 @@ export default function Layout() {
                             </p>
                         </div>
                         <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                            Developed by <a href="https://github.com/malek262" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'none' }}>malek262</a>
+                            Developed by malek262
                         </div>
                     </div>
                 </div>
