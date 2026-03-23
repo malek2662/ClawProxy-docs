@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search, X, Bell } from 'lucide-react';
+import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search, X, Bell, CreditCard, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clawLogo from '../assets/claw-logo.svg';
 
 export default function LandingPage() {
     const [selectedImage, setSelectedImage] = useState(null);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-    // Prevent body scroll when lightbox is open
+    // Prevent body scroll when any modal is open
     React.useEffect(() => {
-        if (selectedImage) {
+        if (selectedImage || showPaymentModal) {
             document.body.style.overflow = 'hidden';
         } else {
             document.body.style.overflow = 'unset';
         }
         return () => { document.body.style.overflow = 'unset'; };
-    }, [selectedImage]);
+    }, [selectedImage, showPaymentModal]);
 
     const features = [
         {
@@ -78,9 +79,9 @@ export default function LandingPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '60px' }}>
                     <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-                        <a href="https://paypal.me/ClawProxy/21.30USD" target="_blank" rel="noopener noreferrer" className="btn-primary hero-cta-btn" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
+                        <button onClick={() => setShowPaymentModal(true)} className="btn-primary hero-cta-btn" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
                             Get Lifetime Access — $20
-                        </a>
+                        </button>
                         <Link to="/docs" className="btn-secondary hero-cta-btn" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
                             Documentation
                         </Link>
@@ -491,6 +492,133 @@ export default function LandingPage() {
                     </div>
                 </div>
             </section>
+            {/* Payment Modal via Portal */}
+            {showPaymentModal && createPortal(
+                <div
+                    style={{
+                        position: 'fixed', top: 0, left: 0,
+                        width: '100vw', height: '100vh',
+                        backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                        backdropFilter: 'blur(12px)',
+                        display: 'flex', justifyContent: 'center', alignItems: 'center',
+                        zIndex: 9999, padding: '20px',
+                        animation: 'fadeIn 0.2s ease-out'
+                    }}
+                    onClick={() => setShowPaymentModal(false)}
+                >
+                    <div
+                        style={{
+                            background: 'var(--bg-card)',
+                            border: '1px solid var(--border-light)',
+                            borderRadius: '20px',
+                            padding: '36px 32px',
+                            maxWidth: '520px',
+                            width: '100%',
+                            boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
+                            position: 'relative',
+                            animation: 'scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button */}
+                        <button
+                            style={{
+                                position: 'absolute', top: '16px', right: '16px',
+                                background: 'rgba(255,255,255,0.05)',
+                                border: '1px solid var(--border-light)',
+                                borderRadius: '50%', width: '36px', height: '36px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: 'var(--text-muted)', cursor: 'pointer', transition: 'all 0.2s'
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'var(--text-main)'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+                            onClick={() => setShowPaymentModal(false)}
+                        >
+                            <X size={18} />
+                        </button>
+
+                        {/* Header */}
+                        <div style={{ marginBottom: '28px' }}>
+                            <h3 style={{ fontSize: '1.4rem', fontWeight: '600', color: 'var(--text-main)', marginBottom: '8px' }}>
+                                Choose Payment Method
+                            </h3>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.5' }}>
+                                ClawProxy Lifetime License —{' '}
+                                <span style={{ color: 'var(--primary)', fontWeight: '600' }}>$20</span>
+                                <span style={{ fontSize: '0.82rem', opacity: 0.7 }}> + PayPal fees</span>
+                            </p>
+                        </div>
+
+                        {/* Payment options */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {/* Option 1: PayPal.me */}
+                            <a
+                                href="https://paypal.me/ClawProxy/21.30USD"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setShowPaymentModal(false)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '16px',
+                                    background: 'var(--bg-darker)',
+                                    border: '1px solid var(--border-light)',
+                                    borderRadius: '12px', padding: '18px 20px',
+                                    textDecoration: 'none', color: 'var(--text-main)',
+                                    transition: 'all 0.2s ease', cursor: 'pointer'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(80,223,144,0.2)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-light)'; e.currentTarget.style.boxShadow = 'none'; }}
+                            >
+                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#003087', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.554 9.488c.121-.79.121-1.455 0-2.01C19.031 4.906 16.789 4 13.91 4H8.976a1 1 0 0 0-.988.848L6 18.785h3.717l.467-2.982h1.8c4.222 0 6.872-1.985 7.476-5.47l.094-.845zm-4.624 2.65c-.31 1.97-1.73 2.635-3.773 2.635h-.939l.688-4.391h.979c2.015 0 3.315.535 3.045 1.756z"/></svg>
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: '600', fontSize: '0.97rem', marginBottom: '3px' }}>PayPal.me</div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>Quick payment with your PayPal account</div>
+                                </div>
+                                <ExternalLink size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+                            </a>
+
+                            {/* Option 2: Secure Payment Page */}
+                            <a
+                                href="https://www.paypal.com/ncp/payment/LHXXSDFZYVUSJ"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => setShowPaymentModal(false)}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '16px',
+                                    background: 'var(--bg-darker)',
+                                    border: '1px solid var(--border-light)',
+                                    borderRadius: '12px', padding: '18px 20px',
+                                    textDecoration: 'none', color: 'var(--text-main)',
+                                    transition: 'all 0.2s ease', cursor: 'pointer'
+                                }}
+                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(80,223,144,0.2)'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-light)'; e.currentTarget.style.boxShadow = 'none'; }}
+                            >
+                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(80,223,144,0.1)', border: '1px solid rgba(80,223,144,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <CreditCard size={20} color="var(--primary)" />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: '600', fontSize: '0.97rem', marginBottom: '3px' }}>Other Payment Methods</div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>Visa, Mastercard, debit card, Apple Pay — via secure PayPal payment</div>
+                                </div>
+                                <ExternalLink size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
+                            </a>
+                        </div>
+
+                        {/* Footer note */}
+                        <p style={{ marginTop: '20px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: '1.5' }}>
+                            After payment, send your transaction screenshot to{' '}
+                            <a href="mailto:support@clawproxy.qzz.io" style={{ color: 'var(--primary)' }}>support@clawproxy.qzz.io</a>
+                            {' '}or via{' '}
+                            <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>Reddit</a>
+                            {' '}to receive your install instructions.
+                        </p>
+                    </div>
+                </div>,
+                document.body
+            )}
+
             {/* Lightbox Modal via Portal */}
             {selectedImage && createPortal(
                 <div
