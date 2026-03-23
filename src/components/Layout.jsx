@@ -17,7 +17,7 @@ export default function Layout() {
                 <div className="container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-main)' }}>
                         <img src={clawLogo} alt="ClawProxy Logo" style={{ width: '28px', height: '28px' }} />
-                        <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: '1.2rem', letterSpacing: '0.5px' }}>
+                        <span className="nav-logo-text" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: '1.2rem', letterSpacing: '0.5px' }}>
                             ClawProxy
                         </span>
                     </Link>
@@ -34,7 +34,7 @@ export default function Layout() {
                                         style={{ padding: '6px 14px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
                                     >
                                         {link.icon}
-                                        {link.name}
+                                        <span className="nav-btn-label">{link.name}</span>
                                     </Link>
                                 );
                             })}
