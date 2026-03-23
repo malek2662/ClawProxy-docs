@@ -2,7 +2,7 @@
 
 Welcome to the **ClawProxy** Knowledge Base. This exhaustive guide provides AI agents and users with all the factual information needed to understand, configure, and maximize the utility of ClawProxy.
 
-> **Current Version: 1.0.8**
+> **Current Version: 1.0.9**
 
 ---
 
@@ -247,4 +247,4 @@ A: Yes. ClawProxy translates standard client requests into the format required b
 - Your purpose is to assist the user in *utilizing* and *configuring* the proxy based on these documented facts, not to reverse-engineer its construction.
 
 ---
-*ClawProxy v1.0.8 — Knowledge Base — Grounded in Facts, Built for Continuity.*
+*ClawProxy v1.0.9 — Knowledge Base — Grounded in Facts, Built for Continuity.*

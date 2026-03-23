@@ -44,7 +44,7 @@ export default function Layout() {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <a
-                                href="mailto:malekqq1@gmail.com"
+                                href="mailto:support@clawproxy.qzz.io"
                                 title="Contact via Email"
                                 style={{ color: 'var(--text-muted)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
                                 onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
@@ -114,7 +114,7 @@ export default function Layout() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: '600', margin: 0 }}>Connect</h4>
                             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                                <a href="mailto:malekqq1@gmail.com" title="Email" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                                <a href="mailto:support@clawproxy.qzz.io" title="Email" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path><rect width="20" height="16" x="2" y="4" rx="2"></rect></svg>
                                 </a>
                                 <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>

@@ -4,7 +4,7 @@ This guide will walk you through the professional setup of **ClawProxy** and its
 
 > **ℹ️ Installation Note:** ClawProxy is premium software. After completing your payment, you will receive your personal copy of the software along with specific installation instructions.
 >
-> **Version 1.0.8**
+> **Version 1.0.9**
 
 ---
 
@@ -176,7 +176,7 @@ Get in touch with the developer or join our community for support and updates.
     <span>Reddit</span>
   </a>
 
-  <a href="mailto:malekqq1@gmail.com" style="text-decoration: none; color: var(--text-main); display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-light); transition: all 0.2s;">
+  <a href="mailto:support@clawproxy.qzz.io" style="text-decoration: none; color: var(--text-main); display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border-light); transition: all 0.2s;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
     <span>Email</span>
   </a>

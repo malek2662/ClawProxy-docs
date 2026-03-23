@@ -114,7 +114,7 @@ export default function LandingPage() {
 
                         <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
                             {/* Email Link */}
-                            <a href="mailto:malekqq1@gmail.com"
+                            <a href="mailto:support@clawproxy.qzz.io"
                                 title="Contact via Email"
                                 style={{
                                     color: 'var(--primary)',

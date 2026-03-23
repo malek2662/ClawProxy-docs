@@ -541,6 +541,6 @@ If you need support, have questions, or want to report an issue, feel free to re
 
 *   **GitHub:** [@malek262](https://github.com/malek262)
 *   **Reddit:** [u/Malek262](https://reddit.com/user/Malek262)
-*   **Email:** [malekqq1@gmail.com](mailto:malekqq1@gmail.com)
+*   **Email:** [support@clawproxy.qzz.io](mailto:support@clawproxy.qzz.io)
 
 > *Thank you for using ClawProxy!*

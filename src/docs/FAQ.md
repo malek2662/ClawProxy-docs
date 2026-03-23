@@ -2,7 +2,7 @@
 
 Here are the most common questions regarding **ClawProxy** configuration and usage.
 
-> **Version 1.0.8**
+> **Version 1.0.9**
 
 ---
 
