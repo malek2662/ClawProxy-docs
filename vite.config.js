@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   // Fixed: base must match the repository name for GitHub Pages sub-directory hosting
-  base: '/ClawProxy-docs/',
+  base: '/',
 })
