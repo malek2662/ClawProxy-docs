@@ -59,11 +59,11 @@ export default function LandingPage() {
         <div className="animate-fade-in">
             {/* Hero Section */}
             <section style={{ textAlign: 'center', padding: '80px 20px', position: 'relative', overflow: 'hidden' }}>
-                <div style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: '80vw', height: '80vh', background: 'radial-gradient(circle, rgba(80, 223, 144, 0.08) 0%, rgba(18, 18, 18, 0) 70%)', zIndex: -1, borderRadius: '50%' }}></div>
+                <div className="hero-glow" style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: '80vw', height: '80vh', background: 'radial-gradient(circle, rgba(80, 223, 144, 0.08) 0%, rgba(18, 18, 18, 0) 70%)', zIndex: -1, borderRadius: '50%' }}></div>
 
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '1.5rem' }}>
                     <img src={clawLogo} alt="ClawProxy Logo" style={{ width: '64px', height: '64px', flexShrink: 0 }} />
-                    <h1 style={{ fontSize: '3.5rem', margin: 0, maxWidth: '1000px', lineHeight: '1.1' }}>
+                    <h1 className="hero-title" style={{ fontSize: '3.5rem', margin: 0, maxWidth: '1000px', lineHeight: '1.1' }}>
                         Self-hosted <span className="gradient-text">AI Routing Proxy</span>
                     </h1>
                 </div>
@@ -78,14 +78,14 @@ export default function LandingPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '60px' }}>
                     <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-                        <a href="https://paypal.me/ClawProxy/21.30USD" target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
+                        <a href="https://paypal.me/ClawProxy/21.30USD" target="_blank" rel="noopener noreferrer" className="btn-primary hero-cta-btn" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
                             Get Lifetime Access — $20
                         </a>
-                        <Link to="/docs" className="btn-secondary" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
+                        <Link to="/docs" className="btn-secondary hero-cta-btn" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
                             Documentation
                         </Link>
                     </div>
-                    <div style={{
+                    <div className="payment-pill" style={{
                         marginTop: '30px',
                         padding: '16px 32px',
                         background: 'rgba(255, 255, 255, 0.012)',
@@ -100,7 +100,7 @@ export default function LandingPage() {
                         gap: '24px',
                         boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)'
                     }}>
-                        <p style={{
+                        <p className="payment-pill-text" style={{
                             fontSize: '0.92rem',
                             color: 'var(--text-muted)',
                             margin: 0,
