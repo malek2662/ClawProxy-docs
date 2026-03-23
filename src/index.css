@@ -353,3 +353,73 @@ a:hover {
     display: none !important;
   }
 }
+
+/* ============================================================
+   Mobile Responsive — Landing Page & Layout
+   ============================================================ */
+
+/* --- Navbar: hide logo text and button labels on small screens --- */
+@media (max-width: 640px) {
+  .nav-btn-label {
+    display: none;
+  }
+
+  /* Make nav buttons square / icon-only with tight padding */
+  .glass-nav .btn-primary,
+  .glass-nav .btn-secondary {
+    padding: 6px 10px !important;
+    gap: 0 !important;
+  }
+}
+
+/* --- Hero glow: less intense / smaller on mobile --- */
+@media (max-width: 768px) {
+  .hero-glow {
+    width: 140vw !important;
+    height: 45vh !important;
+    top: -5% !important;
+    opacity: 0.55 !important;
+  }
+}
+
+/* --- Hero title: scale down font size on mobile --- */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.2rem !important;
+    line-height: 1.15 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.75rem !important;
+  }
+}
+
+/* --- Hero CTA buttons row: smaller font/padding + stack on very small --- */
+@media (max-width: 768px) {
+  .hero-cta-btn {
+    padding: 8px 16px !important;
+    font-size: 0.9rem !important;
+    white-space: nowrap;
+  }
+}
+
+/* --- Payment pill: stack on mobile, allow text to wrap --- */
+@media (max-width: 768px) {
+  .payment-pill {
+    flex-direction: column !important;
+    border-radius: 16px !important;
+    padding: 16px 20px !important;
+    gap: 14px !important;
+    align-items: center !important;
+    max-width: 100% !important;
+  }
+
+  .payment-pill-text {
+    white-space: normal !important;
+    text-align: center !important;
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+  }
+}
