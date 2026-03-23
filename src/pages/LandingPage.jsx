@@ -78,7 +78,7 @@ export default function LandingPage() {
 
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '60px' }}>
                     <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-                        <a href="https://paypal.me/ClawProxy/20USD" target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
+                        <a href="https://paypal.me/ClawProxy/21.30USD" target="_blank" rel="noopener noreferrer" className="btn-primary" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
                             Get Lifetime Access — $20
                         </a>
                         <Link to="/docs" className="btn-secondary" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
