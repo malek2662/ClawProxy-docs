@@ -305,6 +305,8 @@ This guide will walk you through the professional setup of **ClawProxy** and its
 >
 > **Version 1.0.9**
 
+> **🔑 Activation Required:** After installing ClawProxy, the app will display your unique **Installation ID**. Reply with this ID using the **same email or channel you used to confirm your purchase** — your installation will then be activated promptly. Once activated, everything works automatically with no further steps needed.
+
 ---
 
 ## 🚀 Step 1: Adding a Provider in ClawProxy
