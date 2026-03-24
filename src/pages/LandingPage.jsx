@@ -537,82 +537,56 @@ export default function LandingPage() {
                             <X size={18} />
                         </button>
 
-                        {/* Header */}
-                        <div style={{ marginBottom: '28px' }}>
-                            <h3 style={{ fontSize: '1.4rem', fontWeight: '600', color: 'var(--text-main)', marginBottom: '8px' }}>
-                                Choose Payment Method
+                        {/* Header — Payment Temporarily Unavailable */}
+                        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+                            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'rgba(255,180,50,0.1)', border: '1px solid rgba(255,180,50,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 18px' }}>
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFB432" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <h3 style={{ fontSize: '1.3rem', fontWeight: '600', color: 'var(--text-main)', marginBottom: '10px' }}>
+                                Payment Temporarily Unavailable
                             </h3>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.5' }}>
-                                ClawProxy Lifetime License —{' '}
-                                <span style={{ color: 'var(--primary)', fontWeight: '600' }}>$20</span>
-                                <span style={{ fontSize: '0.82rem', opacity: 0.7 }}> + PayPal fees</span>
+                            <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.65' }}>
+                                We're currently experiencing issues with our payment processing system. We apologize for the inconvenience and are working to resolve this as quickly as possible.
                             </p>
                         </div>
 
-                        {/* Payment options */}
+                        {/* Info cards */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                            {/* Option 1: PayPal.me */}
-                            <a
-                                href="https://paypal.me/ClawProxy/21.30USD"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => setShowPaymentModal(false)}
+                            {/* Existing customers */}
+                            <div
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: '16px',
                                     background: 'var(--bg-darker)',
                                     border: '1px solid var(--border-light)',
-                                    borderRadius: '12px', padding: '18px 20px',
-                                    textDecoration: 'none', color: 'var(--text-main)',
-                                    transition: 'all 0.2s ease', cursor: 'pointer'
+                                    borderRadius: '12px', padding: '18px 20px'
                                 }}
-                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(80,223,144,0.2)'; }}
-                                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-light)'; e.currentTarget.style.boxShadow = 'none'; }}
                             >
-                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#003087', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M19.554 9.488c.121-.79.121-1.455 0-2.01C19.031 4.906 16.789 4 13.91 4H8.976a1 1 0 0 0-.988.848L6 18.785h3.717l.467-2.982h1.8c4.222 0 6.872-1.985 7.476-5.47l.094-.845zm-4.624 2.65c-.31 1.97-1.73 2.635-3.773 2.635h-.939l.688-4.391h.979c2.015 0 3.315.535 3.045 1.756z"/></svg>
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: '600', fontSize: '0.97rem', marginBottom: '3px' }}>PayPal.me</div>
-                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>Quick payment with your PayPal account</div>
-                                </div>
-                                <ExternalLink size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
-                            </a>
+                                <div style={{ fontWeight: '600', fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '6px' }}>Already purchased?</div>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.55', margin: 0 }}>
+                                    If you've already completed a payment, please reach out to us directly and we'll make sure you get access right away.
+                                </p>
+                            </div>
 
-                            {/* Option 2: Secure Payment Page */}
-                            <a
-                                href="https://www.paypal.com/ncp/payment/LHXXSDFZYVUSJ"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={() => setShowPaymentModal(false)}
+                            {/* New customers */}
+                            <div
                                 style={{
-                                    display: 'flex', alignItems: 'center', gap: '16px',
                                     background: 'var(--bg-darker)',
                                     border: '1px solid var(--border-light)',
-                                    borderRadius: '12px', padding: '18px 20px',
-                                    textDecoration: 'none', color: 'var(--text-main)',
-                                    transition: 'all 0.2s ease', cursor: 'pointer'
+                                    borderRadius: '12px', padding: '18px 20px'
                                 }}
-                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(80,223,144,0.2)'; }}
-                                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-light)'; e.currentTarget.style.boxShadow = 'none'; }}
                             >
-                                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: 'rgba(80,223,144,0.1)', border: '1px solid rgba(80,223,144,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <CreditCard size={20} color="var(--primary)" />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ fontWeight: '600', fontSize: '0.97rem', marginBottom: '3px' }}>Other Payment Methods</div>
-                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.83rem' }}>Visa, Mastercard, debit card, Apple Pay — via secure PayPal payment</div>
-                                </div>
-                                <ExternalLink size={16} color="var(--text-muted)" style={{ flexShrink: 0 }} />
-                            </a>
+                                <div style={{ fontWeight: '600', fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '6px' }}>Looking to purchase?</div>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: '1.55', margin: 0 }}>
+                                    Payment processing will be back online shortly. Thank you for your patience — we appreciate your interest in ClawProxy.
+                                </p>
+                            </div>
                         </div>
 
-                        {/* Footer note */}
-                        <p style={{ marginTop: '20px', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: '1.5' }}>
-                            After payment, send your transaction screenshot to{' '}
+                        {/* Contact footer */}
+                        <p style={{ marginTop: '20px', fontSize: '0.82rem', color: 'var(--text-muted)', textAlign: 'center', lineHeight: '1.55' }}>
+                            Need help? Contact us at{' '}
                             <a href="mailto:support@clawproxy.qzz.io" style={{ color: 'var(--primary)' }}>support@clawproxy.qzz.io</a>
                             {' '}or via{' '}
                             <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>Reddit</a>
-                            {' '}to receive your install instructions.
                         </p>
                     </div>
                 </div>,
