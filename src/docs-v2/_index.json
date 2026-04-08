@@ -1,0 +1,68 @@
+{
+  "sections": [
+    {
+      "title": "Getting Started",
+      "items": [
+        { "key": "quickstart", "title": "Quickstart Guide", "path": "getting-started/quickstart.md" },
+        { "key": "installation", "title": "Installation & Activation", "path": "getting-started/installation-activation.md" },
+        { "key": "firstProvider", "title": "Your First Provider", "path": "getting-started/first-provider.md" }
+      ]
+    },
+    {
+      "title": "Core Concepts",
+      "items": [
+        { "key": "howItWorks", "title": "How ClawProxy Works", "path": "core-concepts/how-clawproxy-works.md" },
+        { "key": "keyRotation", "title": "Key Rotation", "path": "core-concepts/key-rotation.md" },
+        { "key": "modelFallback", "title": "Model Fallback", "path": "core-concepts/model-fallback.md" },
+        { "key": "providerFallback", "title": "Provider Fallback Chain", "path": "core-concepts/provider-fallback-chain.md" },
+        { "key": "circuitBreaker", "title": "Circuit Breaker", "path": "core-concepts/circuit-breaker.md" },
+        { "key": "errorHandling", "title": "Error Classification & Retry", "path": "core-concepts/error-handling.md" }
+      ]
+    },
+    {
+      "title": "How-To Guides",
+      "items": [
+        { "key": "managingKeys", "title": "Managing API Keys", "path": "guides/managing-api-keys.md" },
+        { "key": "configuringModels", "title": "Configuring Models", "path": "guides/configuring-models.md" },
+        { "key": "configuringFallback", "title": "Configuring Fallback", "path": "guides/configuring-fallback.md" },
+        { "key": "configuringOpenclaw", "title": "Configuring OpenClaw", "path": "guides/configuring-openclaw.md" },
+        { "key": "monitoring", "title": "Monitoring & Notifications", "path": "guides/monitoring-notifications.md" },
+        { "key": "providerManagement", "title": "Provider Management", "path": "guides/provider-management.md" },
+        { "key": "globalSettings", "title": "Global Settings", "path": "guides/global-settings.md" }
+      ]
+    },
+    {
+      "title": "Providers",
+      "items": [
+        { "key": "providerDirectory", "title": "Provider Directory", "path": "providers/provider-directory.md" },
+        { "key": "bypassProviders", "title": "Bypass Providers", "path": "providers/bypass-providers.md" },
+        { "key": "freeTierProviders", "title": "Free Tier Providers", "path": "providers/free-tier-providers.md" },
+        { "key": "paidProviders", "title": "Paid Providers", "path": "providers/paid-providers.md" }
+      ]
+    },
+    {
+      "title": "Integrations",
+      "items": [
+        { "key": "openclawIntegration", "title": "OpenClaw Integration", "path": "integrations/openclaw-integration.md" },
+        { "key": "opencodeKiloIntegration", "title": "OpenCode & Kilo CLI", "path": "integrations/opencode-kilo-integration.md" }
+      ]
+    },
+    {
+      "title": "Reference",
+      "items": [
+        { "key": "cliCommands", "title": "CLI Commands", "path": "reference/cli-commands.md" },
+        { "key": "settingsReference", "title": "Settings Reference", "path": "reference/settings-reference.md" },
+        { "key": "apiReference", "title": "API Reference", "path": "reference/api-reference.md" },
+        { "key": "envVars", "title": "Environment Variables", "path": "reference/environment-variables.md" }
+      ]
+    },
+    {
+      "title": "Help",
+      "items": [
+        { "key": "troubleshooting", "title": "Troubleshooting", "path": "troubleshooting/troubleshooting.md" },
+        { "key": "faq", "title": "FAQ", "path": "troubleshooting/faq.md" },
+        { "key": "support", "title": "Support & Contact", "path": "support.md" }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,8 @@
-# ClawProxy CLI Commands
+# CLI Commands
 
 ClawProxy includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
+
+> **Version 1.0.12**
 
 ---
 
@@ -44,7 +46,7 @@ Restarts the ClawProxy service. Use this after updating ClawProxy or changing en
 clawproxy status
 ```
 
-Shows the current status of the ClawProxy service — whether it's running, the process ID (PID), port, and uptime.
+Shows the current status of the ClawProxy service -- whether it's running, the process ID (PID), port, and uptime.
 
 ### logs
 
@@ -92,16 +94,6 @@ Displays the full help message with all available commands and options.
 
 ---
 
-## Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `3030` | Server port |
-| `HOST` | `0.0.0.0` | Bind address |
-| `DB_PATH` | `./clawproxy.db` | Database file path |
-
----
-
 ## Service Backends
 
 ClawProxy auto-detects the best service manager for your platform:
@@ -117,11 +109,3 @@ If the native service manager isn't available, ClawProxy falls back to a built-i
 ---
 
 > **Tip:** Run `clawproxy logs` regularly to ensure your Provider Fallback Chain, Model Fallback, Smart Key Rotation, and Circuit Breaker are all working as expected.
-
-
-## Support & Developer Info
-
-**ClawProxy** is developed and maintained by **Malek-Rsh**.
-
-- **Reddit:** [u/Malek262](https://reddit.com/user/Malek262)
-- **Email:** [support@clawproxy.qzz.io](mailto:support@clawproxy.qzz.io)

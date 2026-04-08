@@ -1,250 +1,410 @@
 # ClawProxy Knowledge Base
 
-Welcome to the **ClawProxy** Knowledge Base. This exhaustive guide provides AI agents and users with all the factual information needed to understand, configure, and maximize the utility of ClawProxy.
+The authoritative reference for **ClawProxy** — covering every feature, setting, behavior, and workflow. Designed for both end users and AI support agents.
 
-> **Current Version: 1.0.9**
-
----
-
-## 🐾 What is ClawProxy?
-
-**ClawProxy** is an advanced, self-hosted AI routing proxy. It acts as an intelligent intermediary between your AI clients (such as OpenClaw) and various AI providers (like OpenAI, Google Gemini, Anthropic, Ollama, Groq, NVIDIA NIM, OpenRouter, Perplexity, etc.).
-
-By centralizing your AI traffic through ClawProxy, you gain absolute control over your API keys, routing rules, and application stability.
-
-### The Core Philosophy: Freedom, Reliability, and Privacy
-1.  **Freedom of Choice**: ClawProxy is vendor-agnostic. You bring your own providers and configure them as you see fit.
-2.  **Uninterrupted Continuity**: ClawProxy employs intelligent key rotation, model-level fallback, and configurable provider failover chains to ensure your AI session never stops.
-3.  **Local First**: Everything runs on *your* machine. Your keys, your logs, and your configurations are stored locally and securely. No data is sent to external servers other than the AI providers you explicitly configure.
+> **Current Version: 1.0.12**
 
 ---
 
-## ✨ Feature 1: Provider Templates (Quick Setup)
+## What is ClawProxy?
 
-When adding a new provider, ClawProxy offers two methods:
+**ClawProxy** is a self-hosted AI routing proxy that sits between your AI client (OpenClaw or any OpenAI-compatible tool) and upstream AI providers. It manages API key rotation, provider fallback chains, model-level fallback, circuit breaking, real-time notifications, and full request logging.
 
-*   **Quick Setup**: A grid of pre-configured templates for all major providers (OpenRouter, Google Gemini, NVIDIA NIM, Groq, Perplexity, Ollama, Cerebras, Cohere, Z.AI, OpenCode Zen, Kilo AI, and more). Selecting a template automatically fills the provider name, API format, upstream URL, and API key mode. You only need to add your API key and you're ready.
-*   **Custom**: A blank form for any provider not in the template list, or for custom/local endpoints.
+**Core Principles:**
+1. **Freedom of Choice**: Vendor-agnostic. You bring your own providers and configure them as you see fit.
+2. **Uninterrupted Continuity**: Smart Key Rotation, Model Fallback, Provider Fallback Chain, and Circuit Breaker ensure your AI session never stops.
+3. **Local First**: Everything runs on your machine. Keys, logs, and configs are stored locally and securely. No data is sent externally except to the AI providers you configure and a periodic license check.
 
-In both cases, all fields remain fully editable after selection.
+**Request Flow:**
+```
+Client → http://localhost:3030/proxy/{providerId}/v1/... → ClawProxy → upstream provider
+```
 
 ---
 
-## 🔑 Feature 2: Multi-Key Management & Smart Rotation
+## Provider Templates (Quick Setup)
 
-One of ClawProxy's most powerful features is how it manages API keys for a single provider.
+ClawProxy provides **13 built-in provider templates** pre-configured with the correct name, API format, upstream URL, and API key mode.
 
-Instead of relying on a single point of failure, **ClawProxy allows you to add multiple API keys to the exact same provider**.
+**Available Templates:**
 
-### How Key Rotation Works:
-*   **Automatic Error Recovery**: If your current API key encounters an error — such as hitting a **Rate Limit (429)**, becoming invalid **(401)**, or being temporarily **Overloaded (503)** — ClawProxy does not immediately fail the request back to the client.
-*   **Seamless Key Switching**: ClawProxy intercepts the error, flags the problematic key for a cooldown period, and **instantly rotates to the next available key** in that provider's pool.
-*   **Two Rotation Strategies**:
-    *   `On Error`: Uses the highest-priority key until it fails, then rotates. Best for maximizing usage of a primary key.
-    *   `Round Robin`: Evenly distributes requests across all keys after a configurable number of requests per key. Best for load balancing.
-*   **The Benefit**: Your client remains completely unaware of rate limits. The user experiences seamless, continuous AI responses by combining the quotas of multiple free or paid keys into one stable resource.
+| Template | API Format | Upstream URL | Key Mode |
+|----------|-----------|-------------|----------|
+| OpenRouter | openai-completions | `https://openrouter.ai/api/v1` | Managed |
+| Google Gemini | google-generative-ai | `https://generativelanguage.googleapis.com/v1beta` | Managed |
+| NVIDIA NIM | openai-completions | `https://integrate.api.nvidia.com/v1` | Managed |
+| Groq | openai-completions | `https://api.groq.com/openai/v1` | Managed |
+| OpenAI | openai-completions | `https://api.openai.com/v1` | Managed |
+| Anthropic | anthropic-messages | `https://api.anthropic.com/v1` | Managed |
+| Ollama Cloud | openai-completions | `https://ollama.com/v1` | Managed |
+| Kilo AI | openai-completions | `https://api.kilo.ai/api/gateway` | Managed* |
+| OpenCode Zen | openai-completions | `https://opencode.ai/zen/v1` | Managed* |
+| Perplexity | openai-completions | `https://api.perplexity.ai` | Managed |
+| Cerebras | openai-completions | `https://api.cerebras.ai/v1` | Managed |
+| Cohere | openai-completions | `https://api.cohere.com/v1` | Managed |
+| Z.AI API | openai-completions | `https://api.z.ai/api/paas/v4` | Managed |
+| Z.AI Coding | openai-completions | `https://api.z.ai/api/coding/paas/v4` | Managed |
+
+> **\* Kilo AI and OpenCode Zen:** These are bypass providers. The template defaults to `Managed`, but users **must change the API Key Mode to `None`** before creating. No API keys should be added.
+
+**Two setup methods:**
+- **Quick Setup**: Select a template. All fields auto-filled. Customize if needed, then create.
+- **Custom**: Blank form for any provider not in the template list.
+
+---
+
+## Multi-Key Management & Smart Rotation
+
+ClawProxy allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
+
+### How Key Rotation Works
+
+**Two Rotation Strategies:**
+
+| Strategy | Behavior | Best For |
+|----------|----------|----------|
+| **On Error** | Uses the highest-priority key until it fails, then rotates | Maximizing usage of a primary key |
+| **Round Robin** | Distributes requests evenly across keys (configurable requests per key) | Load balancing free-tier keys |
+
+**On Error Handling:**
+- **Rate Limit (429)**: Key enters cooldown (default 60 seconds, configurable in **Settings**). Next key used immediately.
+- **Auth Error (401/402/403)**: Key is permanently disabled. Next key used.
+- **Overloaded (503/529)**: Retries the same key after 2-second wait (up to 2 retries, configurable in **Settings**).
+- **Model Error**: Handled by Model Fallback (same key, different model).
+- **Request Error (400/413/422)**: Returned to client immediately (affects all keys equally).
+- **Server/Timeout/Network Error**: Tries next key.
 
 ### Key Error History
-Each API key has a detailed **error history log** showing the last 50 errors encountered. To view it, open the provider's **API Keys** tab, click the error count badge next to any key, and a modal will display the full log with timestamps, error types, and HTTP status codes. This is invaluable for diagnosing why a key is underperforming.
+Each key tracks the last 50 errors. View via the **error count badge** on the API Keys tab → click to open the Error History modal showing type, message, HTTP status, and timestamp.
+
+### Key Status Indicators
+- **Active** (green): Key is operational.
+- **Unstable** (amber): Key has >3 consecutive errors but is not disabled.
+- **Disabled** (red): Key permanently disabled due to auth errors.
 
 ---
 
-## 🔀 Feature 3: Model Fallback (within the same provider)
+## Model Fallback (Within Same Provider)
 
-ClawProxy can automatically retry a failed request with an alternative model, **without switching providers or keys**.
+Automatically retries a failed request with an alternative model, **same provider, same API key**.
 
-### When does it trigger?
-*   A model returns a "model not found" or "invalid model" error (typically HTTP 404 or 400 with model-related error messages).
+### Trigger Conditions
+Only triggers on **MODEL_ERROR** classification:
+- HTTP 404 with "model" in the error message
+- HTTP 400 with "model" + "not found" / "invalid" patterns
+- HTTP 401 with "ModelError" or "PAID_MODEL_AUTH_REQUIRED" (OpenCode/Kilo specific)
 
-### How to configure:
-1.  Go to the provider's **Models** tab.
-2.  Enable the **Model Fallback** toggle.
-3.  Add models in priority order. You can type model IDs manually, or click **Fetch from Provider** to automatically retrieve the list from the upstream API.
-4.  When a model fails, ClawProxy silently retries with the next model in the list, using the **same provider and same API key**.
+### Configuration
+1. Provider's **Models** tab → enable **Model Fallback** toggle.
+2. Add models in priority order (first = most preferred).
+3. Use **Fetch Models** to retrieve models from the upstream API.
+4. For Kilo AI and OpenCode: fetched models show **Free/Paid** badges.
 
-### Smart Model Discovery
-The **Fetch from Provider** feature is enhanced for certain providers:
-*   **Kilo AI & OpenCode**: Models are tagged with **Free** or **Paid** badges based on live data from the provider, so you can immediately see which ones are accessible without a paid subscription.
-*   **Other providers**: The standard model list from the upstream `/v1/models` API is returned, searchable by name or ID.
-
-> **Important distinction:** Model Fallback only switches the *model*, not the provider or key. It specifically handles model-level unavailability, not key exhaustion.
-
----
-
-## 🛡️ Feature 4: Provider Fallback Chain (switch providers)
-
-While Key Rotation handles individual key limits *within* a provider, the **Provider Fallback Chain** protects you from total provider outages.
-
-### Key facts:
-*   Provider Fallback is **not automatic by default** — it is explicitly configured by you.
-*   You can configure **multiple fallback providers** in a prioritized chain (not just one).
-*   Fallbacks are tried **in order** (1 → 2 → 3...) until one succeeds.
-*   **Smart Format Filtering**: When selecting a fallback provider, ClawProxy automatically filters the list to show only providers that share the **same API format** as the primary provider. This prevents misconfiguration — for example, an `openai-completions` provider will only show other `openai-completions` providers as valid fallbacks. You can also add a fallback to the **same provider** (with a different model or key pool) for self-referencing redundancy.
-
-### How to configure:
-1.  Go to the provider's **Settings** tab → **Provider Fallback Chain** section.
-2.  Click **Add Fallback Provider** and select a backup provider from the filtered list.
-3.  Optionally set a **Target Model ID** for that fallback:
-    *   **Leave empty**: ClawProxy passes the original model name through to the fallback. Best when both providers use the same model name.
-    *   **Set a Target ID**: ClawProxy rewrites the model name before sending to the fallback. Required when providers use different naming conventions (e.g., primary uses `GLM5`, fallback requires `z-ai/glm5`).
-4.  Repeat for additional fallback providers if needed.
-5.  When selecting a target model ID, if the chosen fallback provider has saved models (from its Models tab), they appear as a dropdown for easy selection.
-
-### Understanding Model ID Mapping:
-AI providers often use different internal identifiers for the same underlying model. Always verify the exact Model ID required by each provider's documentation, as these can change without notice.
+### Behavior
+- Models are tried in priority order: 1 → 2 → 3...
+- If all models fail → try next key.
+- If all keys exhausted → trigger Provider Fallback Chain.
 
 ---
 
-## ⚡ Feature 5: Circuit Breaker
+## Provider Fallback Chain
 
-ClawProxy includes an automatic **Circuit Breaker** that monitors provider health in real time.
+Switches to a completely different provider when the primary provider fails entirely (all keys exhausted or circuit breaker opens).
 
-*   If a provider accumulates **5 failures within 60 seconds**, the circuit "opens" — subsequent requests skip that provider entirely and go directly to the fallback chain.
-*   After a **30-second cooldown**, a single test request is sent to check if the provider has recovered.
-*   On success, the circuit closes and normal routing resumes.
+### Configuration
+1. Provider's **Settings** tab → **Provider Fallback Chain** section.
+2. **Add Fallback Provider** — dropdown shows only providers with the **same API format**.
+3. Optionally set a **Target Model ID** — rewrites the model name for the fallback provider. Leave empty to pass original model name.
+4. Add multiple fallbacks — tried in priority order (1 → 2 → 3...).
+5. Entries are saved immediately on add. The main "Save Provider Settings" button does NOT control fallback entries.
 
-This prevents unnecessary latency from retrying a clearly unavailable provider on every request.
+### Smart Format Filtering
+The fallback dropdown only shows providers matching the primary provider's API format. This prevents format incompatibility errors.
 
-You can view the circuit breaker status and manually reset it from the provider's **Settings** tab.
+### Target Model ID Mapping
+| Scenario | What to Set |
+|----------|-------------|
+| Both providers use the same model names | Leave empty |
+| Providers use different names for the same model | Set the exact model ID the fallback provider expects |
+| Want to route to a completely different model on failure | Set the desired model ID |
 
 ---
 
-## 🔔 Feature 6: Real-time Notifications
+## Circuit Breaker
 
-ClawProxy features a built-in **notification system** that keeps you instantly informed of every important event happening inside the proxy — without requiring you to watch the logs.
+Automatic health monitoring that prevents cascading failures.
 
-### Accessing Notifications
-Click the **Bell icon** in the dashboard sidebar. A badge with a count appears when new unread notifications arrive. Clicking a notification navigates you directly to the relevant provider page.
+### Default Thresholds (Configurable in Settings)
+| Parameter | Default |
+|-----------|---------|
+| Failure threshold | 5 failures |
+| Failure window | 60 seconds |
+| Cooldown duration | 30 seconds |
+
+### States
+| State | Meaning | Behavior |
+|-------|---------|----------|
+| **CLOSED** | Normal operation | All requests go to this provider |
+| **OPEN** | Provider failed | Requests skip provider, go directly to fallback chain |
+| **HALF_OPEN** | Testing recovery | One test request sent; success → CLOSED, failure → OPEN |
+
+### Key Behaviors
+- Only triggers on **provider-level failures** (all keys exhausted), not single-key errors.
+- Resets on proxy restart (in-memory by design).
+- Can be manually reset from the provider's **Settings** tab.
+- Fires **Circuit Open** notification when tripping, **Recovered** notification when closing.
+
+---
+
+## Real-time Notifications
+
+Built-in notification system delivered via WebSocket in real-time.
 
 ### Notification Types
 
-| Type | When it fires | Severity |
+| Type | When It Fires | Severity |
 |------|--------------|----------|
-| **Key Disabled** | An API key was permanently disabled due to repeated auth errors (401/402/403) | 🔴 Critical |
-| **Rate Limited** | A key hit a rate limit (429) and entered a 60-second cooldown | 🟡 Warning |
-| **Circuit Open** | A provider's circuit breaker tripped (5 failures in 60s) | 🔴 Critical |
-| **Recovered** | A provider recovered after its cooldown ended | 🟢 Info |
-| **All Keys Failed** | Every key for a provider failed — fallback chain triggered | 🔴 Critical |
-| **Model Fallback** | A model error triggered an automatic switch to the next model | 🔵 Info |
-| **Provider Fallback** | A provider failure triggered a switch to a fallback provider | 🟡 Warning |
+| **Key Disabled** | API key permanently disabled due to auth error (401/402/403) | Critical |
+| **Rate Limited** | Key entered 60-second cooldown after rate limit (429) | Warning |
+| **Circuit Open** | Provider circuit breaker tripped (5 failures in 60s) | Critical |
+| **Recovered** | Provider recovered after circuit breaker cooldown | Info |
+| **All Keys Failed** | Every key for a provider exhausted | Critical |
+| **Model Fallback** | Model error triggered automatic switch to next model | Info |
+| **Provider Fallback** | Provider failure triggered switch to fallback provider | Warning |
 
-### How it works:
-*   Notifications are delivered in **real-time** via WebSocket — no page refresh needed.
-*   The notification panel displays the **last 100 events** with type badges, timestamps, and human-readable messages.
-*   You can **mark individual notifications as read** or **clear all** notifications.
-*   Notifications are stored in memory and reset when the proxy restarts (by design — they reflect live session events).
-
----
-
-## 🛠️ Comprehensive How-To Guides
-
-### Guide: Adding a Provider and Keys (Quick Setup)
-1.  Open the ClawProxy dashboard at `http://localhost:3030`.
-2.  Navigate to **Providers** → **Add Provider**.
-3.  Click **Quick Setup** and select your provider from the template grid.
-4.  All fields are pre-filled. Customize if needed, then click **Create Provider**.
-5.  On the provider's detail page, go to the **API Keys** tab and click **Add API Key** to add your key(s).
-
-### Guide: Adding a Provider and Keys (Custom)
-1.  In the Add Provider panel, click **Custom**.
-2.  Enter the Provider Name, API Format, Upstream URL, and API Key Mode.
-3.  Click **Create Provider**.
-4.  Add your API keys from the **API Keys** tab.
-
-### Guide: Setting Up Model Fallback
-1.  Open the provider's detail page and go to the **Models** tab.
-2.  Toggle **Model Fallback** to **Enabled**.
-3.  Add models in priority order (first = most preferred). Use **Fetch from Provider** to auto-populate if available.
-4.  ClawProxy will now automatically retry with the next model when a model-level error occurs.
-
-### Guide: Setting Up Provider Fallback Chain
-1.  Open the provider's detail page and go to the **Settings** tab.
-2.  Scroll to the **Provider Fallback Chain** section.
-3.  Select a fallback provider from the filtered list (only same-format providers are shown) and optionally a target model, then click **+**.
-4.  Repeat to add more fallbacks in order. Entries are saved immediately.
-5.  The primary provider's **Save** button only saves the main provider config — fallback entries are saved on add.
-
-### Guide: Monitoring with Notifications
-1.  Enable ClawProxy and start routing requests.
-2.  Click the **Bell icon** in the sidebar to open the notification panel.
-3.  Any key rotation, circuit breaker trips, or fallback events appear here instantly.
-4.  Click any notification to jump directly to the affected provider page for investigation.
-
-### Guide: Viewing Key Error History
-1.  Open a provider's **API Keys** tab.
-2.  If a key has errors, an error count badge appears next to it.
-3.  Click the badge to open the **Error History** modal showing the last 50 errors with type, message, and timestamp.
-
-### Guide: Integrating with OpenClaw
-
-**The Automated Way (Recommended):**
-1.  On the provider's detail page, click **"🪄 Prompt for AI"**.
-2.  Copy the generated prompt and paste it to your OpenClaw AI agent. It will safely update your `openclaw.json` with the correct Base URL, format, and model IDs.
-
-**The Manual Way:**
-1.  Open `~/.openclaw/openclaw.json`.
-2.  Add the provider under `models.providers` using the **auto-generated Base URL** shown in your ClawProxy dashboard.
-3.  Set `apiKey` to any placeholder value (e.g., `dummy-key`). ClawProxy injects your real keys automatically.
-4.  Define your desired models with their IDs and display names.
+### Accessing Notifications
+- Click the **Bell icon** in the sidebar. Badge shows unread count.
+- Click any notification to navigate to the affected provider.
+- Mark individual as read or clear all.
+- Last 100 notifications stored in memory. Cleared on restart.
 
 ---
 
-## ⚙️ Provider Configuration Parameters
+## Request Logging & Dashboard
 
-| Parameter | Description |
-|-----------|-------------|
-| **Name** | Unique internal identifier for this provider |
-| **API Format** | `openai-completions`, `openai-responses`, `anthropic-messages`, or `google-generative-ai` |
-| **Upstream URL** | The destination API endpoint of the AI service |
-| **Base URL** | Auto-generated local proxy URL provided by ClawProxy for your AI clients |
-| **API Key Mode** | `Managed` (multi-key rotation), `Pass Through` (client supplies key), `None` (bypass) |
-| **Rotation Strategy** | `On Error` (reactive) or `Round Robin` (proactive) |
-| **Timeout** | Maximum time to wait for an upstream response (default: 120 seconds) |
-| **Retry on Timeout** | Whether to try the next key if the current one times out |
-| **Model Fallback** | Enable automatic model rotation on model-level errors (configured in Models tab) |
-| **Provider Fallback Chain** | Ordered list of backup providers if this one fails (configured in Settings tab, same-format providers only) |
+### Dashboard
+The main dashboard shows:
+- **Stats Row 1**: Requests Today, Success Rate, Active Providers, Active Keys
+- **Stats Row 2**: Errors Today, Timeouts Today, Avg Duration, Uptime
+- **Request Volume Chart**: 24h/7d/all ranges with success/failure areas
+- **Recent Errors Panel**: Latest errors with type badges
+- **Last 5 Requests Panel**: Recent requests with status
 
----
-
-## ❓ Extensive Q&A Scenarios
-
-**Q: I have three free-tier keys for an AI service. The service rate-limits me after 10 requests. If I add all three to ClawProxy, what happens on the 11th request?**
-A: ClawProxy intercepts the 429 Rate Limit error on the first key, flags it for a 60-second cooldown, and retries the 11th request immediately on the second key. The user never sees the error. You'll also get a **Rate Limited** notification in the bell icon.
-
-**Q: I configured a Provider Fallback Chain with providers B and C. If Provider A fails but Provider B is also down, what happens?**
-A: ClawProxy tries them in sequence. It fails on B, then automatically tries C. If C succeeds, the request is completed. If all fail, the error is returned to the client. You'll receive an **All Keys Failed** and **Provider Fallback** notification for each event.
-
-**Q: What's the difference between Model Fallback and Provider Fallback?**
-A: Model Fallback (Models tab): same provider, same key, different model — triggered when a *model* is unavailable. Provider Fallback (Settings tab): completely different provider — triggered when the entire primary provider fails (all keys exhausted or circuit breaker open).
-
-**Q: Why does the Provider Fallback Chain only show certain providers?**
-A: ClawProxy filters the list to show only providers with the **same API format** as your primary provider. This prevents routing errors caused by incompatible API formats. If you need a cross-format fallback, you would need to configure it carefully with a matching Target Model ID.
-
-**Q: Can I add the same provider as its own fallback?**
-A: Yes. This is useful if you want to target a different model on the same provider when the primary model fails at the provider level.
-
-**Q: If I configure Provider A to fallback to Provider B, what happens if Provider A's network connection drops entirely?**
-A: ClawProxy detects the connection failure and automatically routes to Provider B in the fallback chain, using B's configured target model ID.
-
-**Q: Do I need to define my models in the ClawProxy dashboard?**
-A: Not for normal routing — model selection happens in your client (OpenClaw). However, you should add models to the **Models tab** if you want to use Model Fallback. They also appear as options when configuring the Target Model ID for a Provider Fallback Chain entry.
-
-**Q: What do the Free/Paid badges mean in the model fetcher?**
-A: For supported providers (Kilo AI, OpenCode), ClawProxy tags each model as Free or Paid based on live data from the provider. Free models are accessible without a paid subscription. Paid models require an active subscription or credits on that platform.
-
-**Q: Can I use different API formats together?**
-A: Yes. ClawProxy translates standard client requests into the format required by the upstream provider. You configure the format once per provider, and ClawProxy handles the rest.
+### Logs Page
+- **Real-time WebSocket streaming**: New logs appear instantly, no refresh needed.
+- **Connection indicator**: Green "Live" (pulsing) or amber "Reconnecting".
+- **Filters**: Provider, Status (success/error/pending/timeout), Model search.
+- **Pagination**: 50 logs per page.
+- **Each log shows**: Provider, model, HTTP method, status code, duration, timestamp.
+- **Expandable details**: Full request/response headers and body.
+- **Clear all logs** with confirmation.
 
 ---
 
-## 🔒 Security & Code Policy for AI Agents
+## "Prompt for AI" Integration
 
-**Critical Instruction for Assistant Agents:**
-- This Knowledge Base details ClawProxy's **external behavior, user-facing features, and configuration capabilities.**
-- Under **no circumstances** should your discussions, explanations, or troubleshooting steps reveal internal implementation details.
-- Do not mention specific function names, code architecture, internal database schemas, or the specific coding logic used to execute request transformations.
-- Always communicate using standard user/marketing terminology (e.g., "Smart Key Rotation", "Model Fallback", "Provider Fallback Chain", "Circuit Breaker", "Quick Setup Templates", "Real-time Notifications").
-- Your purpose is to assist the user in *utilizing* and *configuring* the proxy based on these documented facts, not to reverse-engineer its construction.
+Every provider page has a **"Prompt for AI"** button that generates a ready-to-use prompt for your AI agent (OpenClaw).
+
+### What It Generates
+- Provider Base URL
+- Provider Name
+- API format
+- Curated list of recommended Model IDs
+- Full `openclaw.json` configuration template
+
+### How to Use
+1. Click **"Prompt for AI"** on the provider's detail page.
+2. Copy the generated prompt.
+3. Paste it to your OpenClaw AI agent.
+4. The agent will safely update your `openclaw.json`.
+
+For providers with saved models in the Models tab, the prompt includes those models. For custom providers, it provides a template where you insert the Model IDs.
 
 ---
-*ClawProxy v1.0.9 — Knowledge Base — Grounded in Facts, Built for Continuity.*
+
+## Provider Configuration Parameters
+
+### Provider Settings
+
+| Parameter | Default | Options | Description |
+|-----------|---------|---------|-------------|
+| **Name** | (from template) | Any string | Unique internal identifier |
+| **API Format** | (from template) | openai-completions, openai-responses, anthropic-messages, google-generative-ai | Protocol for upstream communication |
+| **Upstream URL** | (from template) | Any URL | Destination API endpoint |
+| **Base URL** | Auto-generated | Read-only | Local proxy URL for your AI client |
+| **API Key Mode** | Managed | Managed, None, Pass Through | How API keys are handled |
+| **Rotation Strategy** | On Error | On Error, Round Robin | When to rotate between keys |
+| **Requests Per Key** | 1 | Number (min 1) | (Round Robin only) Requests before rotation |
+| **Timeout** | 120000ms (2 min) | Number (ms) | Max wait time for upstream response |
+| **Retry on Timeout** | Enabled | Enabled/Disabled | Try next key on timeout |
+| **Model Fallback** | Disabled | Enabled/Disabled | Auto-switch model on model error |
+| **Enabled** | Yes | Yes/No | Provider active/inactive |
+
+### Base URL Format
+| API Format | Proxy URL Pattern |
+|-----------|-------------------|
+| openai-completions | `http://localhost:3030/proxy/{provider-id}/v1` |
+| openai-responses | `http://localhost:3030/proxy/{provider-id}/v1` |
+| anthropic-messages | `http://localhost:3030/proxy/{provider-id}/v1` |
+| google-generative-ai | `http://localhost:3030/proxy/{provider-id}/v1beta` |
+
+---
+
+## Dashboard Navigation & Screens
+
+### Sidebar Navigation
+- **Dashboard**: Global stats and charts
+- **Providers**: Provider list, add/manage providers
+- **Logs**: Request log viewer with real-time updates
+- **Settings**: Global configuration for key retry, rate limit backoff, circuit breaker, and log management
+- **Bell icon**: Notification panel
+- **Update badge**: Shows when a new version is available
+
+### Special Screens
+- **Awaiting Activation**: Shows on first launch before activation. Displays Installation ID, copy button, and Check Activation button.
+- **Update Modal**: Shows when clicked on update badge. Displays current/latest version, changelog, and install commands for Linux/macOS/Windows.
+
+---
+
+## Provider Detail Page (4 Tabs)
+
+### Overview Tab
+- Stats cards: Total requests, requests today, success rate (color-coded), total errors
+- Request volume chart (24h/7d/all)
+- Configuration summary
+- Quick stats: total keys, active keys, avg duration, today's success rate
+
+### API Keys Tab
+- Add single key (with optional label) or bulk add (newline-separated)
+- Key table: masked key, label, priority, status badge, stats (total/success/failed), last used, last error
+- Actions per key: view error history, enable/disable, reset stats, delete
+- Drag-and-drop reorder for priority
+
+### Models Tab
+- Fallback models list (priority-ordered, drag to reorder)
+- Manual add input
+- Model Fallback toggle (Enabled/Disabled)
+- **Fetch Models** button — retrieves available models from upstream
+- Fetched models panel: search, filter, Free/Paid/Other badges, "+ Add" per model, "Add All" button
+
+### Settings Tab
+- Circuit Breaker status (if not CLOSED): state badge, failure count, Reset button
+- **Left column**: Provider config form (name, upstream URL, key mode, rotation mode, requests per key, timeout, retry on timeout) + Save button
+- **Right column**: Provider Fallback Chain (ordered list, add/delete/reorder)
+
+---
+
+## Error Classification Reference
+
+ClawProxy classifies upstream errors to determine the correct recovery action.
+
+| Error Type | HTTP Status | Body Patterns | Recovery Action |
+|------------|-------------|---------------|-----------------|
+| **AUTH_ERROR** | 401, 402, 403 | (no model patterns), API_KEY_INVALID, FAILED_PRECONDITION | Disable key permanently, try next key |
+| **RATE_LIMIT** | 429, 498 (Groq) | Rate limit patterns | 60s backoff on key, try next key |
+| **MODEL_ERROR** | 404, 400, 401 | "model", "ModelError", "PAID_MODEL_AUTH_REQUIRED" | Try next model (if enabled), then next key |
+| **OVERLOADED** | 503, 529 (Anthropic) | "overloaded", "capacity", "resource exhausted" | Wait 2s, retry same key (up to 2x) |
+| **REQUEST_ERROR** | 400, 413, 422, 499 | Bad format, too large, unprocessable | Return to client immediately |
+| **SERVER_ERROR** | 500, 502, 503 (non-overload) | Server-side transient | Try next key |
+| **TIMEOUT** | 504, 408, timeout/AbortError | Network timeout | Try next key (if retry_on_timeout) |
+| **NETWORK_ERROR** | Other | Connection failures | Try next key |
+
+### Provider-Specific Quirks
+- **OpenCode.ai**: Returns HTTP 401 for unsupported models (body: "ModelError") → classified as MODEL_ERROR, not AUTH_ERROR.
+- **Kilo.ai**: Returns HTTP 401 for non-free models when no auth (body: "PAID_MODEL_AUTH_REQUIRED") → classified as MODEL_ERROR.
+- **Google Gemini**: Returns HTTP 400 for invalid API keys (body: "API_KEY_INVALID") → classified as AUTH_ERROR.
+- **MiniMax**: Returns HTTP 200 for most errors with custom status codes in body → parsed from response body.
+- **Anthropic**: Uses custom HTTP 529 for overloaded → classified as OVERLOADED.
+- **Groq**: Uses custom HTTP 498 for flex tier capacity → classified as RATE_LIMIT.
+
+---
+
+## Retry Cascade (Exact Order)
+
+When a request fails, ClawProxy follows this exact retry cascade:
+
+1. **REQUEST_ERROR** (400/413/422/499) → Return to client immediately (will fail with any key).
+2. **OVERLOADED** (503/529) → Wait 2 seconds, retry same key (up to 2 inner retries).
+3. **MODEL_ERROR** (404/400/401 with model patterns) → Try next model from provider_models if model_fallback_enabled (same key).
+4. **AUTH_ERROR / RATE_LIMIT / SERVER_ERROR / TIMEOUT / NETWORK_ERROR** → Try next key.
+5. **All keys exhausted** → Trigger Provider Fallback Chain (tried in priority order).
+6. **All fallback providers exhausted** → Return error to client.
+
+---
+
+## CLI Commands
+
+| Command | Description |
+|---------|-------------|
+| `clawproxy install` | Install as system service + start + open browser |
+| `clawproxy start` | Start the server as a background service |
+| `clawproxy stop` | Stop the server gracefully |
+| `clawproxy restart` | Restart the server |
+| `clawproxy status` | Show running status, PID, port, uptime |
+| `clawproxy logs` | Follow live server logs (Ctrl+C to exit) |
+| `clawproxy uninstall` | Remove background service (preserves database) |
+| `clawproxy --version` | Show current version |
+| `clawproxy --help` | Show help |
+
+**Options:** `--port <port>` (override default 3030), `--no-open` (don't open browser on install)
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3030` | Server listening port |
+| `HOST` | `0.0.0.0` | Bind address |
+| `DB_PATH` | `./clawproxy.db` | SQLite database file path |
+
+> **Note:** Log retention, log body size limits, and other operational settings are now configurable from the **Settings** page in the dashboard.
+
+---
+
+## Activation
+
+### How to Activate
+1. First launch → Awaiting Activation screen displays your unique **Installation ID**.
+2. Copy the ID and send it to the developer via email or Reddit.
+3. Once the developer confirms activation, click **Check Activation** on the screen.
+4. The dashboard becomes fully functional.
+
+### Update Check
+If a newer version is available:
+- **Update Available** badge appears in the sidebar.
+- Click to see version comparison, changelog, and install commands.
+
+
+---
+
+## Complete How-To Index
+
+| Task | Where |
+|------|-------|
+| Add a provider (Quick Setup) | Providers → Add Provider → Quick Setup |
+| Add a provider (Custom) | Providers → Add Provider → Custom |
+| Add API keys | Provider detail → API Keys tab → Add API Key |
+| Bulk add keys | Provider detail → API Keys tab → Bulk Add |
+| Enable Model Fallback | Provider detail → Models tab → toggle → add models |
+| Fetch available models | Provider detail → Models tab → Fetch Models |
+| Configure Provider Fallback | Provider detail → Settings tab → Fallback Chain |
+| View key error history | Provider detail → API Keys tab → click error badge |
+| Reset circuit breaker | Provider detail → Settings tab → Reset button |
+| Configure OpenClaw | Provider detail → "Prompt for AI" button |
+| Monitor events | Sidebar → Bell icon |
+| View logs | Sidebar → Logs |
+| Check activation status | Dashboard → Check Activation (if not activated) |
+| Configure global settings | Sidebar → Settings |
+| Update ClawProxy | Sidebar → Update badge → follow instructions |
+
+---
+
+## Support & Developer Info
+
+**ClawProxy** is developed and maintained by **Malek-Rsh**.
+
+- **Reddit:** [u/Malek262](https://reddit.com/user/Malek262)
+- **Email:** [support@clawproxy.qzz.io](mailto:support@clawproxy.qzz.io)
+
+*ClawProxy v1.0.12 — Knowledge Base — Grounded in Facts, Built for Continuity.*
