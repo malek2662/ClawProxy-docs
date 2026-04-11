@@ -1,6 +1,6 @@
 # Settings Reference
 
-Complete reference of every configurable parameter, default value, and behavior in ClawProxy.
+Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
 > **Version 1.0.12**
 
@@ -15,7 +15,7 @@ These settings are configured per provider in the **Settings** tab of the provid
 | Setting | Default | Options | Description |
 |---------|---------|---------|-------------|
 | **Name** | From template or user input | Any string | Unique identifier for the provider. Also generates the provider ID (URL slug). |
-| **API Format** | From template | `openai-completions`, `openai-responses`, `anthropic-messages`, `google-generative-ai` | Determines how ClawProxy communicates with the upstream provider. Set at creation, read-only after. |
+| **API Format** | From template | `openai-completions`, `openai-responses`, `anthropic-messages`, `google-generative-ai` | Determines how ClawRouter communicates with the upstream provider. Set at creation, read-only after. |
 | **Upstream URL** | From template | Any valid URL | The base URL of the upstream AI provider's API. |
 | **Enabled** | `true` | `true` / `false` | Whether the provider accepts proxy requests. Disabled providers are also excluded from fallback chains. |
 
@@ -31,9 +31,9 @@ These settings are configured per provider in the **Settings** tab of the provid
 
 | Mode | Behavior |
 |------|----------|
-| **Managed** | ClawProxy stores and manages multiple API keys. The client's API key header is stripped and replaced with the managed key. Supports rotation, backoff, and automatic disabling. |
+| **Managed** | ClawRouter stores and manages multiple API keys. The client's API key header is stripped and replaced with the managed key. Supports rotation, backoff, and automatic disabling. |
 | **None** | No API key is sent to the upstream. The proxy strips any auth headers from the client request. Use for bypass providers (Kilo AI, OpenCode Zen). |
-| **Pass Through** | The client's API key is forwarded to the upstream without modification. No key rotation or management. ClawProxy acts as a transparent proxy for auth. |
+| **Pass Through** | The client's API key is forwarded to the upstream without modification. No key rotation or management. ClawRouter acts as a transparent proxy for auth. |
 
 ### Reliability Settings
 
@@ -174,7 +174,7 @@ The Circuit Breaker is automatic and applies per-provider. Threshold and cooldow
 | Setting | Value |
 |---------|-------|
 | **Engine** | SQLite (better-sqlite3) |
-| **File** | `clawproxy.db` (or DB_PATH env) |
+| **File** | `clawrouter.db` (or DB_PATH env) |
 | **Mode** | WAL (Write-Ahead Logging) |
 | **Foreign Keys** | Enabled |
 | **Synchronous** | NORMAL |

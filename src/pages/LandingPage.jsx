@@ -61,7 +61,7 @@ export default function LandingPage() {
         },
         {
             title: 'Smart Key Rotation',
-            desc: 'Add multiple API keys to a single provider. ClawProxy intelligently load-balances them with On-Error Backoff and Round-Robin.',
+            desc: 'Add multiple API keys to a single provider. ClawRouter intelligently load-balances them with On-Error Backoff and Round-Robin.',
             icon: <RefreshCw className="feature-icon" />
         },
         {
@@ -91,7 +91,7 @@ export default function LandingPage() {
         },
         {
             title: 'Global Settings',
-            desc: 'Centralized configuration panel for retry policies, circuit breakers, rate limiting, streaming defaults, and all proxy-wide behavior.',
+            desc: 'Centralized configuration panel for retry policies, circuit breakers, rate limiting, streaming defaults, and all routing behavior.',
             icon: <Settings className="feature-icon" />
         }
     ];
@@ -103,9 +103,9 @@ export default function LandingPage() {
                 <div className="hero-glow" style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: '80vw', height: '80vh', background: 'radial-gradient(circle, rgba(80, 223, 144, 0.08) 0%, rgba(18, 18, 18, 0) 70%)', zIndex: -1, borderRadius: '50%' }}></div>
 
                 <div className="hero-heading-row" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '1.5rem' }}>
-                    <img src={clawLogo} alt="ClawProxy Logo" className="hero-logo" style={{ width: '64px', height: '64px', flexShrink: 0 }} />
+                    <img src={clawLogo} alt="ClawRouter Logo" className="hero-logo" style={{ width: '64px', height: '64px', flexShrink: 0 }} />
                     <h1 className="hero-title" style={{ fontSize: '3.5rem', margin: 0, maxWidth: '1000px', lineHeight: '1.1' }}>
-                        Self-hosted <span className="gradient-text">AI Routing Proxy</span>
+                        Self-hosted <span className="gradient-text">AI Routing Gateway</span>
                     </h1>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--primary)' }}>
@@ -155,7 +155,7 @@ export default function LandingPage() {
                 <div className="container" onClick={() => setSelectedImage('assets/screenshots/dashboard.png')} style={{ cursor: 'pointer' }}>
                     <img
                         src="assets/screenshots/dashboard.png"
-                        alt="ClawProxy Dashboard"
+                        alt="ClawRouter Dashboard"
                         className="img-showcase delay-1 animate-fade-in"
                         style={{ marginTop: '0', transition: 'all 0.3s ease' }}
                         onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
@@ -218,7 +218,7 @@ export default function LandingPage() {
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Manage Multiple Providers</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Add multiple API providers easily. ClawProxy supports all major API formats out of the box. Add, rotate, and monitor API keys with automatic error tracking and seamless fallback mechanisms.
+                            Add multiple API providers easily. ClawRouter supports all major API formats out of the box. Add, rotate, and monitor API keys with automatic error tracking and seamless fallback mechanisms.
                         </p>
                         <Link to="/docs?tab=providerDirectory" className="btn-secondary" style={{ marginTop: '10px' }}>
                             Read the Documentation
@@ -243,7 +243,7 @@ export default function LandingPage() {
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Quick Setup Templates</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Get up and running in seconds. ClawProxy provides a rich library of pre-configured templates for all popular AI providers. Select a template, add your API key, and you're ready to start routing.
+                            Get up and running in seconds. ClawRouter provides a rich library of pre-configured templates for all popular AI providers. Select a template, add your API key, and you're ready to start routing.
                         </p>
                         <Link to="/docs?tab=firstProvider&anchor=add-a-provider-via-quick-setup" className="btn-secondary">
                             View Provider Templates
@@ -268,7 +268,7 @@ export default function LandingPage() {
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Advanced Failover & Fallback</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Ensure maximum uptime with multi-layered redundancy. ClawProxy handles both model-level unavailability and total provider outages seamlessly.
+                            Ensure maximum uptime with multi-layered redundancy. ClawRouter handles both model-level unavailability and total provider outages seamlessly.
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div>
@@ -287,7 +287,7 @@ export default function LandingPage() {
                                     <Shield size={18} /> Provider Fallback Chain
                                 </h4>
                                 <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', margin: 0 }}>
-                                    Configure prioritized chains of backup providers. If a provider goes down, ClawProxy automatically switches to the next one in line.
+                                    Configure prioritized chains of backup providers. If a provider goes down, ClawRouter automatically switches to the next one in line.
                                 </p>
                                 <Link to="/docs?tab=providerFallback" style={{ color: 'var(--primary)', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
                                     Learn about Fallback Chains →
@@ -442,7 +442,7 @@ export default function LandingPage() {
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>🔔 Real-time Notifications</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Stay ahead of every event without watching logs. ClawProxy's built-in notification system delivers instant alerts for key rotations, circuit breaker trips, fallback activations, and more — all via WebSocket, directly in the dashboard.
+                            Stay ahead of every event without watching logs. ClawRouter's built-in notification system delivers instant alerts for key rotations, circuit breaker trips, fallback activations, and more — all via WebSocket, directly in the dashboard.
                         </p>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
                             {[
@@ -493,14 +493,14 @@ export default function LandingPage() {
                             <Settings size={32} style={{ color: 'var(--primary)' }} /> Global Settings
                         </h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Fine-tune every aspect of your proxy from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, streaming defaults, and more — all without touching config files.
+                            Fine-tune every aspect of your router from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, streaming defaults, and more — all without touching config files.
                         </p>
                         <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0' }}>
                             {[
                                 { icon: <RefreshCw size={16} color="var(--primary)" />, text: 'Retry & circuit breaker configuration' },
                                 { icon: <Shield size={16} color="var(--primary)" />, text: 'Rate limiting & security options' },
                                 { icon: <Zap size={16} color="var(--primary)" />, text: 'Streaming & timeout defaults' },
-                                { icon: <Server size={16} color="var(--primary)" />, text: 'Logging, notifications & proxy behavior' },
+                                { icon: <Server size={16} color="var(--primary)" />, text: 'Logging, notifications & routing behavior' },
                             ].map((item, idx) => (
                                 <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
                                     <div style={{ background: 'var(--bg-darker)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -541,7 +541,7 @@ export default function LandingPage() {
                 <div className="container cta-box" style={{ maxWidth: '800px', background: 'var(--bg-card)', padding: '60px', borderRadius: '16px', border: '1px solid var(--border-focus)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
                     <h2 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>Ready to Take Control?</h2>
                     <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '30px' }}>
-                        Set up ClawProxy in minutes and ensure your AI applications never experience downtime due to API limits.
+                        Set up ClawRouter in minutes and ensure your AI applications never experience downtime due to API limits.
                     </p>
                     <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
                         <Link to="/docs" className="btn-primary">

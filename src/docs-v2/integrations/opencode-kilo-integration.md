@@ -1,6 +1,6 @@
 # OpenCode & Kilo CLI Integration
 
-This guide explains how to route AI requests through **ClawProxy** using **OpenCode CLI** or **Kilo CLI**. Both tools share the same configuration format, so everything here applies to both.
+This guide explains how to route AI requests through **ClawRouter** using **OpenCode CLI** or **Kilo CLI**. Both tools share the same configuration format, so everything here applies to both.
 
 > **Version 1.0.12**
 
@@ -8,22 +8,22 @@ This guide explains how to route AI requests through **ClawProxy** using **OpenC
 
 ## How It Works
 
-OpenCode and Kilo CLI use the [Vercel AI SDK](https://sdk.vercel.ai/) under the hood. You can point any SDK provider package at ClawProxy instead of the upstream API by overriding the `baseURL` in your config. ClawProxy then handles key rotation, fallback chains, circuit breaking, and logging -- all transparently.
+OpenCode and Kilo CLI use the [Vercel AI SDK](https://sdk.vercel.ai/) under the hood. You can point any SDK provider package at ClawRouter instead of the upstream API by overriding the `baseURL` in your config. ClawRouter then handles key rotation, fallback chains, circuit breaking, and logging -- all transparently.
 
 ```
-OpenCode/Kilo CLI -> ClawProxy (localhost:3030) -> upstream provider
+OpenCode/Kilo CLI -> ClawRouter (localhost:3030) -> upstream provider
 ```
 
-> **100% Local Privacy:** ClawProxy runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
+> **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
 
-> **Note on Built-In Free Models:** Both Kilo CLI and OpenCode CLI already provide access to their own free models out of the box -- no signup or API key required. ClawProxy adds value on top by enabling **key rotation**, **provider fallback chains**, **circuit breaking**, and **centralized logging** across all your providers, including third-party free-tier APIs that require their own keys (Google Gemini, Groq, OpenRouter, NVIDIA, etc.).
+> **Note on Built-In Free Models:** Both Kilo CLI and OpenCode CLI already provide access to their own free models out of the box -- no signup or API key required. ClawRouter adds value on top by enabling **key rotation**, **provider fallback chains**, **circuit breaking**, and **centralized logging** across all your providers, including third-party free-tier APIs that require their own keys (Google Gemini, Groq, OpenRouter, NVIDIA, etc.).
 
 ---
 
 ## Prerequisites
 
-1. **ClawProxy running** on `http://localhost:3030` (default).
-2. **Provider created** in the ClawProxy dashboard with API keys added (if applicable).
+1. **ClawRouter running** on `http://localhost:3030` (default).
+2. **Provider created** in the ClawRouter dashboard with API keys added (if applicable).
 3. Copy the **Base URL** from the provider's detail page in the dashboard.
 
 ---
@@ -74,7 +74,7 @@ Create the file if it doesn't exist. The structure is identical for both.
 |-------|----------|-------------|
 | `npm` | Yes | AI SDK package to use. See SDK Packages below. |
 | `name` | Yes | Display name shown in the CLI provider selector. |
-| `options.baseURL` | Yes | ClawProxy proxy URL for this provider. |
+| `options.baseURL` | Yes | ClawRouter proxy URL for this provider. |
 | `options.headers` | No | Custom headers sent with every request. Use for auth tokens. |
 | `models` | Yes | Dictionary of available models with their limits. |
 | `models.{id}.name` | Yes | Human-readable model name. |
@@ -91,19 +91,19 @@ Create the file if it doesn't exist. The structure is identical for both.
 | `@ai-sdk/anthropic` | Anthropic Claude (native Anthropic SDK). |
 | `@ai-sdk/openai` | OpenAI (native OpenAI SDK). |
 
-> **Tip:** When in doubt, use `@ai-sdk/openai-compatible`. It works with any OpenAI-compatible endpoint, which covers the majority of providers routed through ClawProxy.
+> **Tip:** When in doubt, use `@ai-sdk/openai-compatible`. It works with any OpenAI-compatible endpoint, which covers the majority of providers routed through ClawRouter.
 
 ### About the Authorization Header
 
-Use **any value** for the `Authorization` header (e.g., `"Bearer any-value"`). ClawProxy strips the client header and injects your real, managed API keys before forwarding to the upstream provider.
+Use **any value** for the `Authorization` header (e.g., `"Bearer any-value"`). ClawRouter strips the client header and injects your real, managed API keys before forwarding to the upstream provider.
 
-> **Exception:** If your provider's API Key Mode is set to **Pass Through** in ClawProxy, the header you set here will be forwarded as-is to the upstream provider.
+> **Exception:** If your provider's API Key Mode is set to **Pass Through** in ClawRouter, the header you set here will be forwarded as-is to the upstream provider.
 
 ---
 
 ## Setup Steps
 
-1. **Create the provider** in ClawProxy dashboard (Quick Setup or Custom).
+1. **Create the provider** in ClawRouter dashboard (Quick Setup or Custom).
 2. **Add your API keys** in the provider's **API Keys** tab.
 3. **Copy the Base URL** from the top of the provider's detail page.
 4. **Edit your config file** (`opencode.json` or `kilo.json`) and add the provider entry.
@@ -144,7 +144,7 @@ The most generous free tier with high rate limits. Get a free API key from [Goog
   "provider": {
     "google-proxy": {
       "npm": "@ai-sdk/google",
-      "name": "Google Gemini (via ClawProxy)",
+      "name": "Google Gemini (via ClawRouter)",
       "options": {
         "baseURL": "http://localhost:3030/proxy/google-gemini/v1beta",
         "headers": {
@@ -241,7 +241,7 @@ Extreme speed inference for open models. Free tier is rate-limited but completel
   "provider": {
     "groq-proxy": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Groq (via ClawProxy)",
+      "name": "Groq (via ClawRouter)",
       "options": {
         "baseURL": "http://localhost:3030/proxy/groq/v1",
         "headers": {
@@ -305,7 +305,7 @@ Check for more: https://openrouter.ai/models
   "provider": {
     "openrouter-proxy": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "OpenRouter (via ClawProxy)",
+      "name": "OpenRouter (via ClawRouter)",
       "options": {
         "baseURL": "http://localhost:3030/proxy/openrouter/v1",
         "headers": {
@@ -379,7 +379,7 @@ Check for more: https://build.nvidia.com/models
   "provider": {
     "nvidia-proxy": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "NVIDIA NIM (via ClawProxy)",
+      "name": "NVIDIA NIM (via ClawRouter)",
       "options": {
         "baseURL": "http://localhost:3030/proxy/nvidia-nim/v1",
         "headers": {
@@ -445,7 +445,7 @@ Check for more: https://ollama.com/search?c=cloud&o=newest
   "provider": {
     "ollama-proxy": {
       "npm": "@ai-sdk/openai-compatible",
-      "name": "Ollama Cloud (via ClawProxy)",
+      "name": "Ollama Cloud (via ClawRouter)",
       "options": {
         "baseURL": "http://localhost:3030/proxy/ollama-cloud/v1",
         "headers": {
@@ -479,7 +479,7 @@ Check for more: https://ollama.com/search?c=cloud&o=newest
 }
 ```
 
-> **Note:** When adding the API key in ClawProxy, use `sk-not-required` as the key value. Ollama Cloud uses header-based auth that ClawProxy manages automatically.
+> **Note:** When adding the API key in ClawRouter, use `sk-not-required` as the key value. Ollama Cloud uses header-based auth that ClawRouter manages automatically.
 
 ---
 
@@ -529,15 +529,15 @@ You can add multiple providers in a single config file. Each provider appears as
 
 ## Adding Any Provider
 
-ClawProxy supports **any provider** with an OpenAI-compatible, Google, or Anthropic API format. To add a provider not listed here:
+ClawRouter supports **any provider** with an OpenAI-compatible, Google, or Anthropic API format. To add a provider not listed here:
 
-1. **Create the provider** in ClawProxy dashboard (Quick Setup template or Custom).
+1. **Create the provider** in ClawRouter dashboard (Quick Setup template or Custom).
 2. **Identify the right SDK package:**
    - Most providers > `@ai-sdk/openai-compatible`
    - Google Gemini > `@ai-sdk/google`
    - Anthropic Claude > `@ai-sdk/anthropic`
 3. **Copy the Base URL** from the provider's detail page.
-4. **Look up model IDs and limits** from the provider's documentation, or use **Fetch Models** in the ClawProxy dashboard.
+4. **Look up model IDs and limits** from the provider's documentation, or use **Fetch Models** in the ClawRouter dashboard.
 5. **Add the entry** to your config file following the structure above.
 
 ---
@@ -550,16 +550,16 @@ ClawProxy supports **any provider** with an OpenAI-compatible, Google, or Anthro
 
 **"Model not found" errors?**
 - Double-check the model ID matches exactly what the upstream provider expects.
-- Use **Fetch Models** in ClawProxy dashboard to see current valid model IDs.
+- Use **Fetch Models** in ClawRouter dashboard to see current valid model IDs.
 - External providers may change model IDs without notice.
 
 **Connection refused?**
-- Ensure ClawProxy is running: `clawproxy status` or check `http://localhost:3030`.
-- Verify the `baseURL` port matches your ClawProxy port (default: 3030).
+- Ensure ClawRouter is running: `clawrouter status` or check `http://localhost:3030`.
+- Verify the `baseURL` port matches your ClawRouter port (default: 3030).
 
 **Auth errors from upstream?**
-- Check that API keys are correctly added in the ClawProxy dashboard (not in the CLI config).
+- Check that API keys are correctly added in the ClawRouter dashboard (not in the CLI config).
 - Verify the API Key Mode matches your provider type (`Managed` for most providers).
 
 **Streaming not working?**
-- ClawProxy supports SSE streaming with zero buffering. If you experience issues, check the ClawProxy logs at `http://localhost:3030` > **Logs** page for error details.
+- ClawRouter supports SSE streaming with zero buffering. If you experience issues, check the ClawRouter logs at `http://localhost:3030` > **Logs** page for error details.

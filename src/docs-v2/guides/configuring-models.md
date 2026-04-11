@@ -13,7 +13,7 @@ Step-by-step guides for discovering models, adding them to your provider, and en
 1. Open the provider's detail page.
 2. Go to the **Models** tab.
 3. Click **Fetch Models** (or "Fetch from Provider").
-4. ClawProxy queries the upstream provider's API and displays available models.
+4. ClawRouter queries the upstream provider's API and displays available models.
 5. For **Kilo AI** and **OpenCode Zen**: models show **Free** / **Paid** badges.
 6. Use the **search box** to filter models by name or ID.
 7. Click **+ Add** next to any model to add it to the fallback list.
@@ -27,7 +27,7 @@ Step-by-step guides for discovering models, adding them to your provider, and en
    { "id": "giga-potato-thinking", "name": "giga-potato-thinking" }
    ```
 
-> **Note:** For providers without a public models endpoint (Perplexity, Anthropic), ClawProxy returns a hardcoded list of known supported models.
+> **Note:** For providers without a public models endpoint (Perplexity, Anthropic), ClawRouter returns a hardcoded list of known supported models.
 
 ---
 
@@ -47,12 +47,12 @@ Step-by-step guides for discovering models, adding them to your provider, and en
 
 **Example scenario:**
 - You have models: `gpt-5-nano` (priority 1), `minimax-m2.5-free` (priority 2), `big-pickle` (priority 3).
-- Client requests `gpt-5-nano`. If it returns a model error, ClawProxy silently retries with `minimax-m2.5-free`. If that also fails, it tries `big-pickle`.
+- Client requests `gpt-5-nano`. If it returns a model error, ClawRouter silently retries with `minimax-m2.5-free`. If that also fails, it tries `big-pickle`.
 
 ---
 
 ## Do I Need to Define Models in the Dashboard?
 
-**Generally, no.** You define the Provider and its API Keys in ClawProxy. Model selection happens in your AI client (like OpenClaw). When your client requests a model, ClawProxy forwards the request upstream as-is.
+**Generally, no.** You define the Provider and its API Keys in ClawRouter. Model selection happens in your AI client (like OpenClaw). When your client requests a model, ClawRouter forwards the request upstream as-is.
 
 **Exception:** Add models to the provider's **Models tab** if you want to use **Model Fallback** (automatic retry with a different model). Saved models also appear as options when setting Target Model IDs in the Provider Fallback Chain.

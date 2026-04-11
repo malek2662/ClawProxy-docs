@@ -1,6 +1,6 @@
 # Error Classification & Retry Cascade
 
-ClawProxy classifies upstream errors to determine the correct recovery action. Each error type triggers a specific behavior in the retry cascade.
+ClawRouter classifies upstream errors to determine the correct recovery action. Each error type triggers a specific behavior in the retry cascade.
 
 > **Version 1.0.12**
 
@@ -23,7 +23,7 @@ ClawProxy classifies upstream errors to determine the correct recovery action. E
 
 ## Retry Cascade (Exact Order)
 
-When a request fails, ClawProxy follows this exact retry cascade:
+When a request fails, ClawRouter follows this exact retry cascade:
 
 1. **REQUEST_ERROR** (400/413/422/499) > Return to client immediately (will fail with any key).
 2. **OVERLOADED** (503/529) > Wait 2 seconds, retry same key (up to 2 inner retries).
@@ -51,9 +51,9 @@ When a request fails, ClawProxy follows this exact retry cascade:
 
 ## Provider-Specific Quirks
 
-Some providers return non-standard HTTP status codes that ClawProxy handles specially:
+Some providers return non-standard HTTP status codes that ClawRouter handles specially:
 
-| Provider | Quirk | How ClawProxy Handles It |
+| Provider | Quirk | How ClawRouter Handles It |
 |----------|-------|-------------------------|
 | **OpenCode.ai** | Returns HTTP 401 for unsupported models (body: "ModelError") | Classified as MODEL_ERROR, not AUTH_ERROR. Key is not disabled. |
 | **Kilo.ai** | Returns HTTP 401 for non-free models when no auth (body: "PAID_MODEL_AUTH_REQUIRED") | Classified as MODEL_ERROR. |

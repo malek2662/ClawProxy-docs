@@ -36,9 +36,9 @@ export default function Layout() {
             <nav className="glass-nav">
                 <div className="container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
                     <Link to="/" onClick={() => window.scrollTo(0, 0)} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-main)' }}>
-                        <img src={clawLogo} alt="ClawProxy Logo" style={{ width: '28px', height: '28px' }} />
+                        <img src={clawLogo} alt="ClawRouter Logo" style={{ width: '28px', height: '28px' }} />
                         <span className="nav-logo-text" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: '1.2rem', letterSpacing: '0.5px' }}>
-                            ClawProxy
+                            ClawRouter
                         </span>
                     </Link>
 
@@ -65,7 +65,7 @@ export default function Layout() {
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                             <a
-                                href="mailto:support@clawproxy.qzz.io"
+                                href="mailto:support@clawrouter.qzz.io"
                                 title="Contact via Email"
                                 style={{ color: 'var(--text-muted)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
                                 onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
@@ -119,13 +119,13 @@ export default function Layout() {
                         {/* Column 1: Brand */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <img src={clawLogo} alt="ClawProxy Logo" style={{ width: '32px', height: '32px' }} />
+                                <img src={clawLogo} alt="ClawRouter Logo" style={{ width: '32px', height: '32px' }} />
                                 <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: '1.4rem', color: 'var(--text-main)', letterSpacing: '0.5px' }}>
-                                    ClawProxy
+                                    ClawRouter
                                 </span>
                             </div>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.7', margin: 0 }}>
-                                High-performance, self-hosted AI routing proxy. Designed for reliability, privacy, and seamless API management.
+                                High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.
                             </p>
                         </div>
 
@@ -142,7 +142,7 @@ export default function Layout() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                             <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: '600', margin: 0 }}>Connect</h4>
                             <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                                <a href="mailto:support@clawproxy.qzz.io" title="Email" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                                <a href="mailto:support@clawrouter.qzz.io" title="Email" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path><rect width="20" height="16" x="2" y="4" rx="2"></rect></svg>
                                 </a>
                                 <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
@@ -165,7 +165,7 @@ export default function Layout() {
                     }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
-                                &copy; {new Date().getFullYear()} ClawProxy. All rights reserved.
+                                &copy; {new Date().getFullYear()} ClawRouter. All rights reserved.
                             </p>
                             <p style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '0.75rem', maxWidth: '400px', margin: 0, lineHeight: '1.4' }}>
                                 <span style={{ color: 'var(--text-main)', fontWeight: '500' }}>Terms & Refund Policy:</span> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.

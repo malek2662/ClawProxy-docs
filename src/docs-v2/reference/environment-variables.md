@@ -1,6 +1,6 @@
 # Environment Variables
 
-All environment variables that ClawProxy recognizes, with their defaults and descriptions.
+All environment variables that ClawRouter recognizes, with their defaults and descriptions.
 
 > **Version 1.0.12**
 
@@ -12,7 +12,7 @@ All environment variables that ClawProxy recognizes, with their defaults and des
 |----------|---------|-------------|
 | `PORT` | `3030` | Server listening port. Can also be overridden with the `--port` CLI flag. |
 | `HOST` | `0.0.0.0` | Bind address. `0.0.0.0` binds to all network interfaces. |
-| `DB_PATH` | `./clawproxy.db` | Path to the SQLite database file. |
+| `DB_PATH` | `./clawrouter.db` | Path to the SQLite database file. |
 
 ---
 

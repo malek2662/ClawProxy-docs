@@ -1,6 +1,6 @@
 # API Reference
 
-ClawProxy exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.
+ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.
 
 > **Version 1.0.12**
 

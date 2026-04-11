@@ -1,6 +1,6 @@
 # Key Rotation
 
-ClawProxy allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
+ClawRouter allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
 
 > **Version 1.0.12**
 
@@ -95,13 +95,13 @@ The **Fixed** mode is useful when you have many keys (e.g., 50+) but want faster
 ## Frequently Asked Questions
 
 ### Can I add multiple API keys to the same provider?
-Yes, this is one of ClawProxy's core features. Add as many keys as you want. ClawProxy rotates between them automatically when errors occur, effectively combining their quotas into one stable connection.
+Yes, this is one of ClawRouter's core features. Add as many keys as you want. ClawRouter rotates between them automatically when errors occur, effectively combining their quotas into one stable connection.
 
 ### Why was my API key permanently disabled?
-ClawProxy permanently disables a key when it receives an **auth error** (HTTP 401, 402, 403 without content moderation context). This means the key is invalid, expired, or revoked. Check the Error History for details. You can re-enable it manually from the API Keys tab if you believe it was a transient issue.
+ClawRouter permanently disables a key when it receives an **auth error** (HTTP 401, 402, 403 without content moderation context). This means the key is invalid, expired, or revoked. Check the Error History for details. You can re-enable it manually from the API Keys tab if you believe it was a transient issue.
 
 ### A key shows errors but is still active -- why?
-ClawProxy only permanently disables keys on **auth errors** (401, 402, 403). For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally.
+ClawRouter only permanently disables keys on **auth errors** (401, 402, 403). For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally.
 
 ### All keys in cooldown at the same time?
 Add more keys to the pool, switch to Round Robin rotation to distribute load, or reduce request frequency from your client. Cooldowns expire automatically after the backoff period.

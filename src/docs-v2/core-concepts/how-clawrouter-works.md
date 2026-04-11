@@ -1,14 +1,14 @@
-# How ClawProxy Works
+# How ClawRouter Works
 
-An overview of ClawProxy's architecture, request flow, and core design principles.
+An overview of ClawRouter's architecture, request flow, and core design principles.
 
 > **Version 1.0.12**
 
 ---
 
-## What is ClawProxy?
+## What is ClawRouter?
 
-**ClawProxy** is a self-hosted AI routing proxy that sits between your AI client (OpenClaw or any OpenAI-compatible tool) and upstream AI providers. It manages API key rotation, provider fallback chains, model-level fallback, circuit breaking, real-time notifications, and full request logging.
+**ClawRouter** is a self-hosted AI routing proxy that sits between your AI client (OpenClaw or any OpenAI-compatible tool) and upstream AI providers. It manages API key rotation, provider fallback chains, model-level fallback, circuit breaking, real-time notifications, and full request logging.
 
 ---
 
@@ -23,10 +23,10 @@ An overview of ClawProxy's architecture, request flow, and core design principle
 ## Request Flow
 
 ```
-Client -> http://localhost:3030/proxy/{providerId}/v1/... -> ClawProxy -> upstream provider
+Client -> http://localhost:3030/proxy/{providerId}/v1/... -> ClawRouter -> upstream provider
 ```
 
-When a request arrives, ClawProxy:
+When a request arrives, ClawRouter:
 
 1. Identifies the target provider from the URL.
 2. Selects an API key based on the rotation strategy (On Error or Round Robin).
@@ -38,7 +38,7 @@ When a request arrives, ClawProxy:
 
 ## Provider Templates
 
-ClawProxy provides **13 built-in provider templates** pre-configured with the correct name, API format, upstream URL, and API key mode.
+ClawRouter provides **13 built-in provider templates** pre-configured with the correct name, API format, upstream URL, and API key mode.
 
 | Template | API Format | Upstream URL | Key Mode |
 |----------|-----------|-------------|----------|
@@ -74,7 +74,7 @@ ClawProxy provides **13 built-in provider templates** pre-configured with the co
 | `anthropic-messages` | Anthropic Claude Messages | `/proxy/{id}/v1` |
 | `google-generative-ai` | Google Gemini API | `/proxy/{id}/v1beta` |
 
-Each provider has its own format. ClawProxy translates requests into the correct format for each upstream.
+Each provider has its own format. ClawRouter translates requests into the correct format for each upstream.
 
 ---
 
@@ -82,7 +82,7 @@ Each provider has its own format. ClawProxy translates requests into the correct
 
 | Mode | Behavior |
 |------|----------|
-| **Managed** (default) | ClawProxy stores and manages multiple API keys, handling rotation and fallback automatically. The client's key is stripped and replaced with the managed key. |
+| **Managed** (default) | ClawRouter stores and manages multiple API keys, handling rotation and fallback automatically. The client's key is stripped and replaced with the managed key. |
 | **None** | No API key is sent to upstream. Used for bypass providers (Kilo AI, OpenCode Zen). |
 | **Pass Through** | The client's API key is forwarded directly to the upstream provider without modification. No key rotation or management. |
 

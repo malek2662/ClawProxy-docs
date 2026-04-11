@@ -8,7 +8,7 @@ Switches to a completely different provider when the primary provider fails enti
 
 ## How It Works
 
-The Provider Fallback Chain is an ordered list of backup providers. When all keys on the primary provider are exhausted, or the circuit breaker is OPEN, ClawProxy routes the request to the next provider in the chain -- automatically and transparently.
+The Provider Fallback Chain is an ordered list of backup providers. When all keys on the primary provider are exhausted, or the circuit breaker is OPEN, ClawRouter routes the request to the next provider in the chain -- automatically and transparently.
 
 Each fallback provider in the chain is tried sequentially until one succeeds. If all fail, the error is returned to the client.
 
@@ -63,13 +63,13 @@ It does NOT trigger on single-key errors -- those are handled by key rotation fi
 ## Frequently Asked Questions
 
 ### Why does the fallback list only show certain providers?
-ClawProxy filters by **API format** to prevent incompatible routing. Create another provider with the same API format first, then add it as a fallback.
+ClawRouter filters by **API format** to prevent incompatible routing. Create another provider with the same API format first, then add it as a fallback.
 
 ### Can I add the same provider as its own fallback?
 Yes. This is useful for targeting a different model on the same provider when the primary request fails.
 
 ### If Provider B in my fallback chain is also down, does it try Provider C?
-**Yes.** ClawProxy tries each provider in the chain sequentially until one succeeds. If all fail, the error is returned to the client.
+**Yes.** ClawRouter tries each provider in the chain sequentially until one succeeds. If all fail, the error is returned to the client.
 
 ### Fallback chain not triggering?
 Checklist:

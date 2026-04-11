@@ -53,7 +53,7 @@ Check for more: https://ollama.com/search?c=cloud&o=newest
 ### Dashboard Setup
 
 1. Quick Setup > **Ollama Cloud** > Create Provider.
-2. Go to **API Keys** tab > add `sk-not-required` as the key (Ollama Cloud uses header auth; ClawProxy manages the flow).
+2. Go to **API Keys** tab > add `sk-not-required` as the key (Ollama Cloud uses header auth; ClawRouter manages the flow).
 3. Copy the **Base URL**.
 
 ---

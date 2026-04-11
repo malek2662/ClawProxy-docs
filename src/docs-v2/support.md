@@ -1,13 +1,13 @@
 # Support & Contact
 
-**ClawProxy** is developed and maintained by **Malek-Rsh**.
+**ClawRouter** is developed and maintained by **Malek-Rsh**.
 
 ---
 
 ## Get Help
 
 - **Reddit:** [u/Malek262](https://reddit.com/user/Malek262)
-- **Email:** [support@clawproxy.qzz.io](mailto:support@clawproxy.qzz.io)
+- **Email:** [support@clawrouter.qzz.io](mailto:support@clawrouter.qzz.io)
 
 ---
 
@@ -15,11 +15,11 @@
 
 When reporting an issue, please include:
 
-1. **ClawProxy version** (`clawproxy --version`)
+1. **ClawRouter version** (`clawrouter --version`)
 2. **Operating system** (Linux, macOS, or Windows)
 3. **The exact error message or HTTP status code**
 4. **Steps to reproduce the issue**
-5. **Relevant log entries** (from the Logs page or `clawproxy logs`)
+5. **Relevant log entries** (from the Logs page or `clawrouter logs`)
 
 This information helps diagnose and resolve your issue as quickly as possible.
 

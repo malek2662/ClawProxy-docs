@@ -1,6 +1,6 @@
 # Managing API Keys
 
-Step-by-step guides for adding, managing, and troubleshooting API keys in ClawProxy.
+Step-by-step guides for adding, managing, and troubleshooting API keys in ClawRouter.
 
 > **Version 1.0.12**
 

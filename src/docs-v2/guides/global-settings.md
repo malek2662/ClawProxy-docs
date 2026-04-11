@@ -43,7 +43,7 @@ Step-by-step guide for configuring system-wide proxy behavior: key retry strateg
 
 ## When to Use Fixed Key Retry Mode
 
-If you have many API keys (e.g., 50+) but want faster failover to a fallback provider, switch Key Retry Mode to `Fixed` with a lower limit (e.g., 5-10). This prevents ClawProxy from trying every single key before moving to the fallback chain.
+If you have many API keys (e.g., 50+) but want faster failover to a fallback provider, switch Key Retry Mode to `Fixed` with a lower limit (e.g., 5-10). This prevents ClawRouter from trying every single key before moving to the fallback chain.
 
-- **All** (default): On failure, ClawProxy tries every available key for the provider before giving up.
-- **Fixed**: ClawProxy tries up to the configured **Key Retry Limit** number of keys, then triggers the fallback chain.
+- **All** (default): On failure, ClawRouter tries every available key for the provider before giving up.
+- **Fixed**: ClawRouter tries up to the configured **Key Retry Limit** number of keys, then triggers the fallback chain.

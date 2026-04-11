@@ -1,6 +1,6 @@
 # CLI Commands
 
-ClawProxy includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
+ClawRouter includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
 
 > **Version 1.0.12**
 
@@ -11,47 +11,47 @@ ClawProxy includes a built-in command-line interface (CLI) to manage the proxy a
 ### install
 
 ```bash
-clawproxy install
+clawrouter install
 ```
 
-Installs ClawProxy as a background system service and starts it. After installation, opens the dashboard in your default browser.
+Installs ClawRouter as a background system service and starts it. After installation, opens the dashboard in your default browser.
 
 ### start
 
 ```bash
-clawproxy start
+clawrouter start
 ```
 
-Starts the ClawProxy service. If the server hasn't been built yet, it will build automatically before starting.
+Starts the ClawRouter service. If the server hasn't been built yet, it will build automatically before starting.
 
 ### stop
 
 ```bash
-clawproxy stop
+clawrouter stop
 ```
 
-Stops the currently running ClawProxy service gracefully.
+Stops the currently running ClawRouter service gracefully.
 
 ### restart
 
 ```bash
-clawproxy restart
+clawrouter restart
 ```
 
-Restarts the ClawProxy service. Use this after updating ClawProxy or changing environment variables.
+Restarts the ClawRouter service. Use this after updating ClawRouter or changing environment variables.
 
 ### status
 
 ```bash
-clawproxy status
+clawrouter status
 ```
 
-Shows the current status of the ClawProxy service -- whether it's running, the process ID (PID), port, and uptime.
+Shows the current status of the ClawRouter service -- whether it's running, the process ID (PID), port, and uptime.
 
 ### logs
 
 ```bash
-clawproxy logs
+clawrouter logs
 ```
 
 Follows the live service logs in your terminal. Press `Ctrl + C` to exit.
@@ -60,23 +60,23 @@ Follows the live service logs in your terminal. Press `Ctrl + C` to exit.
 ### uninstall
 
 ```bash
-clawproxy uninstall
+clawrouter uninstall
 ```
 
-Removes the ClawProxy background service from your system. Your database and configuration files are preserved.
+Removes the ClawRouter background service from your system. Your database and configuration files are preserved.
 
 ### version
 
 ```bash
-clawproxy --version
+clawrouter --version
 ```
 
-Displays the currently installed ClawProxy version.
+Displays the currently installed ClawRouter version.
 
 ### help
 
 ```bash
-clawproxy help
+clawrouter help
 ```
 
 Displays the full help message with all available commands and options.
@@ -89,14 +89,14 @@ Displays the full help message with all available commands and options.
 |--------|-------------|
 | `--port <port>` | Override the server port (default: `3030`) |
 | `--no-open` | Don't open the browser automatically after `install` |
-| `--version`, `-v` | Show the current ClawProxy version |
+| `--version`, `-v` | Show the current ClawRouter version |
 | `--help`, `-h` | Show the help message |
 
 ---
 
 ## Service Backends
 
-ClawProxy auto-detects the best service manager for your platform:
+ClawRouter auto-detects the best service manager for your platform:
 
 | Platform | Backend |
 |----------|---------|
@@ -104,8 +104,8 @@ ClawProxy auto-detects the best service manager for your platform:
 | macOS | launchd (`~/Library/LaunchAgents`) |
 | Windows | node-windows (Windows Service) |
 
-If the native service manager isn't available, ClawProxy falls back to a built-in process manager.
+If the native service manager isn't available, ClawRouter falls back to a built-in process manager.
 
 ---
 
-> **Tip:** Run `clawproxy logs` regularly to ensure your Provider Fallback Chain, Model Fallback, Smart Key Rotation, and Circuit Breaker are all working as expected.
+> **Tip:** Run `clawrouter logs` regularly to ensure your Provider Fallback Chain, Model Fallback, Smart Key Rotation, and Circuit Breaker are all working as expected.

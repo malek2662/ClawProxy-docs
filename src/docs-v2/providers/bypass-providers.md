@@ -1,6 +1,6 @@
 # Bypass Providers
 
-Bypass providers (Kilo AI and OpenCode Zen) access high-performance AI models without requiring an API key. ClawProxy handles the bypass internally.
+Bypass providers (Kilo AI and OpenCode Zen) access high-performance AI models without requiring an API key. ClawRouter handles the bypass internally.
 
 > **Version 1.0.12**
 
@@ -118,4 +118,4 @@ For both bypass providers:
 ### What Do the Free/Paid Badges Mean?
 
 - **Free**: The model is accessible without a paid subscription.
-- **Paid**: The model requires an active subscription or credits on the provider's platform. Using a paid model without a subscription will result in a "PAID_MODEL_AUTH_REQUIRED" error, which ClawProxy classifies as MODEL_ERROR (not AUTH_ERROR).
+- **Paid**: The model requires an active subscription or credits on the provider's platform. Using a paid model without a subscription will result in a "PAID_MODEL_AUTH_REQUIRED" error, which ClawRouter classifies as MODEL_ERROR (not AUTH_ERROR).

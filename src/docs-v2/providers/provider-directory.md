@@ -1,6 +1,6 @@
 # Provider Directory
 
-A complete list of all built-in provider templates in ClawProxy. Each template comes pre-configured with the correct name, API format, upstream URL, and API key mode.
+A complete list of all built-in provider templates in ClawRouter. Each template comes pre-configured with the correct name, API format, upstream URL, and API key mode.
 
 > **Version 1.0.12**
 
@@ -33,7 +33,7 @@ A complete list of all built-in provider templates in ClawProxy. Each template c
 
 ### Bypass Providers (No API Key Required)
 
-**Kilo AI** and **OpenCode Zen** are special bypass providers that access high-performance AI models without requiring an API key. ClawProxy handles the bypass internally.
+**Kilo AI** and **OpenCode Zen** are special bypass providers that access high-performance AI models without requiring an API key. ClawRouter handles the bypass internally.
 
 See the full Bypass Providers guide for setup details, available free models, and configuration.
 
@@ -67,5 +67,5 @@ For providers not in the template list, use the **Custom** option with a blank f
 
 ## Important Notes
 
-- ClawProxy only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
-- **100% Local Privacy:** ClawProxy runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
+- ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
+- **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.

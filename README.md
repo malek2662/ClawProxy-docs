@@ -1,6 +1,6 @@
-# ClawProxy - GitHub Pages
+# ClawRouter - GitHub Pages
 
-This directory contains the professional, dashboard-inspired web page designed specifically to be hosted on GitHub Pages for the **ClawProxy** project. It combines the `README`, `QUICKSTART`, `OPENCLAW_PROVIDERS`, and `Knowledge Base` information into an interactive, beautifully styled React application.
+This directory contains the professional, dashboard-inspired web page designed specifically to be hosted on GitHub Pages for the **ClawRouter** project. It combines the `README`, `QUICKSTART`, `OPENCLAW_PROVIDERS`, and `Knowledge Base` information into an interactive, beautifully styled React application.
 
 ## 🚀 Running Locally
 
@@ -66,4 +66,4 @@ npm run dev
 
 ## Notes on Markdown Content
 
-The markdown files (`ClawProxy-Knowledge-Base.md`, `README.md`, etc.) are imported directly as raw text from the root of the project using Vite's `?raw` feature. You **do not** need to update the website codebase every time you alter your markdown documentation! Just modify the root `.md` files as you normally would, and the next time you run `npm run build` or `npm run deploy`, the changes will automatically sync into the frontend website.
+The markdown files (`ClawRouter-Knowledge-Base.md`, `README.md`, etc.) are imported directly as raw text from the root of the project using Vite's `?raw` feature. You **do not** need to update the website codebase every time you alter your markdown documentation! Just modify the root `.md` files as you normally would, and the next time you run `npm run build` or `npm run deploy`, the changes will automatically sync into the frontend website.

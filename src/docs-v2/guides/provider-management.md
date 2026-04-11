@@ -24,7 +24,7 @@ Step-by-step guides for managing provider lifecycle: resetting the circuit break
 
 ## Configure Timeout Settings
 
-**Goal:** Adjust how long ClawProxy waits for upstream responses.
+**Goal:** Adjust how long ClawRouter waits for upstream responses.
 
 1. Open the provider's **Settings** tab.
 2. Find **Timeout (ms)** -- default is `120000` (2 minutes).
@@ -76,9 +76,9 @@ A disabled provider:
 
 ## Check for Updates
 
-**Goal:** Check if a newer version of ClawProxy is available and update.
+**Goal:** Check if a newer version of ClawRouter is available and update.
 
-1. ClawProxy checks for updates automatically during its periodic license check.
+1. ClawRouter checks for updates automatically during its periodic license check.
 2. If a new version is available, an **Update Available** badge appears in the sidebar.
 3. Click the badge to open the **Update Modal**.
 4. The modal shows:

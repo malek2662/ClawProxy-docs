@@ -10,7 +10,7 @@ Step-by-step guide for setting up provider fallback chains and building a comple
 
 **Goal:** Route to a backup provider when your primary provider fails completely.
 
-**Prerequisites:** You need at least two providers with the **same API format** configured in ClawProxy.
+**Prerequisites:** You need at least two providers with the **same API format** configured in ClawRouter.
 
 **Steps:**
 
@@ -66,7 +66,7 @@ Step-by-step guide for setting up provider fallback chains and building a comple
 
 1. On the **Groq** provider page, click **"Prompt for AI"**.
 2. Copy the prompt and paste to your OpenClaw agent.
-3. Your AI client now sends requests to Groq through ClawProxy.
+3. Your AI client now sends requests to Groq through ClawRouter.
 
 ### What Happens on Failure
 

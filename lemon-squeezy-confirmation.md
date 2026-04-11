@@ -13,9 +13,9 @@ Installation & Activation Guide
 ## Private Note (Markdown)
 
 ```markdown
-## You're in — let's get ClawProxy running.
+## You're in — let's get ClawRouter running.
 
-Your payment is confirmed. Follow the steps below to install and activate ClawProxy.
+Your payment is confirmed. Follow the steps below to install and activate ClawRouter.
 
 ---
 
@@ -24,13 +24,13 @@ Your payment is confirmed. Follow the steps below to install and activate ClawPr
 **Linux / macOS** — open a terminal and run:
 
 ```
-curl -fsSL https://get.clawproxy.qzz.io/install.sh | bash
+curl -fsSL https://get.clawrouter.qzz.io/install.sh | bash
 ```
 
 **Windows** — open PowerShell as Administrator and run:
 
 ```
-irm https://get.clawproxy.qzz.io/install.ps1 | iex
+irm https://get.clawrouter.qzz.io/install.ps1 | iex
 ```
 
 > If you're using WSL, use the Linux command above inside your WSL terminal.
@@ -46,7 +46,7 @@ Your dashboard will display a unique **Installation ID**. Send us the following 
 - Your **Installation ID**
 - The **email** (or username) you used for this purchase
 
-You can reach us at **support@clawproxy.qzz.io**
+You can reach us at **support@clawrouter.qzz.io**
 
 Activation is typically completed shortly after receiving your request.
 ```
@@ -56,9 +56,9 @@ Activation is typically completed shortly after receiving your request.
 ## Private Note (Plain Text)
 
 ```
-You're in — let's get ClawProxy running.
+You're in — let's get ClawRouter running.
 
-Your payment is confirmed. Follow the steps below to install and activate ClawProxy.
+Your payment is confirmed. Follow the steps below to install and activate ClawRouter.
 
 
 Install
@@ -66,11 +66,11 @@ Install
 
 Linux / macOS — open a terminal and run:
 
-"curl -fsSL https://get.clawproxy.qzz.io/install.sh | bash"
+"curl -fsSL https://get.clawrouter.qzz.io/install.sh | bash"
 
 Windows — open PowerShell as Administrator and run:
 
-"irm https://get.clawproxy.qzz.io/install.ps1 | iex"
+"irm https://get.clawrouter.qzz.io/install.ps1 | iex"
 
 If you're using WSL, use the Linux command above inside your WSL terminal.
 
@@ -85,7 +85,7 @@ Your dashboard will display a unique Installation ID. Send us the following to a
 - Your Installation ID
 - The email (or username) you used for this purchase
 
-You can reach us at support@clawproxy.qzz.io
+You can reach us at support@clawrouter.qzz.io
 
 Activation is typically completed shortly after receiving your request.
 ```

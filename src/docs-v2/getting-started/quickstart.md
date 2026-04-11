@@ -1,20 +1,20 @@
 # Quickstart Guide
 
-Get ClawProxy running and route your first AI request in minutes.
+Get ClawRouter running and route your first AI request in minutes.
 
 > **Version 1.0.12**
 
-> **Installation Note:** ClawProxy is premium software. After your payment is confirmed, you will receive the installation command and setup instructions automatically.
+> **Installation Note:** ClawRouter is premium software. After your payment is confirmed, you will receive the installation command and setup instructions automatically.
 
-> **Activation Required:** After installing ClawProxy, the app displays your unique **Installation ID**. To activate, contact the developer at [support@clawproxy.qzz.io](mailto:support@clawproxy.qzz.io) or via [Reddit](https://reddit.com/user/Malek262) with your Installation ID. Your installation will then be activated promptly. Once activated, everything works automatically with no further steps needed.
+> **Activation Required:** After installing ClawRouter, the app displays your unique **Installation ID**. To activate, contact the developer at [support@clawrouter.qzz.io](mailto:support@clawrouter.qzz.io) or via [Reddit](https://reddit.com/user/Malek262) with your Installation ID. Your installation will then be activated promptly. Once activated, everything works automatically with no further steps needed.
 
 ---
 
 ## Step 1: First Launch & Activation
 
-1. **Start ClawProxy** using the CLI:
+1. **Start ClawRouter** using the CLI:
    ```bash
-   clawproxy start
+   clawrouter start
    ```
 2. **Open the Dashboard** at `http://localhost:3030` in your browser.
 3. If this is your first launch, you will see the **Awaiting Activation** screen:
@@ -32,7 +32,7 @@ Navigate to **Providers** > **Add Provider**. You have two methods:
 
 ### Method A: Quick Setup (Recommended)
 
-ClawProxy includes **13 built-in provider templates** with pre-configured settings.
+ClawRouter includes **13 built-in provider templates** with pre-configured settings.
 
 1. Click **Quick Setup** in the Add Provider panel.
 2. Select your provider from the grid:
@@ -58,7 +58,7 @@ For providers not in the template list, or for custom/local endpoints:
      - `Google Generative AI` -- Google Gemini API
    - **Upstream URL**: The official API base URL of the service.
    - **API Key Mode**:
-     - `Managed` -- ClawProxy manages multiple keys with rotation (default).
+     - `Managed` -- ClawRouter manages multiple keys with rotation (default).
      - `None` -- No API key needed (for bypass/free providers).
      - `Pass Through` -- Forwards the client's API key directly to upstream.
    - **Rotation Strategy**: `On Error` (use primary key until it fails) or `Round Robin` (distribute requests evenly).
@@ -77,7 +77,7 @@ For providers not in the template list, or for custom/local endpoints:
 4. Click **Add**.
 5. To add multiple keys at once, use the **Bulk Add** option -- paste multiple keys separated by newlines.
 
-**Why add multiple keys?** ClawProxy rotates between keys automatically. When one key hits a rate limit, the next key is used instantly -- your client never sees an error.
+**Why add multiple keys?** ClawRouter rotates between keys automatically. When one key hits a rate limit, the next key is used instantly -- your client never sees an error.
 
 ---
 
@@ -87,7 +87,7 @@ For providers not in the template list, or for custom/local endpoints:
 
 Found in the **Models** tab of any provider.
 
-If a specific model is unavailable (returns a "model not found" error), ClawProxy can automatically retry with the next model in your priority list -- using the same API key.
+If a specific model is unavailable (returns a "model not found" error), ClawRouter can automatically retry with the next model in your priority list -- using the same API key.
 
 1. Go to the provider's **Models** tab.
 2. Enable the **Model Fallback** toggle.
@@ -102,7 +102,7 @@ If a specific model is unavailable (returns a "model not found" error), ClawProx
 
 Found in the **Settings** tab of any provider.
 
-If the entire provider fails (all keys exhausted or circuit breaker opens), ClawProxy routes to backup providers in order.
+If the entire provider fails (all keys exhausted or circuit breaker opens), ClawRouter routes to backup providers in order.
 
 1. Go to the provider's **Settings** tab > **Provider Fallback Chain** section.
 2. Click **Add Fallback Provider**. The dropdown only shows providers with the **same API format** (safety filter).
@@ -114,7 +114,7 @@ If the entire provider fails (all keys exhausted or circuit breaker opens), Claw
 
 ### Circuit Breaker
 
-The Circuit Breaker is automatic. If a provider has **5 failures within 60 seconds**, ClawProxy stops sending requests to it for **30 seconds** and routes directly to the fallback chain. After cooldown, a single test request checks recovery. You can view status and manually reset from the provider's **Settings** tab. These thresholds are configurable from the **Settings** page in the sidebar.
+The Circuit Breaker is automatic. If a provider has **5 failures within 60 seconds**, ClawRouter stops sending requests to it for **30 seconds** and routes directly to the fallback chain. After cooldown, a single test request checks recovery. You can view status and manually reset from the provider's **Settings** tab. These thresholds are configurable from the **Settings** page in the sidebar.
 
 ### Monitoring with Notifications
 
@@ -129,7 +129,7 @@ Click any notification to navigate to the affected provider.
 
 ## Step 5: Configuring Your AI Client
 
-Once your provider is running in ClawProxy, configure your AI client to use the auto-generated **Base URL**.
+Once your provider is running in ClawRouter, configure your AI client to use the auto-generated **Base URL**.
 
 ### The "Prompt for AI" Feature (Recommended for OpenClaw)
 
@@ -152,7 +152,7 @@ For OpenClaw or any compatible client, add the provider to your configuration:
 }
 ```
 
-> **apiKey**: Use any dummy value (e.g., `dummy-key`). ClawProxy strips it and injects your real managed keys automatically.
+> **apiKey**: Use any dummy value (e.g., `dummy-key`). ClawRouter strips it and injects your real managed keys automatically.
 
 > **Base URL format**: The exact URL depends on the API format:
 > - `openai-completions` / `openai-responses` / `anthropic-messages` > `/proxy/{id}/v1`

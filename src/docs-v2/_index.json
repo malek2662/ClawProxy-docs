@@ -11,7 +11,7 @@
     {
       "title": "Core Concepts",
       "items": [
-        { "key": "howItWorks", "title": "How ClawProxy Works", "path": "core-concepts/how-clawproxy-works.md" },
+        { "key": "howItWorks", "title": "How ClawRouter Works", "path": "core-concepts/how-clawrouter-works.md" },
         { "key": "keyRotation", "title": "Key Rotation", "path": "core-concepts/key-rotation.md" },
         { "key": "modelFallback", "title": "Model Fallback", "path": "core-concepts/model-fallback.md" },
         { "key": "providerFallback", "title": "Provider Fallback Chain", "path": "core-concepts/provider-fallback-chain.md" },

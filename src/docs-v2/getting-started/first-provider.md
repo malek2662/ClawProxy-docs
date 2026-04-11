@@ -1,6 +1,6 @@
 # Your First Provider
 
-Step-by-step guide to adding your first AI provider to ClawProxy. Choose from Quick Setup templates or create a custom configuration.
+Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Quick Setup templates or create a custom configuration.
 
 > **Version 1.0.12**
 
@@ -42,7 +42,7 @@ Step-by-step guide to adding your first AI provider to ClawProxy. Choose from Qu
      - `Google Generative AI` -- for Google Gemini
    - **Upstream URL**: The full base URL of the provider's API (e.g., `https://api.example.com/v1`).
    - **API Key Mode**:
-     - `Managed` -- ClawProxy manages multiple keys with rotation
+     - `Managed` -- ClawRouter manages multiple keys with rotation
      - `None` -- No API key (for free/bypass endpoints)
      - `Pass Through` -- Forward client's key directly
 3. Click **Create Provider**.
@@ -55,7 +55,7 @@ Step-by-step guide to adding your first AI provider to ClawProxy. Choose from Qu
 
 **Goal:** Set up a bypass provider that requires no API key.
 
-Bypass providers (Kilo AI and OpenCode Zen) access high-performance models without requiring an API key. ClawProxy handles the bypass internally.
+Bypass providers (Kilo AI and OpenCode Zen) access high-performance models without requiring an API key. ClawRouter handles the bypass internally.
 
 1. Go to **Providers** > **Add Provider** > **Quick Setup**.
 2. Select **Kilo AI** or **OpenCode Zen** from the template grid.

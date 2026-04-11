@@ -8,11 +8,11 @@ Automatically retries a failed request with an alternative model, **same provide
 
 ## How It Works
 
-When a model returns a "model not found" or "invalid model" error, ClawProxy silently switches to the next model in your priority list and retries the request -- using the same API key, on the same provider.
+When a model returns a "model not found" or "invalid model" error, ClawRouter silently switches to the next model in your priority list and retries the request -- using the same API key, on the same provider.
 
 **Example scenario:**
 - You have models: `gpt-5-nano` (priority 1), `minimax-m2.5-free` (priority 2), `big-pickle` (priority 3).
-- Client requests `gpt-5-nano`. If it returns a model error, ClawProxy silently retries with `minimax-m2.5-free`. If that also fails, it tries `big-pickle`.
+- Client requests `gpt-5-nano`. If it returns a model error, ClawRouter silently retries with `minimax-m2.5-free`. If that also fails, it tries `big-pickle`.
 - Your client never sees the internal retries.
 
 ---
@@ -53,7 +53,7 @@ The **Fetch Models** button queries the upstream provider's API and displays ava
 - Click **+ Add** next to any model to add it to the fallback list.
 - Click **Add All** to add all displayed models at once.
 
-> **Note:** For providers without a public models endpoint (Perplexity, Anthropic), ClawProxy returns a hardcoded list of known supported models.
+> **Note:** For providers without a public models endpoint (Perplexity, Anthropic), ClawRouter returns a hardcoded list of known supported models.
 
 ---
 

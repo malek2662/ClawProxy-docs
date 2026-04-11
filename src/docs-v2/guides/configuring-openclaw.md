@@ -1,6 +1,6 @@
 # Configuring OpenClaw
 
-Step-by-step guides for connecting your OpenClaw AI client to ClawProxy providers.
+Step-by-step guides for connecting your OpenClaw AI client to ClawRouter providers.
 
 > **Version 1.0.12**
 
@@ -10,7 +10,7 @@ Step-by-step guides for connecting your OpenClaw AI client to ClawProxy provider
 
 **Goal:** Automatically configure a provider in OpenClaw using the AI-generated prompt.
 
-1. Open the provider's detail page in ClawProxy dashboard.
+1. Open the provider's detail page in ClawRouter dashboard.
 2. Click the **"Prompt for AI"** button (magic wand icon).
 3. A modal appears with a generated prompt containing:
    - The provider's Base URL
@@ -29,7 +29,7 @@ Step-by-step guides for connecting your OpenClaw AI client to ClawProxy provider
 
 ## Configure OpenClaw Manually
 
-**Goal:** Manually add a ClawProxy provider to your OpenClaw configuration.
+**Goal:** Manually add a ClawRouter provider to your OpenClaw configuration.
 
 1. Open `~/.openclaw/openclaw.json` in a text editor.
 2. Find the `models.providers` section.
@@ -45,8 +45,8 @@ Step-by-step guides for connecting your OpenClaw AI client to ClawProxy provider
      ]
    }
    ```
-4. **baseUrl**: Copy from the provider's detail page in ClawProxy (the auto-generated Base URL).
-5. **apiKey**: Use any dummy value like `dummy-key`. ClawProxy strips this and injects the real key.
+4. **baseUrl**: Copy from the provider's detail page in ClawRouter (the auto-generated Base URL).
+5. **apiKey**: Use any dummy value like `dummy-key`. ClawRouter strips this and injects the real key.
 6. **api**: Must match the provider's API format:
    - `openai-completions` for OpenAI Chat Completions format
    - `openai-responses` for OpenAI Responses format
@@ -65,16 +65,16 @@ Step-by-step guides for connecting your OpenClaw AI client to ClawProxy provider
 
 ### About the API Key Field
 
-Use any dummy value (e.g., `dummy-key`) for the `apiKey` field in OpenClaw. ClawProxy strips the dummy key and injects your real, managed API keys to authenticate with upstream providers.
+Use any dummy value (e.g., `dummy-key`) for the `apiKey` field in OpenClaw. ClawRouter strips the dummy key and injects your real, managed API keys to authenticate with upstream providers.
 
-**Exception:** If your provider's API Key Mode is set to **Pass Through** in ClawProxy, the key you set in OpenClaw will be forwarded as-is to the upstream provider.
+**Exception:** If your provider's API Key Mode is set to **Pass Through** in ClawRouter, the key you set in OpenClaw will be forwarded as-is to the upstream provider.
 
 ### About Models
 
-You do **not** need to add models inside the ClawProxy dashboard for normal routing. Models are defined in your OpenClaw configuration. ClawProxy accepts any model name and forwards it upstream.
+You do **not** need to add models inside the ClawRouter dashboard for normal routing. Models are defined in your OpenClaw configuration. ClawRouter accepts any model name and forwards it upstream.
 
 However, you can optionally add models to the provider's **Models tab** to enable **Model Fallback** (automatic retry with a different model) and for convenient model ID selection in the **Provider Fallback Chain**.
 
 ### Model IDs Change
 
-External AI providers may change Model IDs without notice. If you experience model errors, verify the current valid Model ID with the provider's official documentation, or use **Fetch Models** in ClawProxy to get the latest list.
+External AI providers may change Model IDs without notice. If you experience model errors, verify the current valid Model ID with the provider's official documentation, or use **Fetch Models** in ClawRouter to get the latest list.

@@ -8,7 +8,7 @@ Automatic health monitoring that prevents cascading failures by temporarily stop
 
 ## How It Works
 
-If a provider accumulates too many failures within a time window, the circuit breaker "opens" and ClawProxy stops sending requests to that provider. Instead, requests are routed directly to the fallback chain. After a cooldown period, the circuit breaker tests recovery with a single request.
+If a provider accumulates too many failures within a time window, the circuit breaker "opens" and ClawRouter stops sending requests to that provider. Instead, requests are routed directly to the fallback chain. After a cooldown period, the circuit breaker tests recovery with a single request.
 
 ---
 

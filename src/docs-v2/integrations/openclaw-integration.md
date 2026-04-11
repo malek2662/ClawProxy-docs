@@ -1,6 +1,6 @@
 # OpenClaw Integration
 
-This guide explains how to connect your OpenClaw AI client to providers configured in ClawProxy.
+This guide explains how to connect your OpenClaw AI client to providers configured in ClawRouter.
 
 > **Version 1.0.12**
 
@@ -8,15 +8,15 @@ This guide explains how to connect your OpenClaw AI client to providers configur
 
 ## How to Add Providers to OpenClaw
 
-There are three methods. All require the provider to be created first in the ClawProxy dashboard.
+There are three methods. All require the provider to be created first in the ClawRouter dashboard.
 
-> **About `apiKey`:** Use any dummy value (e.g., `dummy-key`) for the `apiKey` field in OpenClaw. ClawProxy strips the dummy key and injects your real, managed API keys to authenticate with upstream providers.
+> **About `apiKey`:** Use any dummy value (e.g., `dummy-key`) for the `apiKey` field in OpenClaw. ClawRouter strips the dummy key and injects your real, managed API keys to authenticate with upstream providers.
 
-> **100% Local Privacy:** ClawProxy runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
+> **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
 
-> **About Models in ClawProxy Dashboard:** You do **not** need to add models inside the ClawProxy dashboard for normal routing. Models are defined in your OpenClaw configuration. ClawProxy accepts any model name and forwards it upstream. However, you can optionally add models to the provider's **Models tab** to enable **Model Fallback** (automatic retry with a different model) and for convenient model ID selection in the **Provider Fallback Chain**.
+> **About Models in ClawRouter Dashboard:** You do **not** need to add models inside the ClawRouter dashboard for normal routing. Models are defined in your OpenClaw configuration. ClawRouter accepts any model name and forwards it upstream. However, you can optionally add models to the provider's **Models tab** to enable **Model Fallback** (automatic retry with a different model) and for convenient model ID selection in the **Provider Fallback Chain**.
 
-> **Model IDs Change:** External AI providers may change Model IDs without notice. If you experience model errors, verify the current valid Model ID with the provider's official documentation, or use **Fetch Models** in ClawProxy to get the latest list.
+> **Model IDs Change:** External AI providers may change Model IDs without notice. If you experience model errors, verify the current valid Model ID with the provider's official documentation, or use **Fetch Models** in ClawRouter to get the latest list.
 
 ---
 
@@ -34,7 +34,7 @@ There are three methods. All require the provider to be created first in the Cla
 
 ## Method 2: The "Prompt for AI"
 
-1. Create your provider in the ClawProxy Dashboard (Quick Setup or Custom).
+1. Create your provider in the ClawRouter Dashboard (Quick Setup or Custom).
 2. Click **"Prompt for AI"** on the provider's detail page.
 3. Copy the generated prompt and paste it to your OpenClaw AI agent -- it will safely configure the provider and models in your `openclaw.json`.
 
@@ -46,7 +46,7 @@ Add the provider to your `~/.openclaw/openclaw.json` under `models.providers`:
 
 ```json
 "PROVIDER_NAME": {
-  "baseUrl": "AUTO_GENERATED_CLAWPROXY_URL",
+  "baseUrl": "AUTO_GENERATED_CLAWROUTER_URL",
   "apiKey": "dummy-key",
   "api": "API_FORMAT",
   "models": [
@@ -70,8 +70,8 @@ Add the provider to your `~/.openclaw/openclaw.json` under `models.providers`:
 
 | Field | Description |
 |-------|-------------|
-| `baseUrl` | Copy from the provider's detail page in ClawProxy (the auto-generated Base URL) |
-| `apiKey` | Use any dummy value like `dummy-key`. ClawProxy strips this and injects the real key. |
+| `baseUrl` | Copy from the provider's detail page in ClawRouter (the auto-generated Base URL) |
+| `apiKey` | Use any dummy value like `dummy-key`. ClawRouter strips this and injects the real key. |
 | `api` | Must match the provider's API format (`openai-completions`, `openai-responses`, `anthropic-messages`, or `google-generative-ai`) |
 | `models` | List of models with `id` and `name`. Get model IDs from the provider's **Models** tab > **Fetch Models**. |
 

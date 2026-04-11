@@ -1,6 +1,6 @@
 # Troubleshooting
 
-Diagnose and resolve common issues with ClawProxy.
+Diagnose and resolve common issues with ClawRouter.
 
 > **Version 1.0.12**
 
@@ -9,21 +9,21 @@ Diagnose and resolve common issues with ClawProxy.
 ## Activation Issues
 
 ### Problem: "not_activated" (HTTP 403) on proxy requests
-**Cause:** Your ClawProxy installation has not been activated yet.
+**Cause:** Your ClawRouter installation has not been activated yet.
 **Solution:**
 1. Open the dashboard at `http://localhost:3030`.
 2. Copy your **Installation ID** from the Awaiting Activation screen.
-3. Send it to [support@clawproxy.qzz.io](mailto:support@clawproxy.qzz.io) or [Reddit u/Malek262](https://reddit.com/user/Malek262).
+3. Send it to [support@clawrouter.qzz.io](mailto:support@clawrouter.qzz.io) or [Reddit u/Malek262](https://reddit.com/user/Malek262).
 4. Once the developer confirms activation, click **Check Activation**.
 
 ### Problem: Was activated but now shows "Awaiting Activation"
 **Possible causes:**
-- You moved ClawProxy to a different machine (the Installation ID is machine-specific).
+- You moved ClawRouter to a different machine (the Installation ID is machine-specific).
 - Local data was reset.
 **Solution:** Contact the developer. If on a new machine, send the new Installation ID.
 
 ### Problem: "Check Activation" button doesn't work
-**Cause:** Network issue preventing ClawProxy from reaching the activation server.
+**Cause:** Network issue preventing ClawRouter from reaching the activation server.
 **Solution:** Check your internet connection. If you're behind a firewall, ensure outbound HTTPS requests are allowed.
 
 ---
@@ -31,7 +31,7 @@ Diagnose and resolve common issues with ClawProxy.
 ## Proxy Request Errors
 
 ### Problem: HTTP 502 "Bad Gateway"
-**Cause:** ClawProxy could not reach the upstream provider.
+**Cause:** ClawRouter could not reach the upstream provider.
 **Possible fixes:**
 1. Check the **Upstream URL** in the provider's Settings tab -- make sure it's correct.
 2. Test the upstream URL directly in your browser or with `curl`.
@@ -47,7 +47,7 @@ Diagnose and resolve common issues with ClawProxy.
 
 ### Problem: HTTP 429 "Rate Limited"
 **Cause:** Your API key hit the provider's rate limit.
-**What ClawProxy does:** Automatically rotates to the next key with a cooldown on the rate-limited key (default 60 seconds, configurable in **Settings** > **Rate Limit Backoff**).
+**What ClawRouter does:** Automatically rotates to the next key with a cooldown on the rate-limited key (default 60 seconds, configurable in **Settings** > **Rate Limit Backoff**).
 **If all keys rate-limited:**
 1. Add more API keys to spread the load.
 2. Consider switching to Round Robin rotation to distribute requests more evenly.
@@ -55,7 +55,7 @@ Diagnose and resolve common issues with ClawProxy.
 
 ### Problem: HTTP 401/403 "Unauthorized"
 **Cause:** The API key is invalid, expired, or revoked.
-**What ClawProxy does:** Permanently disables the key and tries the next one.
+**What ClawRouter does:** Permanently disables the key and tries the next one.
 **Solution:**
 1. Check the key's Error History for details.
 2. Verify the key is valid in the provider's developer console.
@@ -168,26 +168,26 @@ Diagnose and resolve common issues with ClawProxy.
 
 ### Problem: Dashboard not loading at localhost:3030
 **Possible causes:**
-1. ClawProxy is not running -- run `clawproxy status` to check.
+1. ClawRouter is not running -- run `clawrouter status` to check.
 2. Wrong port -- check if a custom port is configured.
 3. Firewall blocking local connections.
 **Solutions:**
-1. Run `clawproxy start` to start the server.
-2. Check `clawproxy status` for the actual port.
+1. Run `clawrouter start` to start the server.
+2. Check `clawrouter status` for the actual port.
 3. Try accessing via `http://127.0.0.1:3030` instead.
 
 ### Problem: WebSocket "Reconnecting" status on Logs page
 **Cause:** The WebSocket connection to the server dropped.
 **Solution:** Usually reconnects automatically within 3 seconds. If persistent:
-1. Check that ClawProxy is still running (`clawproxy status`).
+1. Check that ClawRouter is still running (`clawrouter status`).
 2. Refresh the page.
 3. Check for network issues between your browser and the server.
 
 ### Problem: "EADDRINUSE" error on startup
 **Cause:** Port 3030 (or your configured port) is already in use.
 **Solutions:**
-1. Run `clawproxy stop` first, then `clawproxy start`.
-2. Use a different port: `clawproxy start --port 8080`.
+1. Run `clawrouter stop` first, then `clawrouter start`.
+2. Use a different port: `clawrouter start --port 8080`.
 3. Find and kill the process using the port: `lsof -i :3030` (Linux/macOS).
 
 ---
@@ -213,18 +213,18 @@ Diagnose and resolve common issues with ClawProxy.
 
 ## CLI Issues
 
-### Problem: `clawproxy: command not found`
-**Cause:** ClawProxy is not in your system PATH.
+### Problem: `clawrouter: command not found`
+**Cause:** ClawRouter is not in your system PATH.
 **Solutions:**
 1. Run the install command again.
 2. Restart your terminal to reload PATH.
-3. Run directly from the installation directory: `node /path/to/clawproxy/bin/clawproxy.js`
+3. Run directly from the installation directory: `node /path/to/clawrouter/bin/clawrouter.js`
 
-### Problem: `clawproxy status` says "not running" but dashboard works
-**Cause:** ClawProxy might have been started in a different way (directly via `npm start` instead of the CLI service manager).
-**Solution:** Use `clawproxy stop` then `clawproxy start` to ensure it runs through the service manager.
+### Problem: `clawrouter status` says "not running" but dashboard works
+**Cause:** ClawRouter might have been started in a different way (directly via `npm start` instead of the CLI service manager).
+**Solution:** Use `clawrouter stop` then `clawrouter start` to ensure it runs through the service manager.
 
-### Problem: `clawproxy logs` shows nothing
+### Problem: `clawrouter logs` shows nothing
 **Cause:** No requests have been made, or the service is writing logs elsewhere.
 **Solution:** Make a test request through the proxy and check again.
 
@@ -233,15 +233,15 @@ Diagnose and resolve common issues with ClawProxy.
 ## Provider-Specific Issues
 
 ### OpenCode Zen -- HTTP 401 but key is correct
-**Explanation:** OpenCode returns HTTP 401 for unsupported models with a "ModelError" in the body. ClawProxy correctly classifies this as MODEL_ERROR (not AUTH_ERROR), so your key won't be disabled.
+**Explanation:** OpenCode returns HTTP 401 for unsupported models with a "ModelError" in the body. ClawRouter correctly classifies this as MODEL_ERROR (not AUTH_ERROR), so your key won't be disabled.
 **Solution:** Check that the model ID exists. Use **Fetch Models** to get the current list.
 
 ### Kilo AI -- HTTP 401 for certain models
-**Explanation:** Kilo returns HTTP 401 with "PAID_MODEL_AUTH_REQUIRED" for models that require a paid subscription. ClawProxy classifies this as MODEL_ERROR.
+**Explanation:** Kilo returns HTTP 401 with "PAID_MODEL_AUTH_REQUIRED" for models that require a paid subscription. ClawRouter classifies this as MODEL_ERROR.
 **Solution:** Use only **Free** models. Check the **Free/Paid** badges in Fetch Models.
 
 ### Google Gemini -- HTTP 400 and key gets disabled
-**Explanation:** Google returns HTTP 400 (not 401) for invalid API keys with "API_KEY_INVALID" in the body. ClawProxy correctly classifies this as AUTH_ERROR.
+**Explanation:** Google returns HTTP 400 (not 401) for invalid API keys with "API_KEY_INVALID" in the body. ClawRouter correctly classifies this as AUTH_ERROR.
 **Solution:** Verify your API key at [Google AI Studio](https://aistudio.google.com/).
 
 ### Google Gemini -- Wrong Base URL format
@@ -251,24 +251,24 @@ http://localhost:3030/proxy/{provider-id}/v1beta
 ```
 
 ### Anthropic -- HTTP 529 errors
-**Explanation:** Anthropic uses a custom HTTP 529 status for overloaded servers. ClawProxy classifies this as OVERLOADED and retries the same key after 2 seconds (up to 2 times).
+**Explanation:** Anthropic uses a custom HTTP 529 status for overloaded servers. ClawRouter classifies this as OVERLOADED and retries the same key after 2 seconds (up to 2 times).
 **Solution:** If persistent, add more providers to your fallback chain or wait for Anthropic to recover.
 
 ### Groq -- HTTP 498 errors
-**Explanation:** Groq uses a custom HTTP 498 for flex tier capacity limits. ClawProxy classifies this as RATE_LIMIT.
+**Explanation:** Groq uses a custom HTTP 498 for flex tier capacity limits. ClawRouter classifies this as RATE_LIMIT.
 **Solution:** Wait for the rate limit backoff period (default 60 seconds, configurable in **Settings**), or add more keys / a fallback provider.
 
 ### MiniMax -- Requests succeed but errors in body
-**Explanation:** MiniMax returns HTTP 200 for most errors with custom status codes in the response body. ClawProxy parses the body to detect these:
+**Explanation:** MiniMax returns HTTP 200 for most errors with custom status codes in the response body. ClawRouter parses the body to detect these:
 - Status 1004, 2049, 1008 > AUTH_ERROR
 - Status 1002, 2045, 2056 > RATE_LIMIT
 **Solution:** Check the Error History for the actual error codes.
 
 ### Ollama Cloud -- Key requirements
-**Note:** Ollama Cloud uses header-based auth managed by ClawProxy. Add `sk-not-required` as the key. Do not leave the keys tab empty as the managed mode requires at least one key entry.
+**Note:** Ollama Cloud uses header-based auth managed by ClawRouter. Add `sk-not-required` as the key. Do not leave the keys tab empty as the managed mode requires at least one key entry.
 
 ### Perplexity -- No models returned from Fetch
-**Explanation:** Perplexity does not have a public `/v1/models` endpoint. ClawProxy returns a hardcoded list of known supported models instead.
+**Explanation:** Perplexity does not have a public `/v1/models` endpoint. ClawRouter returns a hardcoded list of known supported models instead.
 **Solution:** Use the models shown by Fetch Models, or check Perplexity's documentation for the latest model list.
 
 ---
@@ -277,13 +277,13 @@ http://localhost:3030/proxy/{provider-id}/v1beta
 
 If all else fails and you need to start fresh:
 
-1. Stop ClawProxy:
+1. Stop ClawRouter:
    ```bash
-   clawproxy stop
+   clawrouter stop
    ```
 2. Delete the local database and restart:
    ```bash
-   clawproxy start
+   clawrouter start
    ```
 3. You will need to reconfigure all providers and keys. Contact the developer if re-activation is needed.
 
