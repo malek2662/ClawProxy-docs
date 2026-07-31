@@ -2,7 +2,7 @@
 
 Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -38,6 +38,34 @@ Step-by-step guide for configuring system-wide proxy behavior: key retry strateg
 
 4. Click **Save Settings**.
 5. Changes take effect immediately -- no restart required.
+
+---
+
+## Proxy API Key
+
+All requests to `/proxy/*` require a **proxy API key** by default. This is separate from your upstream provider keys -- it authenticates your AI clients to ClawRouter itself.
+
+The key is managed from the **Proxy API Key** card on the **Settings** page:
+
+- **Key format:** `cr_` followed by 48 hex characters. Auto-generated on first use and stored locally.
+- **Copy:** Click **Copy** to copy the full key.
+- **Regenerate:** Click **Regenerate** to issue a new key. The old key is **invalidated immediately** -- update all configured clients afterwards.
+- **Require proxy API key toggle:** On by default. Turning it off restores the old behavior where any key value is accepted (not recommended).
+
+**How clients send the key:**
+
+| Client Style | Header |
+|--------------|--------|
+| OpenAI style | `Authorization: Bearer <key>` |
+| Anthropic style | `x-api-key: <key>` |
+
+Requests without a valid key get HTTP 401 with the error body shaped in the client's API format: "Invalid or missing API key. Use the proxy API key from the ClawRouter dashboard (Settings > Proxy API Key)."
+
+> **Note:** The **"Prompt for AI"** dialog embeds your real proxy key in its generated templates automatically -- no manual copying needed.
+
+> **Dashboard API is unchanged:** The admin API (`/api/*`) still uses the dashboard password session token, not the proxy key.
+
+> **Pass Through limitation:** Providers with API Key Mode **Pass Through** forward the client's credential to the upstream provider. With proxy auth enabled, that credential is the proxy key -- not a valid upstream key. Pass Through mode and proxy auth are effectively incompatible; use **Managed** or **None** mode for such providers.
 
 ---
 

@@ -2,7 +2,7 @@
 
 Step-by-step guides for discovering models, adding them to your provider, and enabling Model Fallback.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -17,7 +17,7 @@ Step-by-step guides for discovering models, adding them to your provider, and en
 5. For **Kilo AI** and **OpenCode Zen**: models show **Free** / **Paid** badges.
 6. Use the **search box** to filter models by name or ID.
 7. Click **+ Add** next to any model to add it to the fallback list.
-8. Click **Add All** to add all displayed models at once.
+8. Click **Add All Free** to add every free model at once (bypass providers).
 9. To use a model ID in your AI client, simply **copy the Model ID** shown in the list.
 
 **How to use the model ID in your AI client (OpenClaw):**
@@ -27,7 +27,15 @@ Step-by-step guides for discovering models, adding them to your provider, and en
    { "id": "giga-potato-thinking", "name": "giga-potato-thinking" }
    ```
 
-> **Note:** For providers without a public models endpoint (Perplexity, Anthropic), ClawRouter returns a hardcoded list of known supported models.
+**Caching:** Fetched lists are cached in memory for **5 minutes** (concurrent fetches share a single upstream request). The cache is invalidated automatically when a key is added, deleted, or toggled. Once results are displayed, the button becomes **Refresh** and forces a fresh fetch, bypassing the cache.
+
+> **Note:** For providers without a public models endpoint (Perplexity, MiniMax), ClawRouter returns a hardcoded list of known supported models. Anthropic is fetched live from its paginated `/v1/models` endpoint, with a hardcoded list only as a fallback.
+
+---
+
+## Seeded Preset Models
+
+When you create a provider from a **Quick Setup preset**, the preset's recommended models are saved to the Models tab automatically. You can reorder, delete, or add to them like any manually added model -- they are a starting point, not a locked list.
 
 ---
 
@@ -41,7 +49,7 @@ Step-by-step guides for discovering models, adding them to your provider, and en
    - Type a model ID manually and press Enter or click Add.
    - Or use **Fetch Models** and click **+ Add** for each desired model.
 4. The first model in the list is the most preferred. If it fails, the second is tried, then the third, etc.
-5. Drag-and-drop models to reorder priorities.
+5. Use the up/down arrows to reorder priorities.
 
 **When it activates:** Only when a model returns a "model not found" or "invalid model" error (not on rate limits or auth errors).
 
@@ -55,4 +63,4 @@ Step-by-step guides for discovering models, adding them to your provider, and en
 
 **Generally, no.** You define the Provider and its API Keys in ClawRouter. Model selection happens in your AI client (like OpenClaw). When your client requests a model, ClawRouter forwards the request upstream as-is.
 
-**Exception:** Add models to the provider's **Models tab** if you want to use **Model Fallback** (automatic retry with a different model). Saved models also appear as options when setting Target Model IDs in the Provider Fallback Chain.
+**Exception:** Add models to the provider's **Models tab** if you want to use **Model Fallback** (automatic retry with a different model). Saved models also appear as options when configuring the Provider Fallback Chain, and power the **Automatic** cascade on fallback entries.

@@ -2,7 +2,7 @@
 
 Automatic health monitoring that prevents cascading failures by temporarily stopping requests to a failing provider.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -71,6 +71,3 @@ The circuit breaker might be OPEN from a recent failure burst. Check the circuit
 
 ### Does it reset when the proxy restarts?
 Yes. The circuit breaker is in-memory and resets to CLOSED on every restart. This is by design -- no stale state persists.
-
-### Does the circuit breaker state lost after restart?
-Expected behavior. The circuit breaker is in-memory by design and resets to CLOSED on every restart. This ensures no stale state persists.

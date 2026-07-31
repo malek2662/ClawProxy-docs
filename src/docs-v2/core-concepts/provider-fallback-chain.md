@@ -2,7 +2,7 @@
 
 Switches to a completely different provider when the primary provider fails entirely (all keys exhausted or circuit breaker opens).
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -14,39 +14,57 @@ Each fallback provider in the chain is tried sequentially until one succeeds. If
 
 ---
 
-## Configuration
+## Configuration (Fallback Tab)
+
+Each provider has a dedicated **Fallback** tab (between Models and Settings):
 
 1. Open the primary provider's detail page.
-2. Go to the **Settings** tab.
-3. Scroll down to the **Provider Fallback Chain** section.
+2. Go to the **Fallback** tab.
+3. A **visual chain diagram** shows the flow: source provider > each fallback target with its pinned model or `auto`.
 4. Click **Add Fallback Provider**.
-5. A dropdown appears showing only providers with the **same API format** (safety filter).
-6. *(Optional)* Set a **Target Model ID** -- if the fallback provider has saved models, they appear as a dropdown. Leave empty to pass the original model name through.
+5. Pick a target from the provider dropdown -- it shows **all** your providers. Cross-format targets are fine: ClawRouter translates between API formats automatically (see API Format Translation).
+6. Choose a model from the dropdown:
+   - **Automatic** (default) -- see semantics below.
+   - A saved model from the target's Models tab.
+   - A live model -- click **Fetch models** to pull the target provider's catalog on demand.
+   - Or type any **custom model ID** and press Enter.
 7. The entry is saved immediately after adding.
-8. Repeat to add more fallback providers. They are tried in order (1 > 2 > 3...).
-9. Drag-and-drop to reorder the chain.
+
+**Managing the chain:**
+- **Edit a model**: click the model shown on any entry to change it (same dropdown as above, including Fetch models).
+- **Reorder**: use the up/down arrows -- entries are tried in order (1 > 2 > 3...).
+- **Delete**: remove an entry with the delete button.
+- Disabled fallback targets are visually marked so you can spot dead links in the chain.
+
+> **Note:** The fallback chain UI lives only in the **Fallback** tab (and the global Fallback page) -- it is no longer in the Settings tab.
 
 ---
 
-## Smart Format Filtering
+## "Automatic" Model Semantics
 
-The fallback dropdown only shows providers matching the primary provider's API format. This prevents format incompatibility errors.
+When an entry's model is set to **Automatic** (`fallback_model_id` empty):
 
-An `openai-completions` provider only shows other `openai-completions` providers as potential fallbacks.
+1. The **originally requested model ID** is tried on the fallback provider first, as-is.
+2. If the fallback provider rejects it with a model error, ClawRouter **cascades through that provider's saved model list** (its Models tab entries, in priority order).
+
+> **Requirement:** The cascade in step 2 requires **Model Fallback to be enabled on the fallback provider** (its Models tab). Without it, only the original model ID is tried.
+
+Pin a specific model instead when the fallback provider uses different model names than the primary.
 
 ---
 
-## Target Model ID Mapping
+## Global Fallback Page
 
-Different providers may use different names for the same model. Use the Target Model ID to handle this:
+The **Fallback** page in the sidebar (`/fallback`) summarizes every provider's chain in one place:
 
-| Scenario | What to Set |
-|----------|-------------|
-| Both providers use the same model names | Leave empty |
-| Providers use different names for the same model | Set the exact model ID the fallback provider expects |
-| Want to route to a completely different model on failure | Set the desired model ID |
+- Each provider card shows its chain inline: `A > B (auto) > C (model-id)`.
+- Expand any card to reveal the **full chain editor** -- the same editor as the provider's Fallback tab, reading and writing the same data. Changes made in either place are reflected in both.
 
-**Example:** If Provider A uses `gpt-5` and Provider B uses `openai/gpt-5`, set the Target Model ID to `openai/gpt-5` when adding Provider B as a fallback.
+---
+
+## Any Provider Can Be a Fallback
+
+The fallback provider picker shows all providers -- including ones with a different API format than the primary. ClawRouter translates requests and responses between formats automatically (streaming included), so a fallback chain can mix, for example, an `anthropic-messages` primary with an `openai-completions` fallback. See API Format Translation for details.
 
 ---
 
@@ -63,20 +81,20 @@ It does NOT trigger on single-key errors -- those are handled by key rotation fi
 ## Frequently Asked Questions
 
 ### Why does the fallback list only show certain providers?
-ClawRouter filters by **API format** to prevent incompatible routing. Create another provider with the same API format first, then add it as a fallback.
+It doesn't -- the picker shows **all** providers. Fallback chains can mix API formats; ClawRouter translates between formats automatically. A provider only cannot be its **own** fallback target.
 
 ### Can I add the same provider as its own fallback?
-Yes. This is useful for targeting a different model on the same provider when the primary request fails.
+No -- a provider cannot be its own fallback target. To retry a different model on the same provider, use **Model Fallback** (Models tab) instead.
 
 ### If Provider B in my fallback chain is also down, does it try Provider C?
 **Yes.** ClawRouter tries each provider in the chain sequentially until one succeeds. If all fail, the error is returned to the client.
 
 ### Fallback chain not triggering?
 Checklist:
-1. Is a Provider Fallback Chain configured? (Check Settings tab > Fallback Chain section.)
+1. Is a Provider Fallback Chain configured? (Check the provider's **Fallback** tab.)
 2. Is the fallback provider enabled?
 3. Have all keys on the primary provider been exhausted? (Fallback only triggers after all keys fail, not on a single key error.)
 4. Is the circuit breaker OPEN? (If so, it should skip directly to the fallback chain.)
 
 ### Fallback succeeds but with wrong model?
-The fallback provider uses different model naming conventions. Set the **Target Model ID** on the fallback chain entry to the exact model ID the fallback provider expects.
+The fallback provider uses different model naming conventions. Edit the fallback entry and pin the exact model ID the fallback provider expects -- or use **Automatic** with Model Fallback enabled on the target to cascade through its saved model list.

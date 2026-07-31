@@ -1,72 +1,33 @@
 # Bypass Providers
 
-Bypass providers (Kilo AI and OpenCode Zen) access high-performance AI models without requiring an API key. ClawRouter handles the bypass internally.
+Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add, no signup required.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
-> **Important Setup Step:** When adding these providers via Quick Setup, you **must change the API Key Mode from `Managed` to `None`** before clicking Create Provider. Do **not** add any API keys to these providers.
+> **No Setup Tricks Needed:** Keyless presets ship with API Key Mode `None` pre-selected. Just pick the preset and click **Create Provider** -- do **not** add any API keys. The keys table is replaced by an informational card, and the add-key endpoint rejects keys for these providers.
+
+> **About `apiKey`:** In the OpenClaw configurations below, `cr_your_proxy_key` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog inserts it automatically.
 
 ---
 
-## Kilo AI
+## How Keyless Providers Work
 
-| Setting | Value |
-|---------|-------|
-| **Template** | Quick Setup > **Kilo AI** |
-| **Upstream URL** | `https://api.kilo.ai/api/gateway` |
-| **API Format** | `openai-completions` |
-| **API Key Mode** | Change to **None** |
+Providers with API Key Mode `None` need no keys. Instead, each preset carries **default headers** that ClawRouter merges into every upstream request automatically. For example, OpenCode Zen sends `Authorization: Bearer public` and `x-opencode-client: desktop` on your behalf.
 
-### Available Free Models
-
-| Model ID | Description | Context |
-|----------|-------------|---------|
-| `minimax/minimax-m2.5:free` | SOTA model for productivity and coding (SWE-Bench 80.2%) | 204k |
-| `giga-potato-thinking` | Stealth model optimized for agentic programming with reasoning | 256k |
-| `giga-potato` | Standard version optimized for agentic tasks | 256k |
-| `stepfun/step-3.5-flash:free` | Speed-efficient MoE reasoning model for long contexts | 256k |
-| `kilo-auto/free` | Dynamic router -- auto-routes to available free models | 204k |
-| `openrouter/free` | Auto-routes to random free models on OpenRouter | 200k |
-
-### OpenClaw Configuration
-
-```json
-"kilocode": {
-  "baseUrl": "http://localhost:3030/proxy/kilo-ai/v1",
-  "apiKey": "dummy-key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "minimax/minimax-m2.5:free", "name": "minimax/minimax-m2.5:free" },
-    { "id": "giga-potato-thinking", "name": "giga-potato-thinking" },
-    { "id": "giga-potato", "name": "giga-potato" },
-    { "id": "stepfun/step-3.5-flash:free", "name": "stepfun/step-3.5-flash:free" },
-    { "id": "kilo-auto/free", "name": "kilo-auto/free" },
-    { "id": "openrouter/free", "name": "openrouter/free" }
-  ]
-}
-```
-
-### Dashboard Setup Steps
-
-1. Go to **Providers** > **Add Provider** > **Quick Setup** > select **Kilo AI**.
-2. **Change API Key Mode to `None`**.
-3. Click **Create Provider**.
-4. Do **not** add any API keys.
-5. Copy the generated **Base URL** and use it in your OpenClaw config.
-6. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
+You never see or manage these headers -- they are part of the preset.
 
 ---
 
 ## OpenCode Zen
 
-This provider offers high-performance coding and reasoning models.
+Free high-performance coding and reasoning models, no signup.
 
 | Setting | Value |
 |---------|-------|
 | **Template** | Quick Setup > **OpenCode Zen** |
 | **Upstream URL** | `https://opencode.ai/zen/v1` |
 | **API Format** | `openai-completions` |
-| **API Key Mode** | Change to **None** |
+| **API Key Mode** | `None` (automatic) |
 
 ### Available Free Models
 
@@ -82,7 +43,7 @@ This provider offers high-performance coding and reasoning models.
 ```json
 "opencode": {
   "baseUrl": "http://localhost:3030/proxy/opencode-zen/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "gpt-5-nano", "name": "gpt-5-nano" },
@@ -96,23 +57,87 @@ This provider offers high-performance coding and reasoning models.
 ### Dashboard Setup Steps
 
 1. Go to **Providers** > **Add Provider** > **Quick Setup** > select **OpenCode Zen**.
-2. **Change API Key Mode to `None`**.
-3. Click **Create Provider**.
-4. Do **not** add any API keys.
-5. Copy the generated **Base URL** and use it in your OpenClaw config.
-6. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
+2. Click **Create Provider** -- API Key Mode is already set to `None`.
+3. Do **not** add any API keys.
+4. Copy the generated **Base URL** and use it in your OpenClaw config.
+5. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
+
+---
+
+## Kilo AI (Free)
+
+Free models on the Kilo AI gateway, no key needed.
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **Kilo AI (Free)** |
+| **Upstream URL** | `https://api.kilo.ai/api/gateway` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `None` (automatic) |
+
+> **Two Kilo presets:** **Kilo AI (Free)** is keyless and gives access to the free models below. The **Kilo AI** preset uses API Key Mode `Managed` for accounts with a Kilo API key -- it unlocks the full model catalog including paid models.
+
+### Available Free Models
+
+| Model ID | Description | Context |
+|----------|-------------|---------|
+| `minimax/minimax-m2.5:free` | SOTA model for productivity and coding (SWE-Bench 80.2%) | 204k |
+| `stepfun/step-3.5-flash:free` | Speed-efficient MoE reasoning model for long contexts | 256k |
+| `kilo-auto/free` | Dynamic router -- auto-routes to available free models | 204k |
+| `openrouter/free` | Auto-routes to random free models on OpenRouter | 200k |
+
+### OpenClaw Configuration
+
+```json
+"kilocode": {
+  "baseUrl": "http://localhost:3030/proxy/kilo-ai-free/v1",
+  "apiKey": "cr_your_proxy_key",
+  "api": "openai-completions",
+  "models": [
+    { "id": "minimax/minimax-m2.5:free", "name": "minimax/minimax-m2.5:free" },
+    { "id": "stepfun/step-3.5-flash:free", "name": "stepfun/step-3.5-flash:free" },
+    { "id": "kilo-auto/free", "name": "kilo-auto/free" },
+    { "id": "openrouter/free", "name": "openrouter/free" }
+  ]
+}
+```
+
+### Dashboard Setup Steps
+
+1. Go to **Providers** > **Add Provider** > **Quick Setup** > select **Kilo AI (Free)**.
+2. Click **Create Provider** -- API Key Mode is already set to `None`.
+3. Do **not** add any API keys.
+4. Copy the generated **Base URL** and use it in your OpenClaw config.
+5. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
+
+---
+
+## Ollama (Local)
+
+Routes to a locally running Ollama instance -- completely offline, no key.
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **Ollama (Local)** |
+| **Upstream URL** | `http://localhost:11434/v1` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `None` (automatic) |
+
+1. Install and start [Ollama](https://ollama.com/) on the same machine.
+2. Quick Setup > **Ollama (Local)** > **Create Provider**.
+3. Pull models with `ollama pull <model>`, then use **Fetch Models** in the Models tab to discover them.
 
 ---
 
 ## Discovering Models
 
-For both bypass providers:
+For both hosted bypass providers:
 
 1. Open the provider's detail page.
 2. Go to the **Models** tab.
 3. Click **Fetch Models**.
 4. A list of all available models appears with **Free** and **Paid** badges.
-5. Click **+ Add** next to any model to add it to your fallback list.
+5. Click **+ Add** next to any model to add it to your fallback list, or **Add All Free** to add every free model at once.
 6. To use a model in your AI client, copy the **Model ID** shown in the list.
 
 ### What Do the Free/Paid Badges Mean?

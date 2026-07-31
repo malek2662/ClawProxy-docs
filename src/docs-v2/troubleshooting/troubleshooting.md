@@ -2,7 +2,7 @@
 
 Diagnose and resolve common issues with ClawRouter.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -29,6 +29,16 @@ Diagnose and resolve common issues with ClawRouter.
 ---
 
 ## Proxy Request Errors
+
+### Problem: HTTP 401 "Invalid or missing API key"
+**Cause:** Your client did not send a valid **proxy API key** -- the key is missing, wrong, or was regenerated (regenerating invalidates the old key immediately).
+**Solution:**
+1. Open the dashboard > **Settings** > **Proxy API Key** card.
+2. Click **Copy** and update the key in your client configuration (sent as `Authorization: Bearer <key>` or `x-api-key: <key>`).
+3. Or use the **"Prompt for AI"** dialog on the provider page -- it embeds the current key automatically.
+4. If you intentionally want to allow any key value, check the **Require proxy API key** toggle on the same card (not recommended).
+
+> **Note:** This 401 comes from ClawRouter itself, before any upstream request. A 401/403 from the *upstream provider* is a different issue -- see below.
 
 ### Problem: HTTP 502 "Bad Gateway"
 **Cause:** ClawRouter could not reach the upstream provider.
@@ -80,6 +90,13 @@ Diagnose and resolve common issues with ClawRouter.
 3. Click the **enable/disable toggle** to re-enable it.
 4. Check the **Error History** first to understand why it was disabled -- it may have genuine auth issues.
 
+### Problem: How do I check if a key actually works?
+Use the built-in **connection testing**: click the test button on the key's row (or **Test All Keys**). The probe is zero-token. A 401/403 means the key is invalid; a 402 means the key is valid but out of quota; other results confirm the credential is accepted. The latest result persists in the **Last Test** column.
+
+### Problem: "This provider uses no API keys" error when adding a key
+**Cause:** The provider's API Key Mode is `None` (keyless presets like OpenCode Zen, Kilo AI (Free), Ollama Local). These providers need no keys -- ClawRouter sends the required headers automatically.
+**Solution:** Nothing to fix -- use the provider as-is. If you intended to use your own key (e.g., a Kilo AI account key), create the provider from the **Kilo AI** preset (Managed mode) instead of **Kilo AI (Free)**.
+
 ### Problem: Key shows "Unstable" status
 **Cause:** The key has more than 3 consecutive errors but hasn't been disabled (errors are not auth-related).
 **Solution:** Check the Error History. The key may be experiencing temporary server issues. It will auto-recover when a request succeeds.
@@ -122,22 +139,22 @@ Diagnose and resolve common issues with ClawRouter.
 
 ### Problem: Fallback chain not triggering
 **Checklist:**
-1. Is a Provider Fallback Chain configured? (Check Settings tab > Fallback Chain section.)
+1. Is a Provider Fallback Chain configured? (Check the provider's **Fallback** tab.)
 2. Is the fallback provider enabled?
 3. Have all keys on the primary provider been exhausted? (Fallback only triggers after all keys fail, not on a single key error.)
 4. Is the circuit breaker OPEN? (If so, it should skip directly to the fallback chain.)
 
 ### Problem: "No fallback providers" in notification
 **Cause:** The primary provider failed but no fallback chain is configured.
-**Solution:** Go to Settings tab > Add Fallback Provider.
+**Solution:** Go to the provider's **Fallback** tab (or the global **Fallback** page) > Add Fallback Provider.
 
-### Problem: Fallback dropdown is empty
-**Cause:** No other providers with the **same API format** exist.
-**Solution:** Create another provider with the same API format first, then add it as a fallback.
+### Problem: Fallback provider dropdown is empty
+**Cause:** No other providers exist yet (a provider cannot be its own fallback).
+**Solution:** Create another provider first, then add it as a fallback. Any provider can be a fallback target -- different API formats are translated automatically.
 
 ### Problem: Fallback succeeds but with wrong model
 **Cause:** The fallback provider uses different model naming conventions.
-**Solution:** Set the **Target Model ID** on the fallback chain entry to the exact model ID the fallback provider expects.
+**Solution:** Edit the fallback entry (click its model) and pin the exact model ID the fallback provider expects. Alternatively, leave it on **Automatic** and enable Model Fallback on the target provider so ClawRouter cascades through its saved model list.
 
 ---
 
@@ -238,7 +255,11 @@ Diagnose and resolve common issues with ClawRouter.
 
 ### Kilo AI -- HTTP 401 for certain models
 **Explanation:** Kilo returns HTTP 401 with "PAID_MODEL_AUTH_REQUIRED" for models that require a paid subscription. ClawRouter classifies this as MODEL_ERROR.
-**Solution:** Use only **Free** models. Check the **Free/Paid** badges in Fetch Models.
+**Solution:** Use only **Free** models. Check the **Free/Paid** badges in Fetch Models. Note there are two Kilo presets: **Kilo AI (Free)** is keyless (free models only); **Kilo AI** takes an API key for the full catalog.
+
+### Anthropic-format providers (Anthropic, Kimi, MiniMax) -- missing anthropic-version errors
+**Explanation:** Anthropic-format upstreams require the `anthropic-version` header. ClawRouter auto-fills `anthropic-version: 2023-06-01` when your client doesn't send it, so this should not occur.
+**Solution:** If you see this error, check that your client isn't sending an empty `anthropic-version` header of its own.
 
 ### Google Gemini -- HTTP 400 and key gets disabled
 **Explanation:** Google returns HTTP 400 (not 401) for invalid API keys with "API_KEY_INVALID" in the body. ClawRouter correctly classifies this as AUTH_ERROR.

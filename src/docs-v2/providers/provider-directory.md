@@ -1,53 +1,111 @@
 # Provider Directory
 
-A complete list of all built-in provider templates in ClawRouter. Each template comes pre-configured with the correct name, API format, upstream URL, and API key mode.
+A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
 
-> **Version 1.0.12**
-
----
-
-## Built-in Templates
-
-| Template | API Format | Upstream URL | Key Mode | Type |
-|----------|-----------|-------------|----------|------|
-| OpenRouter | openai-completions | `https://openrouter.ai/api/v1` | Managed | Free Tier |
-| Google Gemini | google-generative-ai | `https://generativelanguage.googleapis.com/v1beta` | Managed | Free Tier |
-| NVIDIA NIM | openai-completions | `https://integrate.api.nvidia.com/v1` | Managed | Free Tier |
-| Groq | openai-completions | `https://api.groq.com/openai/v1` | Managed | Free Tier |
-| Cerebras | openai-completions | `https://api.cerebras.ai/v1` | Managed | Free Tier |
-| Cohere | openai-completions | `https://api.cohere.com/v1` | Managed | Free Tier |
-| Ollama Cloud | openai-completions | `https://ollama.com/v1` | Managed | Free Tier |
-| Kilo AI | openai-completions | `https://api.kilo.ai/api/gateway` | None* | Bypass |
-| OpenCode Zen | openai-completions | `https://opencode.ai/zen/v1` | None* | Bypass |
-| OpenAI | openai-completions | `https://api.openai.com/v1` | Managed | Paid |
-| Anthropic | anthropic-messages | `https://api.anthropic.com/v1` | Managed | Paid |
-| Perplexity | openai-completions | `https://api.perplexity.ai` | Managed | Paid |
-| Z.AI API | openai-completions | `https://api.z.ai/api/paas/v4` | Managed | Paid |
-| Z.AI Coding | openai-completions | `https://api.z.ai/api/coding/paas/v4` | Managed | Paid |
-
-> **\* Bypass providers:** The template defaults to `Managed`, but you **must change the API Key Mode to `None`** before creating. Do not add API keys to these providers.
+> **Version 1.0.13**
 
 ---
 
-## Provider Categories
+## Built-in Presets
 
-### Bypass Providers (No API Key Required)
+ClawRouter ships **50 built-in provider presets**. Selecting a preset auto-fills every field -- including the correct API Key Mode -- and seeds the preset's recommended models into the provider's Models tab at creation.
 
-**Kilo AI** and **OpenCode Zen** are special bypass providers that access high-performance AI models without requiring an API key. ClawRouter handles the bypass internally.
+### Keyless Presets (No API Key Required)
 
-See the full Bypass Providers guide for setup details, available free models, and configuration.
+These presets use API Key Mode `None`. No keys are needed -- ClawRouter sends the required static headers automatically. The keys table is replaced by an informational card, and adding keys is rejected.
 
-### Free Tier Providers (API Key Required, No Credit Card)
+| Preset | API Format | Upstream URL |
+|--------|-----------|-------------|
+| OpenCode Zen | openai-completions | `https://opencode.ai/zen/v1` |
+| Kilo AI (Free) | openai-completions | `https://api.kilo.ai/api/gateway` |
+| Ollama (Local) | openai-completions | `http://localhost:11434/v1` |
 
-**Google Gemini**, **Groq**, **OpenRouter**, **NVIDIA NIM**, **Ollama Cloud**, **Cohere**, and **Cerebras** offer genuine free tiers or quotas. You need a free API key from each provider.
+### Free & Free-Tier Presets (API Key Required)
 
-See the full Free Tier Providers guide for models, configurations, and setup steps.
+Genuine free tiers or quotas. You need a free API key from each provider -- the preset's **Get API Key** link takes you straight to the right page.
 
-### Paid Providers
+| Preset | API Format | Upstream URL |
+|--------|-----------|-------------|
+| OpenRouter | openai-completions | `https://openrouter.ai/api/v1` |
+| Google Gemini | google-generative-ai | `https://generativelanguage.googleapis.com/v1beta` |
+| Groq | openai-completions | `https://api.groq.com/openai/v1` |
+| Cerebras | openai-completions | `https://api.cerebras.ai/v1` |
+| NVIDIA NIM | openai-completions | `https://integrate.api.nvidia.com/v1` |
+| Kilo AI | openai-completions | `https://api.kilo.ai/api/gateway` |
+| Cloudflare Workers AI | openai-completions | `https://api.cloudflare.com/client/v4/accounts/YOUR_ACCOUNT_ID/ai/v1` |
+| BytePlus ModelArk | openai-completions | `https://ark.ap-southeast.bytepluses.com/api/coding/v3` |
+| API.airforce | openai-completions | `https://api.airforce/v1` |
+| Bazaarlink | openai-completions | `https://bazaarlink.ai/api/v1` |
+| Poolside | openai-completions | `https://inference.poolside.ai/v1` |
 
-**OpenAI**, **Anthropic**, **Perplexity**, **Z.AI API**, and **Z.AI Coding** require paid developer API keys.
+> **Note:** Cloudflare Workers AI contains `YOUR_ACCOUNT_ID` in the upstream URL -- replace it with your actual Cloudflare account ID after creating the provider (Settings tab > Upstream URL).
 
-See the full Paid Providers guide for details.
+### API Key Presets (Paid)
+
+| Preset | API Format | Upstream URL |
+|--------|-----------|-------------|
+| OpenAI | openai-completions | `https://api.openai.com/v1` |
+| Anthropic | anthropic-messages | `https://api.anthropic.com/v1` |
+| DeepSeek | openai-completions | `https://api.deepseek.com` |
+| xAI (Grok) | openai-completions | `https://api.x.ai/v1` |
+| Mistral | openai-completions | `https://api.mistral.ai/v1` |
+| Cohere | openai-completions | `https://api.cohere.com/v1` |
+| Perplexity | openai-completions | `https://api.perplexity.ai` |
+| Perplexity Agent | openai-responses | `https://api.perplexity.ai/v1` |
+| Kimi for Coding | anthropic-messages | `https://api.kimi.com/coding/v1` |
+| MiniMax Coding (Intl) | anthropic-messages | `https://api.minimax.io/anthropic/v1` |
+| MiniMax Coding (China) | anthropic-messages | `https://api.minimaxi.com/anthropic/v1` |
+| Z.AI API | openai-completions | `https://api.z.ai/api/paas/v4` |
+| Z.AI Coding | openai-completions | `https://api.z.ai/api/coding/paas/v4` |
+| Z.AI Coding (China) | openai-completions | `https://open.bigmodel.cn/api/coding/paas/v4` |
+| Alibaba Coding Plan (CN) | openai-completions | `https://coding.dashscope.aliyuncs.com/v1` |
+| Alibaba Coding Plan (Intl) | openai-completions | `https://coding-intl.dashscope.aliyuncs.com/v1` |
+| Alibaba Model Studio (Intl) | openai-completions | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
+| Baidu Qianfan | openai-completions | `https://qianfan.baidubce.com/v2` |
+| Tencent Hunyuan | openai-completions | `https://api.hunyuan.cloud.tencent.com/v1` |
+| Volcengine Ark | openai-completions | `https://ark.cn-beijing.volces.com/api/coding/v3` |
+| Xiaomi MiMo | openai-completions | `https://api.xiaomimimo.com/v1` |
+| Xiaomi MiMo Token Plan | openai-completions | `https://token-plan-sgp.xiaomimimo.com/v1` |
+| SiliconFlow | openai-completions | `https://api.siliconflow.com/v1` |
+| Together AI | openai-completions | `https://api.together.xyz/v1` |
+| Fireworks AI | openai-completions | `https://api.fireworks.ai/inference/v1` |
+| Featherless | openai-completions | `https://api.featherless.ai/v1` |
+| Hyperbolic | openai-completions | `https://api.hyperbolic.xyz/v1` |
+| Chutes AI | openai-completions | `https://llm.chutes.ai/v1` |
+| Nebius AI Studio | openai-completions | `https://api.studio.nebius.ai/v1` |
+| Venice AI | openai-completions | `https://api.venice.ai/api/v1` |
+| Vercel AI Gateway | openai-completions | `https://ai-gateway.vercel.sh/v1` |
+| LLM7 | openai-completions | `https://api.llm7.io/v1` |
+| Blackbox AI | openai-completions | `https://api.blackbox.ai/v1` |
+| Morph | openai-completions | `https://api.morphllm.com/v1` |
+| OpenCode Go | openai-completions | `https://opencode.ai/zen/go/v1` |
+| Ollama Cloud | openai-completions | `https://ollama.com/v1` |
+
+---
+
+## What Each Preset Includes
+
+| Field | Purpose |
+|-------|---------|
+| **Name / API Format / Upstream URL** | Core connection settings, auto-filled |
+| **API Key Mode** | `Managed`, `None`, or `Pass Through` -- pre-set correctly per preset |
+| **Icon & Brand Color** | Shown on provider cards throughout the dashboard |
+| **Category** | `free` or `apikey` -- controls grouping in the Add Provider panel |
+| **Get API Key link** | Direct link to the provider's API key page |
+| **Signup link** | Direct link to create an account (where available) |
+| **Default Headers** | Static headers merged into every upstream request (keyless presets) |
+| **Seeded Models** | Recommended model list, saved to the Models tab automatically at creation |
+
+---
+
+## The Providers Page
+
+The Providers list groups your configured providers into three sections: **Free-Friendly**, **API Key Providers**, and **Custom**. Each card shows:
+
+- The provider's icon, name, and API format
+- A **health badge**: `No keys` (managed provider with no keys yet), `N errors today` (errors in the last 24h), or `Healthy`
+- A **quick-test button** (lightning icon) that runs a zero-token connection probe against the provider
+- Power (enable/disable) and delete buttons on hover
 
 ---
 
@@ -55,13 +113,14 @@ See the full Paid Providers guide for details.
 
 **Quick Setup (Recommended):**
 1. Go to **Providers** > **Add Provider** > **Quick Setup**.
-2. Select a template from the grid.
-3. All settings are pre-filled. Click **Create Provider**.
-4. Add your API key(s) (or change Key Mode to None for bypass providers).
-5. Copy the auto-generated **Base URL** from the top of the provider page.
+2. Use the **search box** to filter the 50 presets, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**.
+3. Select a preset -- all settings are pre-filled, including the correct API Key Mode.
+4. Click **Create Provider**. The preset's recommended models are seeded into the Models tab automatically.
+5. Add your API key(s) -- skip this step entirely for keyless presets.
+6. Copy the auto-generated **Base URL** from the top of the provider page.
 
 **Custom:**
-For providers not in the template list, use the **Custom** option with a blank form.
+For providers not in the preset list, use the **Custom** option with a blank form.
 
 ---
 

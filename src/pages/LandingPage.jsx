@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, Shield, Zap, Layers, RefreshCw, Server, Search, X, Bell, Settings } from 'lucide-react';
+import { ArrowRight, ArrowLeftRight, Shield, Zap, Layers, RefreshCw, Server, Search, X, Bell, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import clawLogo from '../assets/claw-logo.svg';
 
@@ -55,9 +55,14 @@ export default function LandingPage() {
 
     const features = [
         {
-            title: 'Quick Setup Templates',
-            desc: 'Get running in seconds with pre-configured templates for all major AI providers. Simply select, add key, and go.',
+            title: '50 Provider Presets',
+            desc: 'One-click setup for 50 providers — including free-tier options like OpenRouter, Gemini and Groq, plus keyless presets that need no signup at all.',
             icon: <Zap className="feature-icon" />
+        },
+        {
+            title: 'Any Client, Any Provider',
+            desc: 'Automatic translation between OpenAI, Responses, Anthropic and Gemini API formats. Any AI client works with any provider — byte-identical passthrough when formats match.',
+            icon: <ArrowLeftRight className="feature-icon" />
         },
         {
             title: 'Smart Key Rotation',
@@ -66,7 +71,7 @@ export default function LandingPage() {
         },
         {
             title: 'Advanced Failover',
-            desc: 'Model-level fallback and multi-provider failover chains ensure your AI brain keeps thinking even during outages.',
+            desc: 'Model-level fallback and cross-format provider failover chains keep your AI brain thinking even during outages — any provider can back up any other.',
             icon: <Shield className="feature-icon" />
         },
         {
@@ -76,22 +81,17 @@ export default function LandingPage() {
         },
         {
             title: 'Zero-Buffer Streaming',
-            desc: 'Native streaming pass-through ensures your AI responses are delivered instantly with zero artificial lag.',
+            desc: 'Native streaming pass-through ensures your AI responses are delivered instantly with zero artificial lag — even across translated formats.',
             icon: <Zap className="feature-icon" />
         },
         {
-            title: 'Real-time Dashboard',
-            desc: 'Professional dark-themed React dashboard for configuration and monitoring. Add keys, check logs, and manage providers easily.',
-            icon: <Server className="feature-icon" />
-        },
-        {
-            title: 'Smart Notifications',
-            desc: 'Instant alerts for key rotations, circuit breaker events, and fallback activations — delivered live via WebSocket directly to your dashboard.',
+            title: 'Real-time Dashboard & Alerts',
+            desc: 'Professional dark-themed dashboard with live WebSocket logs and instant alerts for key rotations, circuit breakers, and fallback activations.',
             icon: <Bell className="feature-icon" />
         },
         {
-            title: 'Global Settings',
-            desc: 'Centralized configuration panel for retry policies, circuit breakers, rate limiting, streaming defaults, and all routing behavior.',
+            title: 'Global Settings & Security',
+            desc: 'Centralized panel for retry policies, circuit breakers, rate limiting — plus built-in security with dashboard password and proxy API key authentication.',
             icon: <Settings className="feature-icon" />
         }
     ];
@@ -113,8 +113,8 @@ export default function LandingPage() {
                         Onetime Purchase — $20 Lifetime License
                     </span>
                 </div>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto 2.5rem', lineHeight: '1.6' }}>
-                    Route, manage, and monitor your AI API requests across multiple providers from a single endpoint. Gain absolute control over your API keys, routing rules, and application stability.
+                <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '640px', margin: '0 auto 2.5rem', lineHeight: '1.6' }}>
+                    Route, manage, and monitor your AI API requests across multiple providers from a single endpoint. Automatic format translation means <span style={{ color: 'var(--text-main)' }}>any AI client works with any provider</span> — with absolute control over your API keys, routing rules, and application stability.
                 </p>
 
                 <div className="hero-cta-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '60px' }}>
@@ -218,7 +218,7 @@ export default function LandingPage() {
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Manage Multiple Providers</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Add multiple API providers easily. ClawRouter supports all major API formats out of the box. Add, rotate, and monitor API keys with automatic error tracking and seamless fallback mechanisms.
+                            Add multiple API providers easily. ClawRouter speaks all four major API formats — OpenAI Completions, OpenAI Responses, Anthropic Messages, and Google Gemini — and translates between them automatically. Add, rotate, and monitor API keys with automatic error tracking and seamless fallback mechanisms.
                         </p>
                         <Link to="/docs?tab=providerDirectory" className="btn-secondary" style={{ marginTop: '10px' }}>
                             Read the Documentation
@@ -243,7 +243,7 @@ export default function LandingPage() {
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Quick Setup Templates</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Get up and running in seconds. ClawRouter provides a rich library of pre-configured templates for all popular AI providers. Select a template, add your API key, and you're ready to start routing.
+                            Get up and running in seconds with <strong style={{ color: 'var(--text-main)' }}>50 built-in provider presets</strong> — including free-tier providers like OpenRouter, Google Gemini, Groq and Cerebras, plus keyless options like OpenCode Zen and Kilo AI that need no signup at all. Select a preset, add your API key if required, and you're ready to start routing.
                         </p>
                         <Link to="/docs?tab=firstProvider&anchor=add-a-provider-via-quick-setup" className="btn-secondary">
                             View Provider Templates
@@ -287,7 +287,7 @@ export default function LandingPage() {
                                     <Shield size={18} /> Provider Fallback Chain
                                 </h4>
                                 <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', margin: 0 }}>
-                                    Configure prioritized chains of backup providers. If a provider goes down, ClawRouter automatically switches to the next one in line.
+                                    Configure prioritized chains of backup providers. Any provider can back up any other — even with a different API format — because ClawRouter translates between formats automatically.
                                 </p>
                                 <Link to="/docs?tab=providerFallback" style={{ color: 'var(--primary)', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
                                     Learn about Fallback Chains →
@@ -333,20 +333,74 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* 4. AI Prompt Assistant */}
+            {/* 4. Any Client, Any Provider — Format Translation (NEW) */}
+            <section className="showcase-section" style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
+                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
+                    <div style={{ flex: '1 1 400px' }}>
+                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Any Client, Any Provider</h2>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
+                            Stop worrying about API formats. ClawRouter detects your client's format and translates requests and responses automatically — streaming included — so every AI client works with every provider, in both directions.
+                        </p>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0' }}>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
+                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <ArrowLeftRight size={16} color="var(--primary)" />
+                                </div>
+                                Full fidelity: tools, reasoning, usage & images
+                            </li>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
+                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <Zap size={16} color="var(--primary)" />
+                                </div>
+                                Zero-copy passthrough when formats match
+                            </li>
+                        </ul>
+                        <Link to="/docs?tab=formatTranslation" className="btn-secondary">
+                            How Format Translation Works
+                        </Link>
+                    </div>
+                    <div style={{ flex: '1 1 500px' }}>
+                        <div className="glass-panel" style={{ padding: '32px', borderRadius: '16px', border: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1 1 130px' }}>
+                                    <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '2px' }}>Your client</div>
+                                    {['Claude Code', 'OpenClaw', 'Cline', 'Codex CLI'].map((name) => (
+                                        <div key={name} style={{ padding: '8px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-light)', fontSize: '0.9rem', color: 'var(--text-main)', textAlign: 'center' }}>{name}</div>
+                                    ))}
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--primary)', flexShrink: 0 }}>
+                                    <ArrowLeftRight size={28} />
+                                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', maxWidth: '90px', lineHeight: '1.4' }}>automatic translation</span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1 1 130px' }}>
+                                    <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '2px' }}>Any provider</div>
+                                    {['OpenAI', 'Anthropic', 'Google Gemini', 'OpenRouter'].map((name) => (
+                                        <div key={name} style={{ padding: '8px 14px', borderRadius: '8px', background: 'rgba(80, 223, 144, 0.07)', border: '1px solid rgba(80, 223, 144, 0.25)', fontSize: '0.9rem', color: 'var(--text-main)', textAlign: 'center' }}>{name}</div>
+                                    ))}
+                                </div>
+                            </div>
+                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', margin: '20px 0 0', lineHeight: '1.6' }}>
+                                OpenAI Completions · OpenAI Responses · Anthropic Messages · Google Gemini — every combination, both directions
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* 5. AI Prompt Assistant */}
             <section className="showcase-section" style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
                 <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
                     <div style={{ flex: '1 1 400px' }}>
                         <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>🪄 AI Prompt Assistant</h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Configure your AI agents with zero effort. The smart Prompt Assistant generates tailor-made instructions for OpenClaw and other clients, automatically identifying the best model IDs and connection settings for your specific providers.
+                            Configure your AI agents with zero effort. The smart Prompt Assistant generates tailor-made setup instructions for <strong style={{ color: 'var(--text-main)' }}>7 clients — OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Aider, and custom tools — for every provider you add</strong>, with the correct model IDs, connection settings, and your proxy API key embedded automatically.
                         </p>
                         <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0' }}>
                             <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
                                 <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                     <Zap size={16} color="var(--primary)" />
                                 </div>
-                                One-click configuration prompts
+                                One-click configuration prompts for every provider
                             </li>
                             <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
                                 <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -354,8 +408,14 @@ export default function LandingPage() {
                                 </div>
                                 Auto-discovery of upstream model IDs
                             </li>
+                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
+                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                    <Shield size={16} color="var(--primary)" />
+                                </div>
+                                Proxy API key embedded automatically
+                            </li>
                         </ul>
-                        <Link to="/docs?tab=openclawIntegration&anchor=method-2-the-prompt-for-ai" className="btn-secondary">
+                        <Link to="/docs?tab=aiClientSetup" className="btn-secondary">
                             How to use AI Assistant
                         </Link>
                     </div>
@@ -493,13 +553,13 @@ export default function LandingPage() {
                             <Settings size={32} style={{ color: 'var(--primary)' }} /> Global Settings
                         </h2>
                         <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Fine-tune every aspect of your router from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, streaming defaults, and more — all without touching config files.
+                            Fine-tune every aspect of your router from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, and security — all without touching config files.
                         </p>
                         <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0' }}>
                             {[
                                 { icon: <RefreshCw size={16} color="var(--primary)" />, text: 'Retry & circuit breaker configuration' },
-                                { icon: <Shield size={16} color="var(--primary)" />, text: 'Rate limiting & security options' },
-                                { icon: <Zap size={16} color="var(--primary)" />, text: 'Streaming & timeout defaults' },
+                                { icon: <Shield size={16} color="var(--primary)" />, text: 'Proxy API key & dashboard password security' },
+                                { icon: <Zap size={16} color="var(--primary)" />, text: 'Rate limit backoff & failover tuning' },
                                 { icon: <Server size={16} color="var(--primary)" />, text: 'Logging, notifications & routing behavior' },
                             ].map((item, idx) => (
                                 <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>

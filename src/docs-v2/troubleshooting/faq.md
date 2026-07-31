@@ -2,7 +2,7 @@
 
 Answers to common questions about ClawRouter configuration and usage.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -11,10 +11,10 @@ Answers to common questions about ClawRouter configuration and usage.
 ### Do I need to define my models in the ClawRouter dashboard?
 **Generally, no.** You define the Provider and its API Keys in ClawRouter. Model selection happens in your AI client (like OpenClaw). When your client requests a model, ClawRouter forwards the request upstream as-is.
 
-**Exception:** Add models to the provider's **Models tab** if you want to use **Model Fallback** (automatic retry with a different model). Saved models also appear as options when setting Target Model IDs in the Provider Fallback Chain.
+**Exception:** Add models to the provider's **Models tab** if you want to use **Model Fallback** (automatic retry with a different model). Saved models also appear as model options when configuring the Provider Fallback Chain, and power the **Automatic** cascade on fallback entries.
 
 ### What's the fastest way to add a new provider?
-Use **Quick Setup** in the Add Provider panel. Select a template from the grid of 14+ pre-built providers. All fields are auto-filled -- you only need to add your API key (or change key mode to None for bypass providers).
+Use **Quick Setup** in the Add Provider panel. Search or browse the grid of 50 pre-built presets, grouped into **Free & Free-Tier** and **API Key Providers**. All fields are auto-filled -- including the correct API Key Mode -- so you only need to add your API key (keyless presets need no key at all).
 
 ### What are the available API formats?
 | Format | Description | Proxy URL Pattern |
@@ -25,25 +25,24 @@ Use **Quick Setup** in the Add Provider panel. Select a template from the grid o
 | `google-generative-ai` | Google Gemini API | `/proxy/{id}/v1beta` |
 
 ### Can I use different API formats together?
-**Yes.** Each provider has its own format. ClawRouter translates requests into the correct format for each upstream. However, the **Provider Fallback Chain** only allows fallbacks to providers with the **same API format** -- this is a safety filter to prevent format incompatibility.
+**Yes.** Each provider has its own format. ClawRouter translates requests into the correct format for each upstream -- any client format works with any provider format. The **Provider Fallback Chain** can also mix formats: any provider can be a fallback target, and cross-format fallbacks are translated automatically. See API Format Translation.
 
 ### How do I see why a specific API key is failing?
 Open the provider's **API Keys** tab and click the **error count badge** next to the key. This opens the **Error History** modal showing the last 50 errors with type, HTTP status code, and timestamp.
 
 ---
 
-## Bypass Providers (Kilo AI & OpenCode Zen)
+## Bypass Providers (Keyless: OpenCode Zen, Kilo AI (Free), Ollama (Local))
 
 ### What are bypass providers?
-Bypass providers (Kilo AI and OpenCode Zen) are special providers that access high-performance AI models without requiring an API key. ClawRouter handles the direct request bypass internally.
+Bypass providers (OpenCode Zen, Kilo AI (Free), and Ollama (Local)) are providers that work without an API key. They ship with API Key Mode `None`, and ClawRouter merges the preset's static default headers (e.g., OpenCode Zen's `Authorization: Bearer public`) into every upstream request automatically.
 
 ### How do I set up a bypass provider?
 1. Go to **Providers** > **Add Provider** > **Quick Setup**.
-2. Select **Kilo AI** or **OpenCode Zen**.
-3. **Before clicking Create:** Change the **API Key Mode** from `Managed` to `None`.
-4. Click **Create Provider**.
-5. Do NOT add any API keys.
-6. Copy the Base URL and use it in your AI client.
+2. Select **OpenCode Zen**, **Kilo AI (Free)**, or **Ollama (Local)**.
+3. Click **Create Provider** -- the API Key Mode is already set to `None`, no change needed.
+4. Do NOT add any API keys (the keys tab shows an informational card, and adding keys is rejected with an error).
+5. Copy the Base URL and use it in your AI client.
 
 ### What do the Free/Paid badges mean?
 For Kilo AI and OpenCode Zen, ClawRouter fetches live data about each model's pricing status:

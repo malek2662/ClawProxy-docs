@@ -1,8 +1,10 @@
 # Free Tier Providers
 
-These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required.
+These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required. Each preset includes a **Get API Key** link directly in the Add Provider form.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
+
+> **About `apiKey`:** In every OpenClaw configuration below, `cr_your_proxy_key` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog on each provider page inserts it automatically.
 
 ---
 
@@ -36,7 +38,7 @@ Check for more: https://ollama.com/search?c=cloud&o=newest
 ```json
 "ollama": {
   "baseUrl": "http://localhost:3030/proxy/ollama-cloud/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "glm-5:cloud", "name": "glm-5:cloud" },
@@ -85,7 +87,7 @@ The most generous free tier with high rate limits. Requires a free API key from 
 ```json
 "google": {
   "baseUrl": "http://localhost:3030/proxy/google-gemini/v1beta",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "google-generative-ai",
   "models": [
     { "id": "gemini-3.1-pro-preview", "name": "gemini-3.1-pro-preview" },
@@ -125,21 +127,21 @@ Extreme speed inference for open models. Free tier is rate-limited but completel
 |----------|-------|
 | `openai/gpt-oss-120b` | New Flagship |
 | `llama-3.3-70b-versatile` | Versatile |
-| `llama-3.1-8b-instant` | Ultra-fast |
-| `mixtral-8x7b-32768` | Large context MoE |
+| `meta-llama/llama-4-maverick-17b-128e-instruct` | Maverick MoE |
+| `qwen/qwen3-32b` | Qwen 3 |
 
 ### OpenClaw Configuration
 
 ```json
 "groq": {
   "baseUrl": "http://localhost:3030/proxy/groq/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b" },
     { "id": "llama-3.3-70b-versatile", "name": "llama-3.3-70b-versatile" },
-    { "id": "llama-3.1-8b-instant", "name": "llama-3.1-8b-instant" },
-    { "id": "mixtral-8x7b-32768", "name": "mixtral-8x7b-32768" }
+    { "id": "meta-llama/llama-4-maverick-17b-128e-instruct", "name": "meta-llama/llama-4-maverick-17b-128e-instruct" },
+    { "id": "qwen/qwen3-32b", "name": "qwen/qwen3-32b" }
   ]
 }
 ```
@@ -184,7 +186,7 @@ Check for more: https://openrouter.ai/models
 ```json
 "openrouter": {
   "baseUrl": "http://localhost:3030/proxy/openrouter/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "stepfun/step-3.5-flash:free", "name": "stepfun/step-3.5-flash:free" },
@@ -239,7 +241,7 @@ Check for more: https://build.nvidia.com/models
 ```json
 "nvidia": {
   "baseUrl": "http://localhost:3030/proxy/nvidia-nim/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "z-ai/glm5", "name": "z-ai/glm5" },
@@ -279,19 +281,19 @@ Excellent for RAG and multilingual tasks. Free for development/research.
 |----------|-------|
 | `command-r-plus-08-2024` | Flagship |
 | `command-r-08-2024` | Standard |
-| `c4ai-aya-expanse-32b` | Multilingual |
+| `command-a-03-2025` | Newest |
 
 ### OpenClaw Configuration
 
 ```json
 "cohere": {
   "baseUrl": "http://localhost:3030/proxy/cohere/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "command-r-plus-08-2024", "name": "command-r-plus-08-2024" },
     { "id": "command-r-08-2024", "name": "command-r-08-2024" },
-    { "id": "c4ai-aya-expanse-32b", "name": "c4ai-aya-expanse-32b" }
+    { "id": "command-a-03-2025", "name": "command-a-03-2025" }
   ]
 }
 ```
@@ -311,18 +313,119 @@ Ultra-fast inference on open models.
 
 ### Models
 
-`llama-3.3-70b`, `llama-3.1-8b`
+`llama-3.3-70b`, `gpt-oss-120b`, `zai-glm-4.7`, `qwen-3-235b-a22b-instruct-2507`, `qwen-3-32b`
 
 ### OpenClaw Configuration
 
 ```json
 "cerebras": {
   "baseUrl": "http://localhost:3030/proxy/cerebras/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "llama-3.3-70b", "name": "llama-3.3-70b" },
-    { "id": "llama-3.1-8b", "name": "llama-3.1-8b" }
+    { "id": "gpt-oss-120b", "name": "gpt-oss-120b" },
+    { "id": "zai-glm-4.7", "name": "zai-glm-4.7" }
   ]
 }
 ```
+
+---
+
+## Cloudflare Workers AI
+
+Models hosted on Cloudflare's global network. Free tier available.
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **Cloudflare Workers AI** |
+| **Upstream URL** | `https://api.cloudflare.com/client/v4/accounts/YOUR_ACCOUNT_ID/ai/v1` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `Managed` |
+
+> **Important:** After creating the provider, open its **Settings** tab and replace `YOUR_ACCOUNT_ID` in the Upstream URL with your actual Cloudflare account ID.
+
+### Models
+
+`@cf/meta/llama-3.3-70b-instruct-fp8-fast`, `@cf/moonshotai/kimi-k2.6`
+
+### Dashboard Setup
+
+1. Quick Setup > **Cloudflare Workers AI** > Create Provider.
+2. Edit the Upstream URL in the **Settings** tab to include your account ID.
+3. Add your Cloudflare API token in the **API Keys** tab.
+4. Copy the **Base URL**.
+
+---
+
+## BytePlus ModelArk
+
+ByteDance coding models (international endpoint). Free tier available during promotion.
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **BytePlus ModelArk** |
+| **Upstream URL** | `https://ark.ap-southeast.bytepluses.com/api/coding/v3` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `Managed` |
+
+### Models
+
+`seed-2-0-pro-260328`, `seed-2-0-code-preview-260328`, `seed-2-0-mini-260215`, `kimi-k2-thinking-251104`, `glm-4-7-251222`
+
+### Dashboard Setup
+
+1. Quick Setup > **BytePlus ModelArk** > Create Provider.
+2. Add your BytePlus API key(s) in the **API Keys** tab.
+3. Copy the **Base URL**.
+
+---
+
+## API.airforce
+
+Community free-tier gateway.
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **API.airforce** |
+| **Upstream URL** | `https://api.airforce/v1` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `Managed` |
+
+### Models
+
+`anthropic/claude-3.7-sonnet`, `moonshot/kimi-k2.6`, `google/gemini-2.5-flash`
+
+---
+
+## Bazaarlink
+
+Aggregated free & paid models.
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **Bazaarlink** |
+| **Upstream URL** | `https://bazaarlink.ai/api/v1` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `Managed` |
+
+### Models
+
+`auto:free`, `claude-sonnet-4.6`, `gpt-5.4`, `kimi-k2.6`, `glm-5`
+
+---
+
+## Poolside
+
+Coding-focused models.
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **Poolside** |
+| **Upstream URL** | `https://inference.poolside.ai/v1` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `Managed` |
+
+### Models
+
+`poolside/laguna-s-2.1`, `poolside/laguna-xs-2.1`

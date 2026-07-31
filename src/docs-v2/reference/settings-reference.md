@@ -2,7 +2,7 @@
 
 Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -32,8 +32,18 @@ These settings are configured per provider in the **Settings** tab of the provid
 | Mode | Behavior |
 |------|----------|
 | **Managed** | ClawRouter stores and manages multiple API keys. The client's API key header is stripped and replaced with the managed key. Supports rotation, backoff, and automatic disabling. |
-| **None** | No API key is sent to the upstream. The proxy strips any auth headers from the client request. Use for bypass providers (Kilo AI, OpenCode Zen). |
+| **None** | No API key is sent to the upstream. The proxy strips any auth headers from the client request and sends the provider's **Default Headers** instead. Use for keyless providers (OpenCode Zen, Kilo AI (Free), Ollama Local). Key-add endpoints return 400 for these providers. |
 | **Pass Through** | The client's API key is forwarded to the upstream without modification. No key rotation or management. ClawRouter acts as a transparent proxy for auth. |
+
+### Default Headers
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| **Default Headers** (`default_headers`) | None (preset-dependent) | Static headers (JSON object) merged into every upstream request. Managed/Pass Through auth still takes precedence on conflict. Keyless presets use this to send required headers automatically (e.g., OpenCode Zen's `Authorization: Bearer public` + `x-opencode-client: desktop`). |
+
+### Automatic Anthropic Version Header
+
+For `anthropic-messages` providers, ClawRouter automatically sends `anthropic-version: 2023-06-01` when the client didn't include it (any casing) -- required by Anthropic-format upstreams such as Anthropic itself, Kimi for Coding, and MiniMax Coding. A client-sent value is always preserved.
 
 ### Reliability Settings
 
@@ -70,6 +80,12 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 |---------|---------|---------|-------------|
 | **Auto Cleanup Logs** (`auto_cleanup_logs`) | `true` | `true` / `false` | Whether old request logs are automatically deleted on a periodic schedule. |
 | **Log Retention Days** (`log_retention_days`) | `7` | Any positive integer | Number of days to keep request logs before automatic deletion. Only applies when Auto Cleanup Logs is enabled. |
+
+### Proxy Authentication
+
+| Setting | Default | Options | Description |
+|---------|---------|---------|-------------|
+| **Require Proxy API Key** (`proxy_auth_enabled`) | `true` | `true` / `false` | Require the proxy API key on all `/proxy/*` requests. Clients send it as `Authorization: Bearer <key>` or `x-api-key: <key>`; invalid or missing keys get HTTP 401. The key itself is managed from the **Proxy API Key** card on the Settings page. |
 
 > Global settings are stored in the database and take effect immediately. Changes to circuit breaker parameters apply to new failure tracking -- existing circuit breaker states are not retroactively affected.
 
@@ -124,13 +140,15 @@ The Circuit Breaker is automatic and applies per-provider. Threshold and cooldow
 
 ## Fallback Chain Settings
 
+Configured in the provider's **Fallback** tab or the global **Fallback** page (sidebar) -- both edit the same data.
+
 ### Provider Fallback Chain Entry
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| **Fallback Provider** | Yes | The provider to route to on failure. Must have the same API format. |
-| **Target Model ID** | No | If set, rewrites the model name in the request to this value. If empty, the original model name is passed through. |
-| **Priority** | Auto | Order in which fallbacks are tried (1 = first). Drag to reorder. |
+| **Fallback Provider** | Yes | The provider to route to on failure. Any provider can be a fallback -- cross-format targets are translated automatically (see API Format Translation). |
+| **Model** | No | `Automatic` (default): the originally requested model ID is tried on the fallback provider first; if rejected with a model error, ClawRouter cascades through the fallback provider's saved model list (requires Model Fallback enabled there). Pin a specific model ID to rewrite the request model instead. |
+| **Priority** | Auto | Order in which fallbacks are tried (1 = first). Reorder with the arrows. |
 
 ### Model Fallback List Entry
 
@@ -138,7 +156,7 @@ The Circuit Breaker is automatic and applies per-provider. Threshold and cooldow
 |-------|----------|-------------|
 | **Model ID** | Yes | The model identifier to try on fallback |
 | **Display Name** | Yes | Human-readable name (usually same as ID) |
-| **Priority** | Auto | Order in which models are tried (1 = first). Drag to reorder. |
+| **Priority** | Auto | Order in which models are tried (1 = first). Reorder with the arrows. |
 
 ---
 

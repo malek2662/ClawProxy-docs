@@ -2,7 +2,7 @@
 
 An overview of ClawRouter's architecture, request flow, and core design principles.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -29,39 +29,29 @@ Client -> http://localhost:3030/proxy/{providerId}/v1/... -> ClawRouter -> upstr
 When a request arrives, ClawRouter:
 
 1. Identifies the target provider from the URL.
-2. Selects an API key based on the rotation strategy (On Error or Round Robin).
-3. Forwards the request to the upstream provider's API.
-4. If the request fails, applies the retry cascade: model fallback, key rotation, then provider fallback chain.
-5. Returns the successful response (or final error) to the client.
+2. Detects the client's API format from the request path (`/v1/chat/completions`, `/v1/responses`, `/v1/messages`, `/v1beta/...`). If it matches the provider's format, traffic passes through byte-identical (zero-copy); if it differs, ClawRouter translates the request to the provider's format -- see API Format Translation.
+3. Selects an API key based on the rotation strategy (On Error or Round Robin).
+4. Forwards the request to the upstream provider's API.
+5. If the request fails, applies the retry cascade: model fallback, key rotation, then provider fallback chain.
+6. Returns the successful response (or final error) to the client.
 
 ---
 
-## Provider Templates
+## Provider Presets
 
-ClawRouter provides **13 built-in provider templates** pre-configured with the correct name, API format, upstream URL, and API key mode.
+ClawRouter provides **50 built-in provider presets** pre-configured with the correct name, API format, upstream URL, and API key mode. Each preset also carries:
 
-| Template | API Format | Upstream URL | Key Mode |
-|----------|-----------|-------------|----------|
-| OpenRouter | openai-completions | `https://openrouter.ai/api/v1` | Managed |
-| Google Gemini | google-generative-ai | `https://generativelanguage.googleapis.com/v1beta` | Managed |
-| NVIDIA NIM | openai-completions | `https://integrate.api.nvidia.com/v1` | Managed |
-| Groq | openai-completions | `https://api.groq.com/openai/v1` | Managed |
-| OpenAI | openai-completions | `https://api.openai.com/v1` | Managed |
-| Anthropic | anthropic-messages | `https://api.anthropic.com/v1` | Managed |
-| Ollama Cloud | openai-completions | `https://ollama.com/v1` | Managed |
-| Kilo AI | openai-completions | `https://api.kilo.ai/api/gateway` | Managed* |
-| OpenCode Zen | openai-completions | `https://opencode.ai/zen/v1` | Managed* |
-| Perplexity | openai-completions | `https://api.perplexity.ai` | Managed |
-| Cerebras | openai-completions | `https://api.cerebras.ai/v1` | Managed |
-| Cohere | openai-completions | `https://api.cohere.com/v1` | Managed |
-| Z.AI API | openai-completions | `https://api.z.ai/api/paas/v4` | Managed |
-| Z.AI Coding | openai-completions | `https://api.z.ai/api/coding/paas/v4` | Managed |
+- **Icon & brand color** -- shown on provider cards across the dashboard
+- **Category** -- `free` or `apikey`, used for grouping in the Add Provider panel
+- **Get API Key / signup links** -- direct links to the provider's key page
+- **Default headers** -- static headers merged into every upstream request (keyless presets)
+- **Seeded model list** -- recommended models saved to the Models tab automatically at creation
 
-> **\* Kilo AI and OpenCode Zen:** These are bypass providers. The template defaults to `Managed`, but users **must change the API Key Mode to `None`** before creating. No API keys should be added.
+Popular presets include OpenRouter, Google Gemini, Groq, Cerebras, NVIDIA NIM, OpenAI, Anthropic, DeepSeek, xAI, Mistral, Perplexity, Kimi for Coding, MiniMax Coding, Z.AI, Alibaba, SiliconFlow, Together AI -- plus keyless presets like OpenCode Zen, Kilo AI (Free), and Ollama (Local). See the Provider Directory for the full list.
 
 **Two setup methods:**
-- **Quick Setup**: Select a template. All fields auto-filled. Customize if needed, then create.
-- **Custom**: Blank form for any provider not in the template list.
+- **Quick Setup**: Searchable preset grid grouped into **Free & Free-Tier** and **API Key Providers** categories. All fields auto-filled -- including the correct API Key Mode. Customize if needed, then create.
+- **Custom**: Blank form for any provider not in the preset list.
 
 ---
 
@@ -74,7 +64,7 @@ ClawRouter provides **13 built-in provider templates** pre-configured with the c
 | `anthropic-messages` | Anthropic Claude Messages | `/proxy/{id}/v1` |
 | `google-generative-ai` | Google Gemini API | `/proxy/{id}/v1beta` |
 
-Each provider has its own format. ClawRouter translates requests into the correct format for each upstream.
+Each provider has its own format. ClawRouter translates requests into the correct format for each upstream -- any client format works with any provider format (any-to-any). When formats match, traffic passes through byte-identical with zero overhead. See API Format Translation for details.
 
 ---
 
@@ -83,8 +73,8 @@ Each provider has its own format. ClawRouter translates requests into the correc
 | Mode | Behavior |
 |------|----------|
 | **Managed** (default) | ClawRouter stores and manages multiple API keys, handling rotation and fallback automatically. The client's key is stripped and replaced with the managed key. |
-| **None** | No API key is sent to upstream. Used for bypass providers (Kilo AI, OpenCode Zen). |
-| **Pass Through** | The client's API key is forwarded directly to the upstream provider without modification. No key rotation or management. |
+| **None** | No API key is sent to upstream. Used for keyless providers (OpenCode Zen, Kilo AI (Free), Ollama Local). The provider's **default headers** (e.g., OpenCode's `Authorization: Bearer public`) are merged into every request instead. |
+| **Pass Through** | The client's API key is forwarded directly to the upstream provider without modification. No key rotation or management. **Caveat:** with proxy API key auth enabled (default), the forwarded credential is the proxy key -- passthrough mode and proxy auth are incompatible. Prefer Managed or None. |
 
 ---
 
@@ -93,35 +83,39 @@ Each provider has its own format. ClawRouter translates requests into the correc
 ### Sidebar
 - **Dashboard**: Global stats and charts
 - **Providers**: Provider list, add/manage providers
+- **Fallback**: Global view of every provider's fallback chain, with the full chain editor
 - **Logs**: Request log viewer with real-time updates
+- **Usage**: Token usage and estimated cost breakdown per provider/model
 - **Settings**: Global configuration for key retry, rate limit backoff, circuit breaker, and log management
 - **Bell icon**: Notification panel
 - **Update badge**: Shows when a new version is available
 
-### Provider Detail Page (4 Tabs)
+### Provider Detail Page (5 Tabs)
+
+Tabs are URL-synced -- you can deep-link to a specific tab with `?tab=overview|keys|models|fallback|settings`.
 
 | Tab | Contents |
 |-----|----------|
 | **Overview** | Stats cards, request volume chart, configuration summary, quick stats |
-| **API Keys** | Add/bulk add keys, key table with status/stats, drag-and-drop priority reorder |
-| **Models** | Fallback models list, Fetch Models from upstream, Free/Paid badges for bypass providers |
-| **Settings** | Circuit breaker status, provider config form, Provider Fallback Chain |
+| **API Keys** | Add/bulk add keys, key table with status/test results/stats, connection testing, priority reorder |
+| **Models** | Fallback models list, Fetch Models from upstream (5-min cache), Free/Paid badges for bypass providers |
+| **Fallback** | Provider Fallback Chain: visual chain diagram, add/edit/reorder/delete entries |
+| **Settings** | Circuit breaker status, provider config form |
 
 ---
 
 ## "Prompt for AI" Integration
 
-Every provider page has a **"Prompt for AI"** button that generates a ready-to-use prompt for your AI agent (OpenClaw).
+Every provider page has a **"Prompt for AI"** button (on the Base URL banner) that opens a tabbed dialog with ready-to-paste setup instructions for 7 AI clients:
 
-**What It Generates:**
-- Provider Base URL
-- Provider Name
-- API format
-- Curated list of recommended Model IDs
-- Full `openclaw.json` configuration template
+| Tab | Target Client |
+|-----|---------------|
+| **OpenClaw** (default) | `openclaw.json` via `config.patch`, using native provider IDs where available |
+| **OpenCode** | `opencode.json` custom provider (`@ai-sdk/openai-compatible` or `@ai-sdk/anthropic`) |
+| **Claude Code** | `~/.claude/settings.json` env block |
+| **Codex CLI** | `~/.codex/config.toml` model provider |
+| **Cline** | OpenAI Compatible settings fields |
+| **Aider** | Environment variables + `openai/` model prefix |
+| **Custom / Other** | Generic endpoint reference + curl example |
 
-**How to Use:**
-1. Click **"Prompt for AI"** on the provider's detail page.
-2. Copy the generated prompt.
-3. Paste it to your OpenClaw AI agent.
-4. The agent will safely update your `openclaw.json`.
+Templates are generated dynamically from the provider's actual saved models (preset models as fallback), with the correct Base URL format per client, and embed your real proxy API key automatically. All 7 tabs work with every provider -- when the client's native format differs from the provider's, the tab shows an amber note that ClawRouter translates automatically. See the AI Client Setup guide for details.

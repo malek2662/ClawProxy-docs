@@ -2,7 +2,7 @@
 
 Get ClawRouter running and route your first AI request in minutes.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 > **Installation Note:** ClawRouter is premium software. After your payment is confirmed, you will receive the installation command and setup instructions automatically.
 
@@ -32,21 +32,20 @@ Navigate to **Providers** > **Add Provider**. You have two methods:
 
 ### Method A: Quick Setup (Recommended)
 
-ClawRouter includes **13 built-in provider templates** with pre-configured settings.
+ClawRouter includes **50 built-in provider presets** with pre-configured settings.
 
 1. Click **Quick Setup** in the Add Provider panel.
-2. Select your provider from the grid:
-   - **OpenRouter**, **Google Gemini**, **NVIDIA NIM**, **Groq**, **OpenAI**, **Anthropic**
-   - **Ollama Cloud**, **Kilo AI**, **OpenCode Zen**, **Perplexity**, **Cerebras**, **Cohere**
-   - **Z.AI API**, **Z.AI Coding**
-3. All fields are **automatically filled**: Name, API Format, Upstream URL, and API Key Mode.
-4. **For Bypass providers (Kilo AI, OpenCode Zen):** Change the **API Key Mode** from `Managed` to `None` before creating the provider. These providers do not require API keys.
-5. Customize any field if needed, then click **Create Provider**.
-6. Copy the auto-generated **Base URL** shown at the top of the provider page -- you will use this in your AI client.
+2. Search the preset grid, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**. Popular presets include:
+   - **OpenCode Zen**, **Kilo AI (Free)**, **Ollama (Local)** -- keyless, no signup
+   - **OpenRouter**, **Google Gemini**, **Groq**, **Cerebras**, **NVIDIA NIM** -- free tiers
+   - **OpenAI**, **Anthropic**, **DeepSeek**, **xAI**, **Kimi for Coding**, **Z.AI** -- API key providers
+3. All fields are **automatically filled**: Name, API Format, Upstream URL, and the correct API Key Mode.
+4. Customize any field if needed, then click **Create Provider**. The preset's recommended models are seeded into the Models tab automatically.
+5. Copy the auto-generated **Base URL** shown at the top of the provider page -- you will use this in your AI client.
 
 ### Method B: Custom Provider
 
-For providers not in the template list, or for custom/local endpoints:
+For providers not in the preset list, or for custom/local endpoints:
 
 1. Click **Custom** in the Add Provider panel.
 2. Fill in the fields:
@@ -59,7 +58,7 @@ For providers not in the template list, or for custom/local endpoints:
    - **Upstream URL**: The official API base URL of the service.
    - **API Key Mode**:
      - `Managed` -- ClawRouter manages multiple keys with rotation (default).
-     - `None` -- No API key needed (for bypass/free providers).
+     - `None` -- No API key needed (for keyless/free endpoints).
      - `Pass Through` -- Forwards the client's API key directly to upstream.
    - **Rotation Strategy**: `On Error` (use primary key until it fails) or `Round Robin` (distribute requests evenly).
 3. Click **Create Provider**.
@@ -69,13 +68,15 @@ For providers not in the template list, or for custom/local endpoints:
 
 ## Step 3: Adding API Keys
 
-> Skip this step for bypass providers (Kilo AI, OpenCode Zen) where API Key Mode is set to `None`.
+> Skip this step for keyless presets (OpenCode Zen, Kilo AI (Free), Ollama Local) -- their API Key Mode is `None` and no keys are needed.
 
 1. Open the provider's detail page and go to the **API Keys** tab.
 2. Click **Add API Key**.
 3. Paste your API key. Optionally add a label (e.g., "Free tier key #1").
-4. Click **Add**.
-5. To add multiple keys at once, use the **Bulk Add** option -- paste multiple keys separated by newlines.
+4. *(Optional)* Click **Test** to verify the key with a zero-token probe before saving it.
+5. Click **Add**.
+6. To add multiple keys at once, use the **Bulk Add** option -- paste multiple keys separated by newlines.
+7. Use **Test All Keys** to verify your whole key pool at once.
 
 **Why add multiple keys?** ClawRouter rotates between keys automatically. When one key hits a rate limit, the next key is used instantly -- your client never sees an error.
 
@@ -100,14 +101,14 @@ If a specific model is unavailable (returns a "model not found" error), ClawRout
 
 ### Provider Fallback Chain (switch to a different provider)
 
-Found in the **Settings** tab of any provider.
+Found in the **Fallback** tab of any provider (or the global **Fallback** page in the sidebar).
 
 If the entire provider fails (all keys exhausted or circuit breaker opens), ClawRouter routes to backup providers in order.
 
-1. Go to the provider's **Settings** tab > **Provider Fallback Chain** section.
-2. Click **Add Fallback Provider**. The dropdown only shows providers with the **same API format** (safety filter).
-3. Optionally set a **Target Model ID** -- if the fallback provider has saved models, they appear as a dropdown. Leave empty to pass the original model name through.
-4. Add multiple fallback providers -- they are tried in order (1 > 2 > 3...).
+1. Go to the provider's **Fallback** tab.
+2. Click **Add Fallback Provider**. The dropdown shows **all** your providers -- cross-format targets are translated automatically.
+3. Choose the model handling: leave it on **Automatic** (the requested model is tried first, then the target's saved model list) or pin a specific model. Click **Fetch models** to load the target's live catalog.
+4. Add multiple fallback providers -- they are tried in order (1 > 2 > 3...). Reorder with the arrows.
 5. Each entry is saved immediately on add -- no separate Save button needed.
 
 > **Key difference:** Model Fallback = same provider, different model. Provider Fallback = different provider entirely.
@@ -123,7 +124,7 @@ The **notification bell** in the sidebar delivers real-time alerts:
 - Circuit breaker tripping or recovering
 - Model or provider fallback activations
 
-Click any notification to navigate to the affected provider.
+Click any notification to navigate to the affected provider -- straight to the relevant tab.
 
 ---
 
@@ -131,11 +132,12 @@ Click any notification to navigate to the affected provider.
 
 Once your provider is running in ClawRouter, configure your AI client to use the auto-generated **Base URL**.
 
-### The "Prompt for AI" Feature (Recommended for OpenClaw)
+### The "Prompt for AI" Feature (Recommended)
 
-1. On the provider's detail page, click the **"Prompt for AI"** button.
-2. The generated prompt includes the **Base URL**, **Provider Name**, and recommended **Model IDs**.
-3. Copy the prompt and paste it to your OpenClaw AI agent. It will update your `openclaw.json` automatically.
+1. On the provider's detail page, click the **"Prompt for AI"** button on the Base URL banner.
+2. A tabbed dialog opens: **OpenClaw** (default), **OpenCode**, **Claude Code**, **Codex CLI**, **Cline**, **Aider**, **Custom / Other**.
+3. Select your client's tab. The generated prompt includes the **Base URL**, **Provider Name**, and your actual saved **Model IDs**.
+4. Copy the prompt and paste it to your AI agent -- or follow the instructions yourself.
 
 ### Manual Configuration
 
@@ -144,7 +146,7 @@ For OpenClaw or any compatible client, add the provider to your configuration:
 ```json
 "PROVIDER_NAME": {
   "baseUrl": "http://localhost:3030/proxy/YOUR_PROVIDER_ID/v1",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "openai-completions",
   "models": [
     { "id": "MODEL_ID", "name": "Display Name" }
@@ -152,7 +154,9 @@ For OpenClaw or any compatible client, add the provider to your configuration:
 }
 ```
 
-> **apiKey**: Use any dummy value (e.g., `dummy-key`). ClawRouter strips it and injects your real managed keys automatically.
+> **apiKey**: Use the proxy API key from the dashboard (**Settings** > **Proxy API Key**). The "Prompt for AI" dialog inserts it automatically.
+
+> **Any client, any provider:** ClawRouter translates between API formats automatically, so any AI client works with any provider -- regardless of format.
 
 > **Base URL format**: The exact URL depends on the API format:
 > - `openai-completions` / `openai-responses` / `anthropic-messages` > `/proxy/{id}/v1`
@@ -162,17 +166,15 @@ For OpenClaw or any compatible client, add the provider to your configuration:
 
 ## Recommended Starting Providers
 
-### 1. Kilo AI (Bypass -- No Key Required)
-- **Template:** Quick Setup > **Kilo AI**
-- **Important:** Change API Key Mode to **None** before creating
-- **Top Free Models:** `giga-potato-thinking`, `minimax/minimax-m2.5:free`, `stepfun/step-3.5-flash:free`
-
-### 2. OpenCode Zen (Bypass -- No Key Required)
-- **Template:** Quick Setup > **OpenCode Zen**
-- **Important:** Change API Key Mode to **None** before creating
+### 1. OpenCode Zen (Keyless -- No Signup)
+- **Preset:** Quick Setup > **OpenCode Zen** (API Key Mode is already `None`)
 - **Top Free Models:** `minimax-m2.5-free`, `big-pickle`, `gpt-5-nano`
 
+### 2. Kilo AI (Free) (Keyless -- No Signup)
+- **Preset:** Quick Setup > **Kilo AI (Free)** (API Key Mode is already `None`)
+- **Top Free Models:** `minimax/minimax-m2.5:free`, `stepfun/step-3.5-flash:free`, `kilo-auto/free`
+
 ### 3. Google Gemini (Free Tier -- Key Required)
-- **Template:** Quick Setup > **Google Gemini**
+- **Preset:** Quick Setup > **Google Gemini**
 - **Get free API key at:** [Google AI Studio](https://aistudio.google.com/)
 - **Top Models:** `gemini-3.1-pro-preview`, `gemini-2.5-flash`

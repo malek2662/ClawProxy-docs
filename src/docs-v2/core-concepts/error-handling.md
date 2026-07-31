@@ -2,7 +2,7 @@
 
 ClawRouter classifies upstream errors to determine the correct recovery action. Each error type triggers a specific behavior in the retry cascade.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -17,7 +17,7 @@ ClawRouter classifies upstream errors to determine the correct recovery action. 
 | **REQUEST_ERROR** | 400, 413, 422, 499 | Bad format, too large, unprocessable | Return to client immediately |
 | **SERVER_ERROR** | 500, 502, 503 (non-overload) | Server-side transient | Try next key |
 | **TIMEOUT** | 504, 408, timeout/AbortError | Network timeout | Try next key (if retry_on_timeout) |
-| **NETWORK_ERROR** | Other | Connection failures | Try next key |
+| **NETWORK_ERROR** | Other | Connection failures | Wait 1s, retry same key (up to 3x), then exhaust to fallback |
 
 ---
 
@@ -45,7 +45,7 @@ When a request fails, ClawRouter follows this exact retry cascade:
 | **Request Error** (400, 413, 422) | No key action | N/A | None |
 | **Server Error** (500, 502) | Try next key | N/A | None |
 | **Timeout** (504, 408) | Try next key (if retry_on_timeout) | N/A | None |
-| **Network Error** | Try next key | N/A | None |
+| **Network Error** | Retry same key (up to 3x) | 1 second between retries | None |
 
 ---
 

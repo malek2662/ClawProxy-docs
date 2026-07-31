@@ -1,8 +1,44 @@
 # Provider Management
 
-Step-by-step guides for managing provider lifecycle: resetting the circuit breaker, configuring timeouts, enabling/disabling, and deleting providers.
+Step-by-step guides for managing provider lifecycle: testing connections, resetting the circuit breaker, configuring timeouts, enabling/disabling, and deleting providers.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
+
+---
+
+## The Providers Page
+
+The Providers list groups your providers into three sections: **Free-Friendly**, **API Key Providers**, and **Custom**.
+
+Each provider card shows:
+- Provider icon, name, and API format badge
+- A **health badge**:
+
+| Badge | Meaning |
+|-------|---------|
+| **No keys** | Managed provider with no API keys added yet |
+| **N errors today** | Requests failed in the last 24 hours |
+| **Healthy** | Keys present, no errors today |
+
+- A **quick-test button** (lightning icon) -- runs a zero-token connection probe against the provider and shows the result inline
+- Power (enable/disable) and delete buttons on hover
+
+> **Deep links:** Opening `/providers?add=1` opens the Add Provider panel directly -- the Dashboard's **Add Provider** button uses this.
+
+---
+
+## Test a Provider Connection
+
+**Goal:** Verify a provider's connectivity and credentials without sending real traffic.
+
+**From the Providers list:** click the lightning icon on any provider card.
+
+**From the provider detail page:** use the test button in the **API Keys** tab (per-key) or **Test All Keys**.
+
+The probe is zero-token: a free `/models` listing where the upstream supports it, or a `max_tokens: 1` request otherwise. Results:
+- **Success** -- provider reachable, credentials accepted
+- **Success with warning** -- credentials valid but quota exhausted (HTTP 402)
+- **Error** -- invalid credentials (401/403) or classified failure (rate limit, timeout, network)
 
 ---
 

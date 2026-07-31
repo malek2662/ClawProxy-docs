@@ -2,7 +2,7 @@
 
 Automatically retries a failed request with an alternative model, **same provider, same API key**.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -40,7 +40,9 @@ Model Fallback does **NOT** trigger on rate limits, auth errors, server errors, 
    - Type a model ID manually and press Enter or click Add.
    - Or use **Fetch Models** to automatically retrieve available models from the upstream API.
 4. The first model in the list is the most preferred.
-5. Drag-and-drop models to reorder priorities.
+5. Use the up/down arrows to reorder priorities.
+
+> **Seeded models:** When you create a provider from a Quick Setup preset, the preset's recommended models are saved to the Models tab automatically -- no manual adding needed.
 
 ---
 
@@ -51,9 +53,11 @@ The **Fetch Models** button queries the upstream provider's API and displays ava
 - For **Kilo AI** and **OpenCode Zen**: models show **Free** and **Paid** badges.
 - Use the **search box** to filter models by name or ID.
 - Click **+ Add** next to any model to add it to the fallback list.
-- Click **Add All** to add all displayed models at once.
+- Click **Add All Free** to add every free model at once (bypass providers).
 
-> **Note:** For providers without a public models endpoint (Perplexity, Anthropic), ClawRouter returns a hardcoded list of known supported models.
+**Caching:** Results are cached in memory for **5 minutes** -- repeated fetches within that window return instantly, and concurrent fetches are deduplicated into a single upstream request. The cache is invalidated automatically whenever a key is added, deleted, or toggled (model catalogs can differ per key tier). Once results are displayed, the button becomes **Refresh** -- clicking it forces a fresh fetch, bypassing the cache.
+
+> **Note:** For providers without a public models endpoint (Perplexity, MiniMax), ClawRouter returns a hardcoded list of known supported models. Anthropic has a live paginated `/v1/models` endpoint -- ClawRouter fetches it for real, with a hardcoded list only as a fallback.
 
 ---
 

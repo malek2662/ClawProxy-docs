@@ -2,7 +2,7 @@
 
 This guide explains how to connect your OpenClaw AI client to providers configured in ClawRouter.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -10,7 +10,7 @@ This guide explains how to connect your OpenClaw AI client to providers configur
 
 There are three methods. All require the provider to be created first in the ClawRouter dashboard.
 
-> **About `apiKey`:** Use any dummy value (e.g., `dummy-key`) for the `apiKey` field in OpenClaw. ClawRouter strips the dummy key and injects your real, managed API keys to authenticate with upstream providers.
+> **About `apiKey`:** Use the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog inserts it automatically. ClawRouter strips it and injects your real, managed API keys to authenticate with upstream providers.
 
 > **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
 
@@ -23,20 +23,23 @@ There are three methods. All require the provider to be created first in the Cla
 ## Method 1: Quick Setup (Recommended)
 
 1. Go to **Providers** > **Add Provider** > **Quick Setup**.
-2. Select your provider from the template grid.
-3. All settings are pre-filled. Click **Create Provider**.
-4. Go to the **API Keys** tab and add your key(s).
+2. Search or browse the preset grid (grouped into **Free & Free-Tier** and **API Key Providers**) and select your provider.
+3. All settings are pre-filled -- including the correct API Key Mode. Click **Create Provider**.
+4. Go to the **API Keys** tab and add your key(s) -- skip for keyless presets (OpenCode Zen, Kilo AI (Free), Ollama Local).
 5. Copy the auto-generated **Base URL** from the top of the provider page.
 
-**Available Templates:** OpenRouter, Google Gemini, NVIDIA NIM, Groq, OpenAI, Anthropic, Ollama Cloud, Kilo AI, OpenCode Zen, Perplexity, Cerebras, Cohere, Z.AI API, Z.AI Coding.
+There are **50 built-in presets** covering major providers, free tiers, China-region providers, and aggregators -- see the Provider Directory for the full list.
 
 ---
 
 ## Method 2: The "Prompt for AI"
 
 1. Create your provider in the ClawRouter Dashboard (Quick Setup or Custom).
-2. Click **"Prompt for AI"** on the provider's detail page.
-3. Copy the generated prompt and paste it to your OpenClaw AI agent -- it will safely configure the provider and models in your `openclaw.json`.
+2. Click **"Prompt for AI"** on the provider's Base URL banner.
+3. The **OpenClaw** tab is selected by default. Copy the generated prompt and paste it to your OpenClaw AI agent -- it will safely configure the provider and models in your `openclaw.json` using `config.patch`.
+4. Where a native OpenClaw provider ID exists (e.g., `google`, `nvidia`, `zai`, `ollama`), the prompt uses it to preserve built-in provider features.
+
+> The same dialog also generates configs for OpenCode, Claude Code, Codex CLI, Cline, and Aider -- see the AI Client Setup guide.
 
 ---
 
@@ -47,7 +50,7 @@ Add the provider to your `~/.openclaw/openclaw.json` under `models.providers`:
 ```json
 "PROVIDER_NAME": {
   "baseUrl": "AUTO_GENERATED_CLAWROUTER_URL",
-  "apiKey": "dummy-key",
+  "apiKey": "cr_your_proxy_key",
   "api": "API_FORMAT",
   "models": [
     { "id": "MODEL_ID", "name": "FRIENDLY_NAME" }
@@ -71,7 +74,7 @@ Add the provider to your `~/.openclaw/openclaw.json` under `models.providers`:
 | Field | Description |
 |-------|-------------|
 | `baseUrl` | Copy from the provider's detail page in ClawRouter (the auto-generated Base URL) |
-| `apiKey` | Use any dummy value like `dummy-key`. ClawRouter strips this and injects the real key. |
+| `apiKey` | The proxy API key from **Settings** > **Proxy API Key**. ClawRouter strips this and injects the real managed key. |
 | `api` | Must match the provider's API format (`openai-completions`, `openai-responses`, `anthropic-messages`, or `google-generative-ai`) |
 | `models` | List of models with `id` and `name`. Get model IDs from the provider's **Models** tab > **Fetch Models**. |
 
@@ -81,6 +84,6 @@ Add the provider to your `~/.openclaw/openclaw.json` under `models.providers`:
 
 For ready-to-use OpenClaw configuration snippets for each provider, see:
 
-- **Bypass Providers** -- Kilo AI and OpenCode Zen (no API key required)
-- **Free Tier Providers** -- Ollama Cloud, Google Gemini, Groq, OpenRouter, NVIDIA NIM, Cohere, Cerebras
-- **Paid Providers** -- Perplexity, OpenAI, Anthropic, Z.AI
+- **Bypass Providers** -- OpenCode Zen, Kilo AI (Free), and Ollama Local (no API key required)
+- **Free Tier Providers** -- Ollama Cloud, Google Gemini, Groq, OpenRouter, NVIDIA NIM, Cerebras, and more
+- **Paid Providers** -- OpenAI, Anthropic, DeepSeek, xAI, Kimi, MiniMax, Z.AI, and more

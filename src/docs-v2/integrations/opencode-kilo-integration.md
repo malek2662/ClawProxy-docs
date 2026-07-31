@@ -2,7 +2,7 @@
 
 This guide explains how to route AI requests through **ClawRouter** using **OpenCode CLI** or **Kilo CLI**. Both tools share the same configuration format, so everything here applies to both.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -13,6 +13,8 @@ OpenCode and Kilo CLI use the [Vercel AI SDK](https://sdk.vercel.ai/) under the 
 ```
 OpenCode/Kilo CLI -> ClawRouter (localhost:3030) -> upstream provider
 ```
+
+> **Fastest setup:** Open any provider's detail page and click **"Prompt for AI"** > **OpenCode** tab. The dialog generates a complete, provider-specific `opencode.json` block (correct SDK package, Base URL, and model IDs) that you can paste directly or hand to your AI agent.
 
 > **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
 
@@ -51,7 +53,7 @@ Create the file if it doesn't exist. The structure is identical for both.
       "options": {
         "baseURL": "http://localhost:3030/proxy/{provider-id}/v1",
         "headers": {
-          "Authorization": "Bearer any-value"
+          "Authorization": "Bearer cr_your_proxy_key"
         }
       },
       "models": {
@@ -95,9 +97,9 @@ Create the file if it doesn't exist. The structure is identical for both.
 
 ### About the Authorization Header
 
-Use **any value** for the `Authorization` header (e.g., `"Bearer any-value"`). ClawRouter strips the client header and injects your real, managed API keys before forwarding to the upstream provider.
+Use the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**) as the bearer token (shown as `cr_your_proxy_key` in the examples). The **"Prompt for AI"** dialog inserts it automatically. ClawRouter validates it, then injects your real, managed API keys before forwarding to the upstream provider.
 
-> **Exception:** If your provider's API Key Mode is set to **Pass Through** in ClawRouter, the header you set here will be forwarded as-is to the upstream provider.
+> **Exception:** If your provider's API Key Mode is set to **Pass Through** in ClawRouter, the header you set here will be forwarded as-is to the upstream provider. Pass Through mode is incompatible with proxy API key auth -- use Managed or None mode instead.
 
 ---
 
@@ -108,7 +110,7 @@ Use **any value** for the `Authorization` header (e.g., `"Bearer any-value"`). C
 3. **Copy the Base URL** from the top of the provider's detail page.
 4. **Edit your config file** (`opencode.json` or `kilo.json`) and add the provider entry.
 5. **Launch the CLI** -- your new provider appears in the provider selector.
-6. **Select the provider** and enter any value when prompted for an API key.
+6. **Select the provider** and enter the proxy API key (from **Settings** > **Proxy API Key**) when prompted for an API key.
 
 ---
 
@@ -148,7 +150,7 @@ The most generous free tier with high rate limits. Get a free API key from [Goog
       "options": {
         "baseURL": "http://localhost:3030/proxy/google-gemini/v1beta",
         "headers": {
-          "Authorization": "Bearer any-value"
+          "Authorization": "Bearer cr_your_proxy_key"
         }
       },
       "models": {
@@ -245,7 +247,7 @@ Extreme speed inference for open models. Free tier is rate-limited but completel
       "options": {
         "baseURL": "http://localhost:3030/proxy/groq/v1",
         "headers": {
-          "Authorization": "Bearer any-value"
+          "Authorization": "Bearer cr_your_proxy_key"
         }
       },
       "models": {
@@ -309,7 +311,7 @@ Check for more: https://openrouter.ai/models
       "options": {
         "baseURL": "http://localhost:3030/proxy/openrouter/v1",
         "headers": {
-          "Authorization": "Bearer any-value"
+          "Authorization": "Bearer cr_your_proxy_key"
         }
       },
       "models": {
@@ -383,7 +385,7 @@ Check for more: https://build.nvidia.com/models
       "options": {
         "baseURL": "http://localhost:3030/proxy/nvidia-nim/v1",
         "headers": {
-          "Authorization": "Bearer any-value"
+          "Authorization": "Bearer cr_your_proxy_key"
         }
       },
       "models": {
@@ -449,7 +451,7 @@ Check for more: https://ollama.com/search?c=cloud&o=newest
       "options": {
         "baseURL": "http://localhost:3030/proxy/ollama-cloud/v1",
         "headers": {
-          "Authorization": "Bearer any-value"
+          "Authorization": "Bearer cr_your_proxy_key"
         }
       },
       "models": {
@@ -496,7 +498,7 @@ You can add multiple providers in a single config file. Each provider appears as
       "name": "Google Gemini (Free)",
       "options": {
         "baseURL": "http://localhost:3030/proxy/google-gemini/v1beta",
-        "headers": { "Authorization": "Bearer any-value" }
+        "headers": { "Authorization": "Bearer cr_your_proxy_key" }
       },
       "models": {
         "gemini-3.1-pro-preview": {
@@ -510,7 +512,7 @@ You can add multiple providers in a single config file. Each provider appears as
       "name": "NVIDIA NIM (Free)",
       "options": {
         "baseURL": "http://localhost:3030/proxy/nvidia-nim/v1",
-        "headers": { "Authorization": "Bearer any-value" }
+        "headers": { "Authorization": "Bearer cr_your_proxy_key" }
       },
       "models": {
         "minimaxai/minimax-m2.5": {

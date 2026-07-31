@@ -15,6 +15,7 @@
         { "key": "keyRotation", "title": "Key Rotation", "path": "core-concepts/key-rotation.md" },
         { "key": "modelFallback", "title": "Model Fallback", "path": "core-concepts/model-fallback.md" },
         { "key": "providerFallback", "title": "Provider Fallback Chain", "path": "core-concepts/provider-fallback-chain.md" },
+        { "key": "formatTranslation", "title": "API Format Translation", "path": "core-concepts/format-translation.md" },
         { "key": "circuitBreaker", "title": "Circuit Breaker", "path": "core-concepts/circuit-breaker.md" },
         { "key": "errorHandling", "title": "Error Classification & Retry", "path": "core-concepts/error-handling.md" }
       ]
@@ -43,6 +44,7 @@
     {
       "title": "Integrations",
       "items": [
+        { "key": "aiClientSetup", "title": "AI Client Setup (Prompt for AI)", "path": "integrations/ai-client-setup.md" },
         { "key": "openclawIntegration", "title": "OpenClaw Integration", "path": "integrations/openclaw-integration.md" },
         { "key": "opencodeKiloIntegration", "title": "OpenCode & Kilo CLI", "path": "integrations/opencode-kilo-integration.md" }
       ]

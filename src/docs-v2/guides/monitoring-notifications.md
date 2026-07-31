@@ -1,8 +1,8 @@
 # Monitoring & Notifications
 
-Step-by-step guides for monitoring proxy activity through notifications and request logs.
+Step-by-step guides for monitoring proxy activity through notifications, request logs, and usage stats.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -16,7 +16,7 @@ Step-by-step guides for monitoring proxy activity through notifications and requ
    - **Type badge** (color-coded by severity)
    - **Message** (human-readable description of what happened)
    - **Timestamp**
-4. Click any notification to navigate directly to the affected provider's page.
+4. Click any notification to navigate directly to the relevant provider tab -- key events open the **API Keys** tab, model fallback opens **Models**, provider fallback opens **Fallback**, circuit events open **Settings**.
 5. Click **Mark All as Read** to clear the badge count.
 6. Click **Clear All** to remove all notifications.
 
@@ -71,12 +71,27 @@ Logs are stored in the SQLite database and survive restarts. Old logs are automa
 
 The main dashboard provides an overview of proxy activity:
 
-**Stats Row 1:** Requests Today, Success Rate, Active Providers, Active Keys
+**Stats Row 1:** Requests Today, Success Rate, Active Providers, Active Keys (the Active Providers and Active Keys cards link straight to the Providers page)
 
 **Stats Row 2:** Errors Today, Timeouts Today, Avg Duration, Uptime
 
+**Est. Cost Today:** Estimated spend for the current day (see Cost Estimation below)
+
 **Request Volume Chart:** 24h/7d/all ranges with success/failure areas
 
-**Recent Errors Panel:** Latest errors with type badges
+**Recent Errors Panel / Last 5 Requests Panel:** Compact single-line rows -- click any row to open the full log detail
 
-**Last 5 Requests Panel:** Recent requests with status
+**Add Provider button:** In the dashboard header -- jumps straight to the Providers page with the Add Provider panel already open
+
+---
+
+## Usage & Cost Estimation
+
+The **Usage** page in the sidebar breaks down token consumption and cost per provider and model.
+
+**How cost is calculated** (in precedence order):
+
+1. **Provider-reported cost** -- when the upstream reports the actual cost of a request (OpenRouter, OpenCode BYOK, Perplexity), that value is used.
+2. **Static pricing estimate** -- otherwise, ClawRouter estimates cost from a built-in pricing table (~50 popular models) using cache-aware math (cached tokens are priced separately from fresh input).
+
+> **All costs are estimates.** The Usage page labels them accordingly -- they are for guidance only, never actual billing. Check your provider's dashboard for authoritative numbers.

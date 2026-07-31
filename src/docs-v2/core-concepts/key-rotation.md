@@ -2,7 +2,7 @@
 
 ClawRouter allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
 
-> **Version 1.0.12**
+> **Version 1.0.13**
 
 ---
 
@@ -73,9 +73,27 @@ Each key tracks the last 50 errors. To view:
 
 Keys are used in priority order. The first key in the list has highest priority.
 
-- **Drag-and-drop** to reorder keys in the API Keys tab.
-- Add a **label** to each key for easy identification (e.g., "Free tier key #1").
+- Use the **up/down arrows** to reorder keys in the API Keys tab.
+- Add a **label** to each key for easy identification (e.g., "Free tier key #1") -- labels are editable inline.
 - Keys show individual stats: total requests, successful, failed, last used, and last error.
+
+---
+
+## Connection Testing
+
+Every key can be tested without burning tokens. ClawRouter sends a zero-token probe appropriate for the provider's API format (a free `/models` listing where available, or a `max_tokens: 1` request otherwise).
+
+- **Per-key test**: click the test button on any key row. The result -- success or error -- is persisted and shown in the **Last Test** column along with a **latency badge**.
+- **Test All Keys**: tests every enabled key sequentially; you can stop mid-run with **Stop Testing**.
+- **Test before save**: the Add API Key form can test a key before you commit it.
+
+**How results are interpreted:**
+
+| HTTP Result | Meaning |
+|-------------|---------|
+| 401 / 403 | Key invalid -- the upstream rejected the credential |
+| 402 | Key **valid**, but quota/credits exhausted (shown as a soft warning, not a failure) |
+| Other non-auth statuses | Key accepted (e.g., 400/404/429 on the probe still prove the credential works) |
 
 ---
 
