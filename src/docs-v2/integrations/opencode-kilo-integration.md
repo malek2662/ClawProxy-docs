@@ -2,7 +2,7 @@
 
 This guide explains how to route AI requests through **ClawRouter** using **OpenCode CLI** or **Kilo CLI**. Both tools share the same configuration format, so everything here applies to both.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

@@ -2,7 +2,7 @@
 
 The **Prompt for AI** dialog generates ready-to-paste setup instructions for 7 AI clients, tailored to the specific provider -- with the correct Base URL, model IDs, and config format for each client.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

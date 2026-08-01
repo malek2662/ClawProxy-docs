@@ -2,7 +2,7 @@
 
 ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

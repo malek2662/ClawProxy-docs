@@ -2,7 +2,7 @@
 
 An overview of ClawRouter's architecture, request flow, and core design principles.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

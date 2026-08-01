@@ -2,7 +2,7 @@
 
 ClawRouter automatically translates between AI API formats, so any AI client works with any provider -- regardless of which API format each side speaks.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

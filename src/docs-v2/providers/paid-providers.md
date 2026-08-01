@@ -2,7 +2,7 @@
 
 Configure paid API providers securely in ClawRouter. All keys are stored locally -- never sent externally.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 > **Important:** ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 

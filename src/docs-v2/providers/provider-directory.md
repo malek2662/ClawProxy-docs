@@ -2,7 +2,7 @@
 
 A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

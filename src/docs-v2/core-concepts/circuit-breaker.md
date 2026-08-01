@@ -2,7 +2,7 @@
 
 Automatic health monitoring that prevents cascading failures by temporarily stopping requests to a failing provider.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

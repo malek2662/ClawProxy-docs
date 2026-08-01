@@ -2,7 +2,7 @@
 
 This guide explains how to connect your OpenClaw AI client to providers configured in ClawRouter.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

@@ -2,7 +2,7 @@
 
 Get ClawRouter running and route your first AI request in minutes.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 > **Installation Note:** ClawRouter is premium software. After your payment is confirmed, you will receive the installation command and setup instructions automatically.
 

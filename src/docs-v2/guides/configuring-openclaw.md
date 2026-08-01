@@ -2,7 +2,7 @@
 
 Step-by-step guides for connecting your OpenClaw AI client to ClawRouter providers.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 ---
 

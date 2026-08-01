@@ -2,7 +2,7 @@
 
 Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add, no signup required.
 
-> **Version 1.0.13**
+> **Version 1.0.14**
 
 > **No Setup Tricks Needed:** Keyless presets ship with API Key Mode `None` pre-selected. Just pick the preset and click **Create Provider** -- do **not** add any API keys. The keys table is replaced by an informational card, and the add-key endpoint rejects keys for these providers.
 
