@@ -145,9 +145,10 @@ ClawRouter classifies upstream errors to determine the correct recovery action. 
 
 | Error Type | HTTP Status | Body Patterns | Recovery Action |
 |------------|-------------|---------------|-----------------|
-| **AUTH_ERROR** | 401, 402, 403 | (no model patterns), API_KEY_INVALID, FAILED_PRECONDITION | Disable key permanently, try next key |
-| **RATE_LIMIT** | 429, 498 (Groq) | Rate limit patterns | 60s backoff on key, try next key |
-| **MODEL_ERROR** | 404, 400, 401 | "model", "ModelError", "PAID_MODEL_AUTH_REQUIRED" | Try next model (if enabled), then next key |
+| **AUTH_ERROR** | 401, 402, 403 (no model/subscription patterns) | API_KEY_INVALID, FAILED_PRECONDITION, hard-billing bodies ("credit balance", "insufficient balance"), 429 with \`insufficient_quota\`, Z.AI codes 1000-1005 / 1113 / 1309 / 1314 / 1315 | Disable key permanently, try next key |
+| **QUOTA_EXHAUSTED** | 429, 403, 400, 401 | Window-quota bodies: "usage limit", "access_terminated", "billing cycle", "quota will be refreshed", "quota exceeded", "usage_limit_reached"; Z.AI codes 1308 / 1310 / 1316-1321 | Long backoff on key (\`quota_backoff_s\`, default 1800s), **never disabled**, try next key |
+| **RATE_LIMIT** | 429 (transient bodies), 498 (Groq) | Rate limit patterns | 60s backoff on key, try next key |
+| **MODEL_ERROR** | 404, 400, 401, 403 | "model", "ModelError", "PAID_MODEL_AUTH_REQUIRED", "requires a subscription" | Try next model (if enabled), then next key |
 | **OVERLOADED** | 503, 529 (Anthropic) | "overloaded", "capacity", "resource exhausted" | Wait 2s, retry same key (up to 2x) |
 | **REQUEST_ERROR** | 400, 413, 422, 499 | Bad format, too large, unprocessable | Return to client immediately |
 | **SERVER_ERROR** | 500, 502, 503 (non-overload) | Server-side transient | Try next key |
@@ -162,8 +163,8 @@ When a request fails, ClawRouter follows this exact retry cascade:
 
 1. **REQUEST_ERROR** (400/413/422/499) > Return to client immediately (will fail with any key).
 2. **OVERLOADED** (503/529) > Wait 2 seconds, retry same key (up to 2 inner retries).
-3. **MODEL_ERROR** (404/400/401 with model patterns) > Try next model from provider_models if model_fallback_enabled (same key).
-4. **AUTH_ERROR / RATE_LIMIT / SERVER_ERROR / TIMEOUT / NETWORK_ERROR** > Try next key.
+3. **MODEL_ERROR** (404/400/401/403 with model or subscription patterns) > Try next model from provider_models if model_fallback_enabled (same key). Repeated model failures trip the **model circuit breaker**, after which the model is skipped entirely -- see Model Fallback.
+4. **AUTH_ERROR / QUOTA_EXHAUSTED / RATE_LIMIT / SERVER_ERROR / TIMEOUT / NETWORK_ERROR** > Try next key.
 5. **All keys exhausted** > Trigger Provider Fallback Chain (tried in priority order).
 6. **All fallback providers exhausted** > Return error to client.
 
@@ -174,13 +175,25 @@ When a request fails, ClawRouter follows this exact retry cascade:
 | Error Type | Key Action | Backoff Duration | Notification |
 |------------|-----------|-----------------|-------------|
 | **Rate Limit** (429, Groq 498) | Temporary cooldown | 60 seconds (configurable) | Key Rate Limited |
-| **Auth Error** (401, 402, 403) | Permanently disabled | Permanent | Key Disabled |
+| **Quota Exhausted** (window quota: Kimi Coding 5h/weekly cycles) | Long cooldown -- **never disabled** | Until the actual window reset, capped at \`quota_backoff_s\` (default 1800s, configurable) | Key Rate Limited |
+| **Auth Error** (401, 402, hard-billing bodies) | Permanently disabled | Permanent | Key Disabled |
 | **Overloaded** (503, 529) | Retry same key | 2 seconds (up to 2 retries) | None |
 | **Model Error** | No key action | N/A | Model Fallback (if enabled) |
 | **Request Error** (400, 413, 422) | No key action | N/A | None |
 | **Server Error** (500, 502) | Try next key | N/A | None |
 | **Timeout** (504, 408) | Try next key (if retry_on_timeout) | N/A | None |
 | **Network Error** | Retry same key (up to 3x) | 1 second between retries | None |
+
+---
+
+## Window Quota vs Hard Billing
+
+Two kinds of "out of quota" errors exist, and ClawRouter treats them very differently:
+
+- **Window quota (QUOTA_EXHAUSTED)** -- self-resetting cycles: Kimi Coding's 5-hour/weekly/monthly windows, Z.AI's 5-hour/7-day windows (codes 1308/1310/1316-1321), OpenAI monthly quota. The key is valid; its quota window is simply full. The key enters a **long backoff** and is **never disabled**. ClawRouter probes the provider's usage endpoint for the actual reset time (Kimi Coding: \`GET {base}/usages\`) and backs off until that time, capped at \`quota_backoff_s\` (default 1800 seconds, configurable in **Settings**). It recovers automatically when the window resets.
+- **Hard billing (AUTH_ERROR)** -- the account has no money left: HTTP 402, "credit balance too low", MiniMax \`insufficient_balance\`, Z.AI code 1113 / \`insufficient_quota\` (a 429!). These disable the key permanently, like any auth error.
+
+The distinction matters because window-quota errors often arrive on auth-looking statuses -- **Kimi Coding returns HTTP 403 \`access_terminated_error\`, not 429** -- and naively treating every 403 as an auth error would disable a perfectly good key.
 
 ---
 
@@ -192,10 +205,29 @@ Some providers return non-standard HTTP status codes that ClawRouter handles spe
 |----------|-------|-------------------------|
 | **OpenCode.ai** | Returns HTTP 401 for unsupported models (body: "ModelError") | Classified as MODEL_ERROR, not AUTH_ERROR. Key is not disabled. |
 | **Kilo.ai** | Returns HTTP 401 for non-free models when no auth (body: "PAID_MODEL_AUTH_REQUIRED") | Classified as MODEL_ERROR. |
+| **Ollama Cloud** | Returns HTTP 403 "this model requires a subscription, upgrade for access" for plan-gated models | Classified as MODEL_ERROR. The free-tier key stays enabled; model fallback and the model circuit apply. |
+| **Kimi Coding** | Returns HTTP 403 \`access_terminated_error\` (not 429) when a 5-hour, weekly, or monthly quota window is full | Classified as QUOTA_EXHAUSTED. Key backed off until the actual window reset (probed from the usage endpoint), never disabled. |
+| **Z.AI** | Puts a numeric-string **business code** in \`error.code\` that beats the HTTP status -- hard billing, window quotas, model gating, and rate limits all ride on 429 | Code-driven classification (table below). A 429 can disable the key (1113), back it off (1308-1321), or just rate-limit it (1302/1313). |
 | **Google Gemini** | Returns HTTP 400 for invalid API keys (body: "API_KEY_INVALID") | Classified as AUTH_ERROR. Key is disabled. |
 | **MiniMax** | Returns HTTP 200 for most errors with custom status codes in body | Parsed from response body (1004/2049/1008 = AUTH_ERROR, 1002/2045/2056 = RATE_LIMIT). |
 | **Anthropic** | Uses custom HTTP 529 for overloaded | Classified as OVERLOADED. |
 | **Groq** | Uses custom HTTP 498 for flex tier capacity | Classified as RATE_LIMIT. |
+
+### Z.AI Business Codes
+
+Z.AI returns a numeric-string code in \`error.code\` that overrides the HTTP status (almost everything arrives as 429). ClawRouter classifies by code, per Z.AI's published error table:
+
+| Code | Meaning | Classification | Key Action |
+|------|---------|----------------|------------|
+| 1113 | Insufficient balance (hard billing) | AUTH_ERROR | **Disabled** -- recharge required |
+| 1308, 1310, 1316-1321 | Self-resetting 5-hour / 7-day quota windows | QUOTA_EXHAUSTED | Long backoff, **never disabled** |
+| 1309, 1314, 1315 | Expired / wrong plan | AUTH_ERROR | **Disabled** |
+| 1311 | Plan doesn't include the model | MODEL_ERROR | Model fallback |
+| 1302, 1313 | Rate limit | RATE_LIMIT | 60s backoff |
+| 1305 | Overloaded | OVERLOADED | Retry same key |
+| 1211 | Unknown model | MODEL_ERROR | Model fallback |
+
+> **Dead-key trap:** Z.AI's monitor endpoint returns **HTTP 200** with \`{"code":1000,"msg":"Authentication Failed","success":false}\` for a dead key. ClawRouter detects this envelope (auth-family codes 1000-1005, with or without the message) and treats it exactly like a real 401.
 `,hT=`# API Format Translation
 
 ClawRouter automatically translates between AI API formats, so any AI client works with any provider -- regardless of which API format each side speaks.
@@ -439,7 +471,8 @@ ClawRouter allows you to add **multiple API keys to the same provider**. When on
 | Error | HTTP Status | Key Action |
 |-------|-------------|------------|
 | **Rate Limit** | 429 | Key enters cooldown (default 60 seconds, configurable in **Settings**). Next key used immediately. |
-| **Auth Error** | 401, 402, 403 | Key is permanently disabled. Next key used. |
+| **Quota Exhausted** (window quota) | 429, 403, 400, 401 | Key backed off until the quota window resets (default cap 1800 seconds, \`quota_backoff_s\`). **Never disabled** -- recovers automatically. Next key used. |
+| **Auth Error** | 401, 402, hard-billing bodies | Key is permanently disabled. Next key used. |
 | **Overloaded** | 503, 529 | Retries the same key after 2-second wait (up to 2 retries, configurable in **Settings**). |
 | **Model Error** | varies | Handled by Model Fallback (same key, different model). |
 | **Request Error** | 400, 413, 422 | Returned to client immediately (affects all keys equally). |
@@ -484,7 +517,7 @@ Keys are used in priority order. The first key in the list has highest priority.
 
 ## Connection Testing
 
-Every key can be tested without burning tokens. ClawRouter sends a zero-token probe appropriate for the provider's API format (a free \`/models\` listing where available, or a \`max_tokens: 1\` request otherwise).
+Every key can be tested. ClawRouter runs a free \`/models\` check (where available) **followed by a 1-token generation probe** (\`max_tokens: 1\`) -- the \`/models\` 200 alone only proves the key authenticates, not that the account can actually generate.
 
 - **Per-key test**: click the test button on any key row. The result -- success or error -- is persisted and shown in the **Last Test** column along with a **latency badge**.
 - **Test All Keys**: tests every enabled key sequentially; you can stop mid-run with **Stop Testing**.
@@ -492,11 +525,13 @@ Every key can be tested without burning tokens. ClawRouter sends a zero-token pr
 
 **How results are interpreted:**
 
-| HTTP Result | Meaning |
+| Probe Result | Meaning |
 |-------------|---------|
-| 401 / 403 | Key invalid -- the upstream rejected the credential |
-| 402 | Key **valid**, but quota/credits exhausted (shown as a soft warning, not a failure) |
-| Other non-auth statuses | Key accepted (e.g., 400/404/429 on the probe still prove the credential works) |
+| 401 / 403 | Key invalid -- the upstream rejected the credential. The key is **auto-disabled** |
+| 402 / hard-billing body ("insufficient balance", \`insufficient_quota\`, Z.AI 1113) | Key invalid -- "recharge required". The key is **auto-disabled** |
+| Window-quota body (Kimi \`access_terminated\`, "usage limit", "billing cycle", Z.AI 1308-1321) | Key **valid** -- the quota window is full but recovers at the reset (soft warning) |
+| Transient 429 / gated probe model | Key **valid** -- soft warning names the cause |
+| Other non-auth statuses | Key accepted (e.g., 400/404 on the probe still prove the credential works) |
 
 ---
 
@@ -519,10 +554,10 @@ The **Fixed** mode is useful when you have many keys (e.g., 50+) but want faster
 Yes, this is one of ClawRouter's core features. Add as many keys as you want. ClawRouter rotates between them automatically when errors occur, effectively combining their quotas into one stable connection.
 
 ### Why was my API key permanently disabled?
-ClawRouter permanently disables a key when it receives an **auth error** (HTTP 401, 402, 403 without content moderation context). This means the key is invalid, expired, or revoked. Check the Error History for details. You can re-enable it manually from the API Keys tab if you believe it was a transient issue.
+ClawRouter permanently disables a key when it receives a **hard auth/billing error** (invalid credential, HTTP 402, "credit balance too low" style bodies). This means the key is invalid, expired, revoked, or out of money. Check the Error History for details. You can re-enable it manually from the API Keys tab if you believe it was a transient issue.
 
 ### A key shows errors but is still active -- why?
-ClawRouter only permanently disables keys on **auth errors** (401, 402, 403). For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally.
+ClawRouter only permanently disables keys on **hard auth/billing errors**. For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally. **Quota-window exhaustion** (Kimi Coding 5-hour/weekly cycles) backs the key off until the window resets -- the key is never disabled and recovers automatically.
 
 ### All keys in cooldown at the same time?
 Add more keys to the pool, switch to Round Robin rotation to distribute load, or reduce request frequency from your client. Cooldowns expire automatically after the backoff period.
@@ -555,6 +590,7 @@ Model Fallback only triggers on **MODEL_ERROR** classification:
 | 400 | "model" + "not found" / "invalid" patterns | Invalid model ID |
 | 401 | "ModelError" | OpenCode Zen quirk |
 | 401 | "PAID_MODEL_AUTH_REQUIRED" | Kilo AI paid model without subscription |
+| 403 | "requires a subscription" / "upgrade for access" | Ollama Cloud plan-gated model |
 
 Model Fallback does **NOT** trigger on rate limits, auth errors, server errors, or timeouts. Those are handled by key rotation.
 
@@ -599,6 +635,38 @@ When a model error occurs:
 
 ---
 
+## Model Circuit Breaker
+
+Repeatedly failing models are skipped automatically so no time is wasted on dead models.
+
+**How it works:**
+
+1. ClawRouter counts consecutive failures per model per provider. When a model reaches the failure threshold (default **2**, setting \`model_circuit_threshold\`), its circuit **opens**.
+2. While the circuit is open, the router **skips that model entirely** and routes straight to the next fallback model -- no wasted upstream call, no notification spam. A single \`model_circuit_open\` notification fires when the circuit trips.
+3. After a cooldown, the model is probed again. A success resets its failure counter to zero.
+
+**Cooldowns are error-type aware:**
+
+| Failure Reason | Cooldown | Default Setting |
+|----------------|----------|-----------------|
+| Model not found / invalid / gated (MODEL_ERROR) | Long | \`model_circuit_permanent_cooldown_s\` (default 1800s) |
+| Overloaded / rate-limited (OVERLOADED / RATE_LIMIT) | Short | \`model_circuit_transient_cooldown_s\` (default 120s) |
+
+**Visibility:** Models with an open circuit show an amber **"Skipped - reason - ~time"** badge on the provider's **Models** tab. This is how plan-gated or unavailable models (e.g., Ollama Cloud subscription models) surface -- providers rarely mark free vs paid models in their API, so gated models are discovered at runtime.
+
+**Fallback models are protected too:** if every candidate model has an open circuit, the requested model is probed anyway (fail-open) -- the circuit never hard-blocks the last option.
+
+---
+
+## Model Fallback in the Logs
+
+When a model fallback hop serves a request, the log row records the originally requested model. In the **Logs** page:
+
+- The log table shows an amber **"requested > served"** model badge.
+- The log detail drawer header always shows provider + model badges, and its **Info** tab includes a **Model Fallback** card with the requested and served model IDs.
+
+---
+
 ## Frequently Asked Questions
 
 ### What is the difference between Model Fallback and Provider Fallback?
@@ -613,6 +681,9 @@ Checklist:
 
 ### "PAID_MODEL_AUTH_REQUIRED" error?
 You're trying to use a paid model on a bypass provider (Kilo AI or OpenCode Zen) without a paid subscription. Use only **Free** models. Go to **Models** tab > **Fetch Models** and look for models with the **Free** badge.
+
+### Why does a model show a "Skipped" badge?
+The model's circuit breaker is open -- it failed repeatedly (default: 2 consecutive failures) and is being skipped until its cooldown expires. The badge shows the reason and approximate remaining time. This is normal for plan-gated models (e.g., Ollama Cloud subscription models) or models the provider has removed. Remove the model from your list if it never recovers, or adjust \`model_circuit_threshold\` / the cooldown settings in **Settings**.
 `,yT=`# Provider Fallback Chain
 
 Switches to a completely different provider when the primary provider fails entirely (all keys exhausted or circuit breaker opens).
@@ -979,7 +1050,7 @@ For providers not in the preset list, or for custom/local endpoints:
 1. Open the provider's detail page and go to the **API Keys** tab.
 2. Click **Add API Key**.
 3. Paste your API key. Optionally add a label (e.g., "Free tier key #1").
-4. *(Optional)* Click **Test** to verify the key with a zero-token probe before saving it.
+4. *(Optional)* Click **Test** to verify the key (a 1-token probe) before saving it.
 5. Click **Add**.
 6. To add multiple keys at once, use the **Bulk Add** option -- paste multiple keys separated by newlines.
 7. Use **Test All Keys** to verify your whole key pool at once.
@@ -1228,11 +1299,25 @@ When you create a provider from a **Quick Setup preset**, the preset's recommend
 4. The first model in the list is the most preferred. If it fails, the second is tried, then the third, etc.
 5. Use the up/down arrows to reorder priorities.
 
-**When it activates:** Only when a model returns a "model not found" or "invalid model" error (not on rate limits or auth errors).
+**When it activates:** Only when a model returns a "model not found", "invalid model", or "subscription required" error (not on rate limits or auth errors).
 
 **Example scenario:**
 - You have models: \`gpt-5-nano\` (priority 1), \`minimax-m2.5-free\` (priority 2), \`big-pickle\` (priority 3).
 - Client requests \`gpt-5-nano\`. If it returns a model error, ClawRouter silently retries with \`minimax-m2.5-free\`. If that also fails, it tries \`big-pickle\`.
+
+---
+
+## Model Circuit Breaker ("Skipped" Badges)
+
+Models that fail repeatedly are skipped automatically so requests don't waste time hitting a dead model.
+
+- After **2 consecutive failures** (default, \`model_circuit_threshold\` in **Settings**), the model's circuit opens and later requests skip it entirely, routing straight to the next fallback model.
+- While skipped, the model's row on the **Models** tab shows an amber **"Skipped - reason - ~time"** badge with the failure reason and approximate remaining cooldown.
+- Cooldowns depend on why the model failed: **not found / invalid / gated** > 30 minutes (default, \`model_circuit_permanent_cooldown_s\`); **overloaded / rate-limited** > 2 minutes (default, \`model_circuit_transient_cooldown_s\`).
+- A single notification fires when the circuit trips -- there is no per-request spam.
+- Once the cooldown expires, the model is probed again; a success resets its counter.
+
+> **Tip:** Plan-gated models (e.g., Ollama Cloud models that require a subscription) surface this way. Providers don't mark free vs paid models in their API, so a gated model is discovered at runtime and shows up as a "Skipped" badge. Remove it from your fallback list if you don't have the required plan.
 
 ---
 
@@ -1351,8 +1436,12 @@ Step-by-step guide for configuring system-wide proxy behavior: key retry strateg
 | Setting | Default | Description |
 |---------|---------|-------------|
 | **Rate Limit Backoff** | \`60\` seconds | How long a key is put on cooldown after a rate limit error. |
+| **Quota Backoff** | \`1800\` seconds | Backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly cycles, Z.AI 5-hour/7-day windows). Caps provider-reported reset times. The key is never disabled -- it recovers at the window reset. |
 | **Circuit Breaker Threshold** | \`5\` | Number of provider-level failures within the time window before the circuit opens. |
 | **Circuit Breaker Cooldown** | \`30\` seconds | How long before a tripped circuit enters the half-open state for a recovery test. |
+| **Model Circuit Threshold** | \`2\` | Consecutive failures before a model is skipped entirely (routed straight to the next fallback model). |
+| **Model Circuit Permanent Cooldown** | \`1800\` seconds | Model-skip cooldown for not-found/invalid/gated model errors. |
+| **Model Circuit Transient Cooldown** | \`120\` seconds | Model-skip cooldown for overloaded/rate-limited model failures. |
 
 ### Log Retention
 
@@ -1417,7 +1506,7 @@ Step-by-step guides for adding, managing, testing, and troubleshooting API keys 
 3. Click **Add API Key**.
 4. Paste your API key in the input field.
 5. *(Optional)* Add a **label** to identify this key (e.g., "Free tier key #1").
-6. *(Optional)* Click **Test** to verify the key with a zero-token probe **before saving it**. The result appears inline -- you can still save a key that fails the test.
+6. *(Optional)* Click **Test** to verify the key **before saving it**. The result appears inline -- you can still save a key that fails the test.
 7. Click **Add**.
 8. The key appears in the table with a masked view (first 4 + last 4 characters shown).
 9. Repeat to add more keys. Each additional key increases your effective rate limit capacity.
@@ -1442,9 +1531,14 @@ Step-by-step guides for adding, managing, testing, and troubleshooting API keys 
 
 ## Test API Keys (Connection Testing)
 
-**Goal:** Verify keys work without spending tokens.
+**Goal:** Verify keys actually work -- not just that they authenticate.
 
-ClawRouter uses **zero-token probes**: a free \`/models\` listing where the upstream supports it, or a \`max_tokens: 1\` request otherwise. Nothing you test counts against your quota in any meaningful way.
+Every test runs **two probes**:
+
+1. A free \`/models\` listing (where the upstream supports it) -- proves the key **authenticates**.
+2. A **1-token generation probe** (\`max_tokens: 1\`) -- proves the account can actually **generate**. This always runs, because a 200 on \`/models\` alone says nothing about usable credit: zero-credit and suspended accounts pass it.
+
+The probe costs a single token, so testing has no meaningful impact on your quota.
 
 ### Test a Single Key
 
@@ -1462,12 +1556,20 @@ ClawRouter uses **zero-token probes**: a free \`/models\` listing where the upst
 
 | Result | Meaning |
 |--------|---------|
-| Success | Key accepted by the upstream |
-| Success with warning (HTTP 402) | Key is valid but quota/credits are exhausted |
-| Error (401/403) | Key is invalid, expired, or revoked |
+| Success (green) | Key accepted and generation probe succeeded |
+| Success with warning (amber) -- "recovers at window reset" | Key is **valid** but a quota window is full (Kimi Coding 5-hour/weekly cycles, Z.AI 5-hour/weekly windows) -- it recovers automatically at the reset |
+| Success with warning (amber) -- rate limit / unavailable probe model | Key is **valid**; the warning names the cause (transient 429, or the probe model is gated/unavailable) |
+| Error -- "recharge required" | Key is **invalid** -- hard billing (HTTP 402, "insufficient balance" / "insufficient_quota"): the account is out of money. The key is auto-disabled (see below) |
+| Error (401/403) | Key is invalid, expired, or revoked -- auto-disabled (see below) |
 | Error (other) | Classified by type (rate limit, network, timeout) -- the key may still be fine |
 
 Test results persist across restarts -- the **Status** and **Last Test** columns always show the latest outcome.
+
+### Test-Based Auto-Disable
+
+When a key test proves the key **definitively invalid** (\`!valid\` + auth error -- bad/expired key or hard billing), the key is **auto-disabled** through the same path as a real failed request (disable + error history + notification). The UI shows a **"Failed · disabled"** badge and a warning toast naming the key, and the key list/counts refresh immediately.
+
+A test **never** disables a key on: transient/network/timeout failures, rate limits, window quota (still valid + warning), or content-moderation rejections. Re-testing an already-disabled key reports it as disabled again **without** re-firing the notification. The provider-level **Test** button (Providers list / provider detail) does **not** disable keys.
 
 ---
 
@@ -1519,12 +1621,14 @@ Test results persist across restarts -- the **Status** and **Last Test** columns
 
 ## Re-enable a Disabled Key
 
-API keys are permanently disabled when they receive an auth error (HTTP 401, 402, 403). To re-enable:
+API keys are permanently disabled when they receive a hard auth error (invalid credential, HTTP 402 / "credit balance too low" style billing errors). To re-enable:
 
 1. Open the provider's **API Keys** tab.
 2. Find the disabled key (red badge).
 3. Click the **enable/disable toggle** to re-enable it.
 4. Check the **Error History** first to understand why it was disabled -- it may have genuine auth issues.
+
+> **Note:** Quota-window exhaustion (Kimi Coding 5-hour/weekly cycles) does **not** disable keys -- the key enters a timed backoff and recovers automatically when the window resets. Only genuine auth/billing failures disable a key.
 
 ---
 
@@ -1561,13 +1665,18 @@ Step-by-step guides for monitoring proxy activity through notifications, request
 
 | Type | Badge Color | Trigger | Severity |
 |------|------------|---------|----------|
-| **Key Disabled** | Red | Key permanently disabled due to auth error (401/402/403) | Critical |
-| **Rate Limited** | Yellow | Key entered 60-second cooldown after rate limit (429) | Warning |
+| **Key Disabled** | Red | Key permanently disabled due to a hard auth/billing error | Critical |
+| **Rate Limited** | Yellow | Key entered cooldown after a rate limit (429) or quota-window exhaustion | Warning |
 | **Circuit Open** | Red | Provider circuit breaker tripped (5 failures in 60s) | Critical |
 | **Recovered** | Green | Provider recovered after circuit breaker cooldown | Info |
 | **All Keys Failed** | Red | Every key for a provider failed | Critical |
 | **Model Fallback** | Blue | Model error triggered automatic switch to next model | Info |
+| **Model Circuit Open** | Amber | A model failed repeatedly and is now being skipped (model circuit breaker) | Warning |
 | **Provider Fallback** | Yellow | Provider failure triggered switch to fallback provider | Warning |
+
+### Notification Throttling
+
+Condition-style notifications that would otherwise fire **per request** while a failure persists -- **Rate Limited**, **All Keys Failed**, **Model Fallback**, **Provider Fallback** -- are deduplicated: the first one fires immediately and identical repeats are suppressed for **5 minutes** while the condition persists. Transition events (**Key Disabled**, **Circuit Open**, **Model Circuit Open**, **Recovered**) fire once by nature and are never throttled. Clearing all notifications also resets the throttle state.
 
 > **Note:** Notifications are in-memory (last 100 events) and cleared on restart. This is by design -- they are a real-time alerting system, not a log replacement. Use the **Logs** section for persistent history.
 
@@ -1590,13 +1699,20 @@ Step-by-step guides for monitoring proxy activity through notifications, request
 
 ### What Each Log Entry Shows
 
-- Provider ID
-- Model name
+- Provider badge and model badge (always visible)
 - HTTP method
 - Response status code
 - Duration (ms)
 - Timestamp
 - Full request/response details (expandable)
+
+### Model Fallback Visibility
+
+When a model fallback hop served the request (the originally requested model failed and a fallback model answered), the log row carries the requested model ID:
+
+- The log table shows an amber **"requested > served"** badge on the model column.
+- The log detail drawer header shows the same amber **requested > served** model badge next to the provider badge.
+- The drawer's **Info** tab includes a **Model Fallback** card listing the requested and served model IDs.
 
 ### Log Persistence
 
@@ -1654,7 +1770,7 @@ Each provider card shows:
 | **N errors today** | Requests failed in the last 24 hours |
 | **Healthy** | Keys present, no errors today |
 
-- A **quick-test button** (lightning icon) -- runs a zero-token connection probe against the provider and shows the result inline
+- A **quick-test button** (lightning icon) -- runs a connection probe against the provider and shows the result inline
 - Power (enable/disable) and delete buttons on hover
 
 > **Deep links:** Opening \`/providers?add=1\` opens the Add Provider panel directly -- the Dashboard's **Add Provider** button uses this.
@@ -1669,10 +1785,44 @@ Each provider card shows:
 
 **From the provider detail page:** use the test button in the **API Keys** tab (per-key) or **Test All Keys**.
 
-The probe is zero-token: a free \`/models\` listing where the upstream supports it, or a \`max_tokens: 1\` request otherwise. Results:
-- **Success** -- provider reachable, credentials accepted
-- **Success with warning** -- credentials valid but quota exhausted (HTTP 402)
-- **Error** -- invalid credentials (401/403) or classified failure (rate limit, timeout, network)
+The probe runs a free \`/models\` check followed by a 1-token generation request -- a 200 on \`/models\` alone only proves authentication, not usable credit. Results:
+- **Success** -- provider reachable, credentials accepted, generation works
+- **Success with warning** -- credentials valid but a quota window is full (recovers at the reset) or a transient issue (rate limit, gated probe model)
+- **Error** -- invalid credentials (401/403), hard billing (402, "insufficient balance" / "insufficient_quota" -- reported as "recharge required"), or classified failure (rate limit, timeout, network)
+
+---
+
+## View Live Quota & Usage (Quota Tab)
+
+**Goal:** See the remaining quota windows of every key on subscription providers with a usage endpoint.
+
+The **Quota tab** (\`?tab=quota\`) appears only for providers with a known usage endpoint:
+
+- **Kimi for Coding** (\`api.kimi.com/coding\`)
+- **Z.AI GLM Coding** (\`api.z.ai/api/coding\` or \`open.bigmodel.cn/api/coding\`)
+
+Other providers don't see the tab -- deep links to \`?tab=quota\` fall back to the Overview tab.
+
+1. Open the provider's detail page and click the **Quota** tab.
+2. Click **Fetch Quota** -- nothing auto-fetches; the probe runs only on demand (it costs no tokens).
+3. You get **one card per enabled key** (each key is a separate quota account):
+   - **Membership level, region, and parallel limit** badges (plus the plan name for Z.AI)
+   - **Per-window progress bars** with remaining quota and a reset countdown -- Kimi: 5-hour window, weekly cycle. Z.AI: 5-hour session and weekly token windows (the weekly window may be percentage-only and renders as %), plus the monthly web-search count
+   - **Booster wallet** monthly spending cap (Kimi)
+   - A disabled marker when the account reports \`STATUS_DISABLED\`
+4. Per-key probe failures don't fail the other cards -- the affected key shows an inline amber badge instead.
+
+> **Note:** When every key is quota-backed-off, the probe still runs (it costs no tokens) so you can see exactly when each window resets.
+
+### Probe-Based Auto-Disable
+
+When the quota endpoint **definitively rejects** a key, the rejection runs through the same error classification as real traffic -- and only an **auth-error outcome** (401/403 invalid key, hard-billing codes) disables the key, identical to a real failed request (disable + error history + \`key_disabled\` notification). The card renders red **"Invalid key -- auto-disabled"**.
+
+A probe **never** disables a key on: network failures, transient 5xx, rate limits, window-quota rejections (Kimi \`access_terminated\`), or no-plan payloads.
+
+> **Z.AI trap:** a dead Z.AI key returns **HTTP 200** with \`{"code":1000,"msg":"Authentication Failed","success":false}\` from the monitor endpoint. ClawRouter detects this envelope (auth-family codes 1000-1005) and treats it exactly like a real 401.
+
+> **No GLM Coding Plan?** A valid Z.AI key without an active coding plan returns a "coding plan" error payload -- the key stays enabled and the Quota tab shows an amber **"key valid, no active plan"** note.
 
 ---
 
@@ -1867,6 +2017,12 @@ The \`openai/\` prefix tells aider to treat it as a generic OpenAI-compatible en
 ## Custom / Other
 
 A generic reference for any client that supports a custom base URL: the correct endpoint URLs for the provider's API format, auth header guidance, available model IDs, and a ready-to-run \`curl\` example. Works with all API formats.
+
+The tab also includes **ready-to-paste environment variable export blocks** for shell-based setups:
+
+- **Anthropic style:** \`ANTHROPIC_BASE_URL\`, \`ANTHROPIC_AUTH_TOKEN\`, \`ANTHROPIC_MODEL\` -- with commented per-model swap lines for switching models quickly
+- **OpenAI style:** \`OPENAI_BASE_URL\`, \`OPENAI_API_KEY\`
+- **Google style:** \`GOOGLE_GEMINI_BASE_URL\`, \`GEMINI_API_KEY\`
 `,jT=`# OpenClaw Integration
 
 This guide explains how to connect your OpenClaw AI client to providers configured in ClawRouter.
@@ -2729,6 +2885,8 @@ Check for more: https://ollama.com/search?c=cloud&o=newest
 2. Go to **API Keys** tab > add \`sk-not-required\` as the key (Ollama Cloud uses header auth; ClawRouter manages the flow).
 3. Copy the **Base URL**.
 
+> **Plan-gated models:** Ollama Cloud returns HTTP 403 "this model requires a subscription, upgrade for access" for models outside your plan. ClawRouter classifies this as a **model error** -- your key stays enabled, and Model Fallback / the model circuit handle it automatically. There is no free-vs-paid marker in Ollama's API, so gated models are discovered at runtime: after a couple of failures they show an amber **"Skipped"** badge on the **Models** tab. Remove those models from your list (or upgrade your plan) to avoid fallback hops.
+
 ---
 
 ## Google AI Studio (Gemini)
@@ -3270,6 +3428,32 @@ Seeded models: \`glm-5.2\`, \`glm-5.1\`, \`glm-5\`, \`glm-4.7\`
 
 Seeded models: \`glm-5.2\`, \`glm-5.1\`, \`glm-5\`, \`glm-4.7\`, \`glm-4.6\`, \`glm-4.5-air\`
 
+### Business Error Codes
+
+Z.AI returns a numeric-string **business code** in \`error.code\` that beats the HTTP status -- hard billing, window quotas, model gating, and rate limits all ride on 429. ClawRouter classifies by code:
+
+| Code | Meaning | How ClawRouter Handles It |
+|------|---------|---------------------------|
+| 1113 | Insufficient balance (hard billing) | AUTH_ERROR -- key **disabled** (recharge required) |
+| 1308, 1310, 1316-1321 | Self-resetting 5-hour / 7-day quota windows | QUOTA_EXHAUSTED -- long backoff, **never disabled** |
+| 1309, 1314, 1315 | Expired / wrong plan | AUTH_ERROR -- key **disabled** |
+| 1311 | Plan doesn't include the model | MODEL_ERROR -- model fallback |
+| 1302, 1313 | Rate limit | RATE_LIMIT -- 60s backoff |
+| 1305 | Overloaded | OVERLOADED -- retry same key |
+| 1211 | Unknown model | MODEL_ERROR -- model fallback |
+
+### Quota Visibility (GLM Coding Plan)
+
+The Z.AI Coding presets have a **Quota tab** (see Provider Management > View Live Quota & Usage) backed by Z.AI's plan endpoints:
+
+- \`GET {origin}/api/monitor/usage/quota/limit\` -- token windows (5-hour session, weekly -- the weekly window may be percentage-only and renders as %) with epoch-millisecond reset times, plus the monthly web-search count
+- \`GET {origin}/api/biz/subscription/list\` -- plan name (best-effort)
+
+Two traps handled automatically:
+
+- A key with **no GLM Coding Plan** returns a "coding plan" error payload -- the key is **valid** and stays enabled; the Quota tab shows an amber **"key valid, no active plan"** note.
+- A **dead key** returns HTTP 200 with \`{"code":1000,"msg":"Authentication Failed","success":false}\` -- detected as an auth rejection and treated like a real 401 (key auto-disabled).
+
 ---
 
 ## Kimi for Coding (Anthropic Format)
@@ -3286,6 +3470,14 @@ Moonshot's Kimi models via a Claude-compatible endpoint.
 Seeded models: \`kimi-for-coding\`, \`kimi-k2.7-code\`, \`kimi-k2.6\`, \`kimi-k2.5\`, \`kimi-latest\`
 
 > **Claude Code ready:** Because this provider speaks the Anthropic Messages format, you can point Claude Code at it -- use the **Claude Code** tab in the provider's **Prompt for AI** dialog.
+
+### Quota Windows
+
+Kimi Coding enforces **5-hour, weekly, and monthly quota windows**. When a window is full, the API returns HTTP 403 \`access_terminated_error\` (not 429). ClawRouter classifies this as **quota exhaustion**, not an auth error:
+
+- The key enters a **timed backoff** and is **never disabled** -- it recovers automatically when the window resets.
+- ClawRouter probes Kimi's usage endpoint for the actual reset time and backs off until then (capped at \`quota_backoff_s\`, default 1800s, configurable in **Settings**).
+- The provider's **Quota** tab (\`?tab=quota\`, **Fetch Quota** button) shows one card per enabled key: membership level, region, parallel limit, per-window progress bars (5-hour window, weekly cycle) with remaining quota and reset countdowns, and the booster wallet monthly cap.
 
 ---
 
@@ -3649,7 +3841,7 @@ The Providers list groups your configured providers into three sections: **Free-
 
 - The provider's icon, name, and API format
 - A **health badge**: \`No keys\` (managed provider with no keys yet), \`N errors today\` (errors in the last 24h), or \`Healthy\`
-- A **quick-test button** (lightning icon) that runs a zero-token connection probe against the provider
+- A **quick-test button** (lightning icon) that runs a connection probe against the provider
 - Power (enable/disable) and delete buttons on hover
 
 ---
@@ -3673,7 +3865,7 @@ For providers not in the preset list, use the **Custom** option with a blank for
 
 - ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 - **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
-`,LT='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.14**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n\n---\n\n## Connection Testing\n\nZero-token probes -- a free `/models` listing where available, else a `max_tokens: 1` request. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. HTTP 402 = valid with quota soft warning; 401/403 = invalid.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save) |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result. Returns `{ results: [...] }` |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',RT=`# CLI Commands
+`,LT='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.14**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n\n---\n\n## Connection Testing\n\nEvery test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.\n\nKey-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Model Circuits & Usage\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |\n| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \\| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |\n| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \\| null, invalid? }] }` |\n\nBoth usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI\'s HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',RT=`# CLI Commands
 
 ClawRouter includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
 
@@ -3891,8 +4083,12 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 | Setting | Default | Options | Description |
 |---------|---------|---------|-------------|
 | **Rate Limit Backoff** (\`rate_limit_backoff_s\`) | \`60\` | Any positive integer (seconds) | How long a key is put in cooldown after hitting a rate limit (HTTP 429). |
+| **Quota Backoff** (\`quota_backoff_s\`) | \`1800\` | 60 - 86400 (seconds) | Backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly cycles, Z.AI 5-hour/7-day windows). Also caps provider-reported reset times. The key is never disabled -- it recovers when the window resets. |
 | **Circuit Breaker Threshold** (\`circuit_breaker_threshold\`) | \`5\` | Any positive integer | Number of provider-level failures (all keys exhausted) within the failure window before the circuit opens. |
 | **Circuit Breaker Cooldown** (\`circuit_breaker_cooldown_s\`) | \`30\` | Any positive integer (seconds) | How long the circuit stays OPEN before transitioning to HALF_OPEN for a recovery test. |
+| **Model Circuit Threshold** (\`model_circuit_threshold\`) | \`2\` | 1 - 100 | Consecutive failures before a model's circuit opens and the model is skipped (routed straight to the next fallback model). |
+| **Model Circuit Permanent Cooldown** (\`model_circuit_permanent_cooldown_s\`) | \`1800\` | 30 - 86400 (seconds) | Model-circuit cooldown for not-found/invalid/gated model errors (MODEL_ERROR). |
+| **Model Circuit Transient Cooldown** (\`model_circuit_transient_cooldown_s\`) | \`120\` | 10 - 3600 (seconds) | Model-circuit cooldown for overloaded/rate-limited model failures (OVERLOADED / RATE_LIMIT). |
 
 ### Log Retention
 
@@ -3921,6 +4117,7 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 | Rotation trigger | Only when the current key encounters an error |
 | Best for | Maximizing usage of a single primary key before rotating |
 | Rate limit handling | Failed key enters cooldown (default 60s, configurable), next key used |
+| Quota window exhaustion | Failed key backed off until the window reset (default cap 1800s, \`quota_backoff_s\`), **never disabled** -- recovers automatically |
 | Auth error handling | Failed key permanently disabled, next key used |
 
 ### Round Robin
@@ -3955,6 +4152,21 @@ The Circuit Breaker is automatic and applies per-provider. Threshold and cooldow
 | **HALF_OPEN** | Testing recovery after cooldown | One test request sent. Success > CLOSED. Failure > back to OPEN. |
 
 > Circuit breaker is in-memory and resets on proxy restart. Can be manually reset from the Settings tab.
+
+---
+
+## Model Circuit Breaker Parameters
+
+The Model Circuit Breaker is automatic and applies **per model, per provider**. When a model fails \`model_circuit_threshold\` consecutive times, the router skips it entirely -- requests route straight to the next fallback model with no upstream call. One \`model_circuit_open\` notification fires at trip time; repeats are silent.
+
+| Parameter | Default | Configurable | Description |
+|-----------|---------|--------------|-------------|
+| **Failure Threshold** | 2 | Yes (\`model_circuit_threshold\`) | Consecutive model failures before the circuit opens |
+| **Permanent Cooldown** | 1800 seconds | Yes (\`model_circuit_permanent_cooldown_s\`) | Cooldown for MODEL_ERROR (not found / invalid / gated) |
+| **Transient Cooldown** | 120 seconds | Yes (\`model_circuit_transient_cooldown_s\`) | Cooldown for OVERLOADED / RATE_LIMIT model failures |
+| **Recovery** | Success resets counter | No | After cooldown the model is probed; a success closes the circuit |
+
+Open model circuits are visible as amber "Skipped" badges on the Models tab (\`GET /api/providers/:id/model-circuits\`). If every candidate model has an open circuit, the requested model is probed anyway (fail-open). Model circuits are in-memory and reset on proxy restart.
 
 ---
 
@@ -3996,14 +4208,17 @@ Configured in the provider's **Fallback** tab or the global **Fallback** page (s
 | Type | Severity | Badge Color | Trigger Condition |
 |------|----------|------------|-------------------|
 | \`key_disabled\` | Critical | Red | API key permanently disabled (AUTH_ERROR) |
-| \`key_rate_limited\` | Warning | Yellow | Key entered 60s cooldown (RATE_LIMIT) |
+| \`key_rate_limited\` | Warning | Yellow | Key entered cooldown (RATE_LIMIT or QUOTA_EXHAUSTED window backoff) |
 | \`circuit_open\` | Critical | Red | Circuit breaker tripped (5 failures in 60s) |
 | \`provider_cooldown\` | Info | Green | Provider recovered (circuit HALF_OPEN > CLOSED) |
 | \`all_keys_failed\` | Critical | Red | Every key for provider exhausted |
 | \`model_fallback\` | Info | Blue | Model error > switched to fallback model |
+| \`model_circuit_open\` | Warning | Amber | Model failed repeatedly > model circuit opened, model skipped |
 | \`provider_fallback\` | Warning | Yellow | Provider failure > switched to fallback provider |
 
 **Storage:** In-memory ring buffer, max 100. Cleared on restart. Delivered via WebSocket in real-time.
+
+**Throttling:** Repeat-condition notifications (\`key_rate_limited\`, \`all_keys_failed\`, \`model_fallback\`, \`provider_fallback\`) are deduplicated for 5 minutes -- the first fires, repeats are suppressed while the condition persists. Transition events (\`key_disabled\`, \`circuit_open\`, \`provider_cooldown\`, \`model_circuit_open\`) always fire immediately.
 
 ---
 
@@ -4269,6 +4484,13 @@ Diagnose and resolve common issues with ClawRouter.
 3. If the key was disabled incorrectly, re-enable it from the API Keys tab.
 4. Add a new valid key if needed.
 
+> **Exceptions:** Not every 403 is an auth error. A 403 "requires a subscription" body (Ollama Cloud gated models) is a **model error** -- the key stays enabled. A 403 \`access_terminated_error\` (Kimi Coding quota windows) is **quota exhaustion** -- the key backs off until the window resets and is never disabled. And not every 429 is a rate limit: Z.AI puts a business code in \`error.code\` that decides the outcome (1113 = hard billing > key disabled; 1308-1321 = quota windows > backoff only). See the provider-specific sections below.
+
+### Problem: Key backed off for a long time but not disabled (Kimi Coding)
+**Cause:** A Kimi Coding quota window (5-hour, weekly, or monthly) is full. Kimi returns HTTP 403 \`access_terminated_error\`, which ClawRouter classifies as quota exhaustion -- not an auth error.
+**What ClawRouter does:** Backs the key off until the **actual window reset** (probed from Kimi's usage endpoint, capped at \`quota_backoff_s\`, default 1800s). The key is never disabled and recovers automatically.
+**Solution:** No action needed. Check the provider's **Quota** tab (**Fetch Quota** button) for live per-key, per-window remaining quota and reset countdowns. Add more keys if you regularly exhaust windows.
+
 ### Problem: Requests succeed but return wrong/empty responses
 **Possible causes:**
 - Incorrect API format configured for the provider.
@@ -4288,7 +4510,9 @@ Diagnose and resolve common issues with ClawRouter.
 4. Check the **Error History** first to understand why it was disabled -- it may have genuine auth issues.
 
 ### Problem: How do I check if a key actually works?
-Use the built-in **connection testing**: click the test button on the key's row (or **Test All Keys**). The probe is zero-token. A 401/403 means the key is invalid; a 402 means the key is valid but out of quota; other results confirm the credential is accepted. The latest result persists in the **Last Test** column.
+Use the built-in **connection testing**: click the test button on the key's row (or **Test All Keys**). Each test runs a free \`/models\` check followed by a 1-token generation probe. A 401/403 means the key is invalid; hard billing (HTTP 402, "insufficient balance" / \`insufficient_quota\`) means the account is out of money ("recharge required"); a window-quota body (Kimi \`access_terminated\`, Z.AI codes 1308-1321) means the key is valid and recovers at the window reset; other results confirm the credential is accepted. The latest result persists in the **Last Test** column.
+
+> **Auto-disable:** When a test proves a key definitively invalid (bad/expired key or hard billing), the key is **auto-disabled** -- you'll see a **"Failed · disabled"** badge and a warning toast naming the key. Transient failures, rate limits, window quota, and content-moderation rejections never disable a key.
 
 ### Problem: "This provider uses no API keys" error when adding a key
 **Cause:** The provider's API Key Mode is \`None\` (keyless presets like OpenCode Zen, Kilo AI (Free), Ollama Local). These providers need no keys -- ClawRouter sends the required headers automatically.
@@ -4476,6 +4700,18 @@ http://localhost:3030/proxy/{provider-id}/v1beta
 **Explanation:** Groq uses a custom HTTP 498 for flex tier capacity limits. ClawRouter classifies this as RATE_LIMIT.
 **Solution:** Wait for the rate limit backoff period (default 60 seconds, configurable in **Settings**), or add more keys / a fallback provider.
 
+### Z.AI -- Key disabled after a 429 "rate limit"
+**Explanation:** Z.AI returns almost every error as HTTP 429 with a numeric-string business code in \`error.code\`. The code decides the outcome: **1113** (insufficient balance) is hard billing and disables the key; **1309/1314/1315** (expired/wrong plan) also disable it; **1308/1310/1316-1321** are self-resetting 5-hour/7-day quota windows (backoff only, never disabled); **1302/1313** are real rate limits; **1311** means your plan doesn't include the model (model fallback).
+**Solution:** Check the key's Error History for the actual business code. For 1113, recharge the account; for window codes, wait for the reset (visible on the **Quota** tab).
+
+### Z.AI GLM Coding -- Quota tab shows "key valid, no active plan"
+**Explanation:** The key authenticates, but the account has no active GLM Coding Plan. Z.AI's monitor endpoint returns a "coding plan" error payload for such keys. The key is **valid** and is never disabled for this.
+**Solution:** Subscribe to a GLM Coding Plan on Z.AI, or use the key with the **Z.AI API** (general) preset instead, which is balance-based.
+
+### Z.AI -- Key auto-disabled from the Quota tab even though the API returned HTTP 200
+**Explanation:** This is expected. Z.AI's monitor endpoint returns HTTP 200 with \`{"code":1000,"msg":"Authentication Failed","success":false}\` for a **dead key**. ClawRouter detects this envelope and treats it exactly like a real 401 -- the key is disabled, with the same error history and notification as a real failed request.
+**Solution:** Verify the key in your Z.AI console, replace it if revoked, or re-enable it from the API Keys tab if you believe it was a mistake.
+
 ### MiniMax -- Requests succeed but errors in body
 **Explanation:** MiniMax returns HTTP 200 for most errors with custom status codes in the response body. ClawRouter parses the body to detect these:
 - Status 1004, 2049, 1008 > AUTH_ERROR
@@ -4484,6 +4720,10 @@ http://localhost:3030/proxy/{provider-id}/v1beta
 
 ### Ollama Cloud -- Key requirements
 **Note:** Ollama Cloud uses header-based auth managed by ClawRouter. Add \`sk-not-required\` as the key. Do not leave the keys tab empty as the managed mode requires at least one key entry.
+
+### Ollama Cloud -- HTTP 403 "requires a subscription" on some models
+**Explanation:** Ollama Cloud returns HTTP 403 "this model requires a subscription, upgrade for access" for plan-gated models. ClawRouter classifies this as MODEL_ERROR, not an auth error -- your key is **not** disabled. Ollama's API does not mark which models are free vs paid, so gated models are discovered at runtime: after repeated failures they show an amber **"Skipped"** badge on the Models tab (model circuit breaker).
+**Solution:** Remove the gated model from your fallback list (or upgrade your Ollama plan). With Model Fallback enabled, requests automatically cascade to the next working model.
 
 ### Perplexity -- No models returned from Fetch
 **Explanation:** Perplexity does not have a public \`/v1/models\` endpoint. ClawRouter returns a hardcoded list of known supported models instead.
