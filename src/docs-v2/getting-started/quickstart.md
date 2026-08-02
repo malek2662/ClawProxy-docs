@@ -73,7 +73,7 @@ For providers not in the preset list, or for custom/local endpoints:
 1. Open the provider's detail page and go to the **API Keys** tab.
 2. Click **Add API Key**.
 3. Paste your API key. Optionally add a label (e.g., "Free tier key #1").
-4. *(Optional)* Click **Test** to verify the key with a zero-token probe before saving it.
+4. *(Optional)* Click **Test** to verify the key (a 1-token probe) before saving it.
 5. Click **Add**.
 6. To add multiple keys at once, use the **Bulk Add** option -- paste multiple keys separated by newlines.
 7. Use **Test All Keys** to verify your whole key pool at once.

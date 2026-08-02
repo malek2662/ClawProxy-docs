@@ -51,11 +51,25 @@ When you create a provider from a **Quick Setup preset**, the preset's recommend
 4. The first model in the list is the most preferred. If it fails, the second is tried, then the third, etc.
 5. Use the up/down arrows to reorder priorities.
 
-**When it activates:** Only when a model returns a "model not found" or "invalid model" error (not on rate limits or auth errors).
+**When it activates:** Only when a model returns a "model not found", "invalid model", or "subscription required" error (not on rate limits or auth errors).
 
 **Example scenario:**
 - You have models: `gpt-5-nano` (priority 1), `minimax-m2.5-free` (priority 2), `big-pickle` (priority 3).
 - Client requests `gpt-5-nano`. If it returns a model error, ClawRouter silently retries with `minimax-m2.5-free`. If that also fails, it tries `big-pickle`.
+
+---
+
+## Model Circuit Breaker ("Skipped" Badges)
+
+Models that fail repeatedly are skipped automatically so requests don't waste time hitting a dead model.
+
+- After **2 consecutive failures** (default, `model_circuit_threshold` in **Settings**), the model's circuit opens and later requests skip it entirely, routing straight to the next fallback model.
+- While skipped, the model's row on the **Models** tab shows an amber **"Skipped - reason - ~time"** badge with the failure reason and approximate remaining cooldown.
+- Cooldowns depend on why the model failed: **not found / invalid / gated** > 30 minutes (default, `model_circuit_permanent_cooldown_s`); **overloaded / rate-limited** > 2 minutes (default, `model_circuit_transient_cooldown_s`).
+- A single notification fires when the circuit trips -- there is no per-request spam.
+- Once the cooldown expires, the model is probed again; a success resets its counter.
+
+> **Tip:** Plan-gated models (e.g., Ollama Cloud models that require a subscription) surface this way. Providers don't mark free vs paid models in their API, so a gated model is discovered at runtime and shows up as a "Skipped" badge. Remove it from your fallback list if you don't have the required plan.
 
 ---
 

@@ -20,7 +20,7 @@ Each provider card shows:
 | **N errors today** | Requests failed in the last 24 hours |
 | **Healthy** | Keys present, no errors today |
 
-- A **quick-test button** (lightning icon) -- runs a zero-token connection probe against the provider and shows the result inline
+- A **quick-test button** (lightning icon) -- runs a connection probe against the provider and shows the result inline
 - Power (enable/disable) and delete buttons on hover
 
 > **Deep links:** Opening `/providers?add=1` opens the Add Provider panel directly -- the Dashboard's **Add Provider** button uses this.
@@ -35,10 +35,44 @@ Each provider card shows:
 
 **From the provider detail page:** use the test button in the **API Keys** tab (per-key) or **Test All Keys**.
 
-The probe is zero-token: a free `/models` listing where the upstream supports it, or a `max_tokens: 1` request otherwise. Results:
-- **Success** -- provider reachable, credentials accepted
-- **Success with warning** -- credentials valid but quota exhausted (HTTP 402)
-- **Error** -- invalid credentials (401/403) or classified failure (rate limit, timeout, network)
+The probe runs a free `/models` check followed by a 1-token generation request -- a 200 on `/models` alone only proves authentication, not usable credit. Results:
+- **Success** -- provider reachable, credentials accepted, generation works
+- **Success with warning** -- credentials valid but a quota window is full (recovers at the reset) or a transient issue (rate limit, gated probe model)
+- **Error** -- invalid credentials (401/403), hard billing (402, "insufficient balance" / "insufficient_quota" -- reported as "recharge required"), or classified failure (rate limit, timeout, network)
+
+---
+
+## View Live Quota & Usage (Quota Tab)
+
+**Goal:** See the remaining quota windows of every key on subscription providers with a usage endpoint.
+
+The **Quota tab** (`?tab=quota`) appears only for providers with a known usage endpoint:
+
+- **Kimi for Coding** (`api.kimi.com/coding`)
+- **Z.AI GLM Coding** (`api.z.ai/api/coding` or `open.bigmodel.cn/api/coding`)
+
+Other providers don't see the tab -- deep links to `?tab=quota` fall back to the Overview tab.
+
+1. Open the provider's detail page and click the **Quota** tab.
+2. Click **Fetch Quota** -- nothing auto-fetches; the probe runs only on demand (it costs no tokens).
+3. You get **one card per enabled key** (each key is a separate quota account):
+   - **Membership level, region, and parallel limit** badges (plus the plan name for Z.AI)
+   - **Per-window progress bars** with remaining quota and a reset countdown -- Kimi: 5-hour window, weekly cycle. Z.AI: 5-hour session and weekly token windows (the weekly window may be percentage-only and renders as %), plus the monthly web-search count
+   - **Booster wallet** monthly spending cap (Kimi)
+   - A disabled marker when the account reports `STATUS_DISABLED`
+4. Per-key probe failures don't fail the other cards -- the affected key shows an inline amber badge instead.
+
+> **Note:** When every key is quota-backed-off, the probe still runs (it costs no tokens) so you can see exactly when each window resets.
+
+### Probe-Based Auto-Disable
+
+When the quota endpoint **definitively rejects** a key, the rejection runs through the same error classification as real traffic -- and only an **auth-error outcome** (401/403 invalid key, hard-billing codes) disables the key, identical to a real failed request (disable + error history + `key_disabled` notification). The card renders red **"Invalid key -- auto-disabled"**.
+
+A probe **never** disables a key on: network failures, transient 5xx, rate limits, window-quota rejections (Kimi `access_terminated`), or no-plan payloads.
+
+> **Z.AI trap:** a dead Z.AI key returns **HTTP 200** with `{"code":1000,"msg":"Authentication Failed","success":false}` from the monitor endpoint. ClawRouter detects this envelope (auth-family codes 1000-1005) and treats it exactly like a real 401.
+
+> **No GLM Coding Plan?** A valid Z.AI key without an active coding plan returns a "coding plan" error payload -- the key stays enabled and the Quota tab shows an amber **"key valid, no active plan"** note.
 
 ---
 

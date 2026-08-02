@@ -168,6 +168,32 @@ Seeded models: `glm-5.2`, `glm-5.1`, `glm-5`, `glm-4.7`
 
 Seeded models: `glm-5.2`, `glm-5.1`, `glm-5`, `glm-4.7`, `glm-4.6`, `glm-4.5-air`
 
+### Business Error Codes
+
+Z.AI returns a numeric-string **business code** in `error.code` that beats the HTTP status -- hard billing, window quotas, model gating, and rate limits all ride on 429. ClawRouter classifies by code:
+
+| Code | Meaning | How ClawRouter Handles It |
+|------|---------|---------------------------|
+| 1113 | Insufficient balance (hard billing) | AUTH_ERROR -- key **disabled** (recharge required) |
+| 1308, 1310, 1316-1321 | Self-resetting 5-hour / 7-day quota windows | QUOTA_EXHAUSTED -- long backoff, **never disabled** |
+| 1309, 1314, 1315 | Expired / wrong plan | AUTH_ERROR -- key **disabled** |
+| 1311 | Plan doesn't include the model | MODEL_ERROR -- model fallback |
+| 1302, 1313 | Rate limit | RATE_LIMIT -- 60s backoff |
+| 1305 | Overloaded | OVERLOADED -- retry same key |
+| 1211 | Unknown model | MODEL_ERROR -- model fallback |
+
+### Quota Visibility (GLM Coding Plan)
+
+The Z.AI Coding presets have a **Quota tab** (see Provider Management > View Live Quota & Usage) backed by Z.AI's plan endpoints:
+
+- `GET {origin}/api/monitor/usage/quota/limit` -- token windows (5-hour session, weekly -- the weekly window may be percentage-only and renders as %) with epoch-millisecond reset times, plus the monthly web-search count
+- `GET {origin}/api/biz/subscription/list` -- plan name (best-effort)
+
+Two traps handled automatically:
+
+- A key with **no GLM Coding Plan** returns a "coding plan" error payload -- the key is **valid** and stays enabled; the Quota tab shows an amber **"key valid, no active plan"** note.
+- A **dead key** returns HTTP 200 with `{"code":1000,"msg":"Authentication Failed","success":false}` -- detected as an auth rejection and treated like a real 401 (key auto-disabled).
+
 ---
 
 ## Kimi for Coding (Anthropic Format)
@@ -184,6 +210,14 @@ Moonshot's Kimi models via a Claude-compatible endpoint.
 Seeded models: `kimi-for-coding`, `kimi-k2.7-code`, `kimi-k2.6`, `kimi-k2.5`, `kimi-latest`
 
 > **Claude Code ready:** Because this provider speaks the Anthropic Messages format, you can point Claude Code at it -- use the **Claude Code** tab in the provider's **Prompt for AI** dialog.
+
+### Quota Windows
+
+Kimi Coding enforces **5-hour, weekly, and monthly quota windows**. When a window is full, the API returns HTTP 403 `access_terminated_error` (not 429). ClawRouter classifies this as **quota exhaustion**, not an auth error:
+
+- The key enters a **timed backoff** and is **never disabled** -- it recovers automatically when the window resets.
+- ClawRouter probes Kimi's usage endpoint for the actual reset time and backs off until then (capped at `quota_backoff_s`, default 1800s, configurable in **Settings**).
+- The provider's **Quota** tab (`?tab=quota`, **Fetch Quota** button) shows one card per enabled key: membership level, region, parallel limit, per-window progress bars (5-hour window, weekly cycle) with remaining quota and reset countdowns, and the booster wallet monthly cap.
 
 ---
 

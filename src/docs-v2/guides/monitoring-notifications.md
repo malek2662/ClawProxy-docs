@@ -24,13 +24,18 @@ Step-by-step guides for monitoring proxy activity through notifications, request
 
 | Type | Badge Color | Trigger | Severity |
 |------|------------|---------|----------|
-| **Key Disabled** | Red | Key permanently disabled due to auth error (401/402/403) | Critical |
-| **Rate Limited** | Yellow | Key entered 60-second cooldown after rate limit (429) | Warning |
+| **Key Disabled** | Red | Key permanently disabled due to a hard auth/billing error | Critical |
+| **Rate Limited** | Yellow | Key entered cooldown after a rate limit (429) or quota-window exhaustion | Warning |
 | **Circuit Open** | Red | Provider circuit breaker tripped (5 failures in 60s) | Critical |
 | **Recovered** | Green | Provider recovered after circuit breaker cooldown | Info |
 | **All Keys Failed** | Red | Every key for a provider failed | Critical |
 | **Model Fallback** | Blue | Model error triggered automatic switch to next model | Info |
+| **Model Circuit Open** | Amber | A model failed repeatedly and is now being skipped (model circuit breaker) | Warning |
 | **Provider Fallback** | Yellow | Provider failure triggered switch to fallback provider | Warning |
+
+### Notification Throttling
+
+Condition-style notifications that would otherwise fire **per request** while a failure persists -- **Rate Limited**, **All Keys Failed**, **Model Fallback**, **Provider Fallback** -- are deduplicated: the first one fires immediately and identical repeats are suppressed for **5 minutes** while the condition persists. Transition events (**Key Disabled**, **Circuit Open**, **Model Circuit Open**, **Recovered**) fire once by nature and are never throttled. Clearing all notifications also resets the throttle state.
 
 > **Note:** Notifications are in-memory (last 100 events) and cleared on restart. This is by design -- they are a real-time alerting system, not a log replacement. Use the **Logs** section for persistent history.
 
@@ -53,13 +58,20 @@ Step-by-step guides for monitoring proxy activity through notifications, request
 
 ### What Each Log Entry Shows
 
-- Provider ID
-- Model name
+- Provider badge and model badge (always visible)
 - HTTP method
 - Response status code
 - Duration (ms)
 - Timestamp
 - Full request/response details (expandable)
+
+### Model Fallback Visibility
+
+When a model fallback hop served the request (the originally requested model failed and a fallback model answered), the log row carries the requested model ID:
+
+- The log table shows an amber **"requested > served"** badge on the model column.
+- The log detail drawer header shows the same amber **requested > served** model badge next to the provider badge.
+- The drawer's **Info** tab includes a **Model Fallback** card listing the requested and served model IDs.
 
 ### Log Persistence
 

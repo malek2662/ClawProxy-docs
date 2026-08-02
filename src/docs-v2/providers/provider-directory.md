@@ -104,7 +104,7 @@ The Providers list groups your configured providers into three sections: **Free-
 
 - The provider's icon, name, and API format
 - A **health badge**: `No keys` (managed provider with no keys yet), `N errors today` (errors in the last 24h), or `Healthy`
-- A **quick-test button** (lightning icon) that runs a zero-token connection probe against the provider
+- A **quick-test button** (lightning icon) that runs a connection probe against the provider
 - Power (enable/disable) and delete buttons on hover
 
 ---

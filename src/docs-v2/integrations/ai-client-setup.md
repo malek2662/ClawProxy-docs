@@ -109,3 +109,9 @@ The `openai/` prefix tells aider to treat it as a generic OpenAI-compatible endp
 ## Custom / Other
 
 A generic reference for any client that supports a custom base URL: the correct endpoint URLs for the provider's API format, auth header guidance, available model IDs, and a ready-to-run `curl` example. Works with all API formats.
+
+The tab also includes **ready-to-paste environment variable export blocks** for shell-based setups:
+
+- **Anthropic style:** `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_MODEL` -- with commented per-model swap lines for switching models quickly
+- **OpenAI style:** `OPENAI_BASE_URL`, `OPENAI_API_KEY`
+- **Google style:** `GOOGLE_GEMINI_BASE_URL`, `GEMINI_API_KEY`

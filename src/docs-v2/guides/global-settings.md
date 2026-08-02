@@ -26,8 +26,12 @@ Step-by-step guide for configuring system-wide proxy behavior: key retry strateg
 | Setting | Default | Description |
 |---------|---------|-------------|
 | **Rate Limit Backoff** | `60` seconds | How long a key is put on cooldown after a rate limit error. |
+| **Quota Backoff** | `1800` seconds | Backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly cycles, Z.AI 5-hour/7-day windows). Caps provider-reported reset times. The key is never disabled -- it recovers at the window reset. |
 | **Circuit Breaker Threshold** | `5` | Number of provider-level failures within the time window before the circuit opens. |
 | **Circuit Breaker Cooldown** | `30` seconds | How long before a tripped circuit enters the half-open state for a recovery test. |
+| **Model Circuit Threshold** | `2` | Consecutive failures before a model is skipped entirely (routed straight to the next fallback model). |
+| **Model Circuit Permanent Cooldown** | `1800` seconds | Model-skip cooldown for not-found/invalid/gated model errors. |
+| **Model Circuit Transient Cooldown** | `120` seconds | Model-skip cooldown for overloaded/rate-limited model failures. |
 
 ### Log Retention
 

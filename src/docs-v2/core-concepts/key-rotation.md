@@ -36,7 +36,8 @@ ClawRouter allows you to add **multiple API keys to the same provider**. When on
 | Error | HTTP Status | Key Action |
 |-------|-------------|------------|
 | **Rate Limit** | 429 | Key enters cooldown (default 60 seconds, configurable in **Settings**). Next key used immediately. |
-| **Auth Error** | 401, 402, 403 | Key is permanently disabled. Next key used. |
+| **Quota Exhausted** (window quota) | 429, 403, 400, 401 | Key backed off until the quota window resets (default cap 1800 seconds, `quota_backoff_s`). **Never disabled** -- recovers automatically. Next key used. |
+| **Auth Error** | 401, 402, hard-billing bodies | Key is permanently disabled. Next key used. |
 | **Overloaded** | 503, 529 | Retries the same key after 2-second wait (up to 2 retries, configurable in **Settings**). |
 | **Model Error** | varies | Handled by Model Fallback (same key, different model). |
 | **Request Error** | 400, 413, 422 | Returned to client immediately (affects all keys equally). |
@@ -81,7 +82,7 @@ Keys are used in priority order. The first key in the list has highest priority.
 
 ## Connection Testing
 
-Every key can be tested without burning tokens. ClawRouter sends a zero-token probe appropriate for the provider's API format (a free `/models` listing where available, or a `max_tokens: 1` request otherwise).
+Every key can be tested. ClawRouter runs a free `/models` check (where available) **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves the key authenticates, not that the account can actually generate.
 
 - **Per-key test**: click the test button on any key row. The result -- success or error -- is persisted and shown in the **Last Test** column along with a **latency badge**.
 - **Test All Keys**: tests every enabled key sequentially; you can stop mid-run with **Stop Testing**.
@@ -89,11 +90,13 @@ Every key can be tested without burning tokens. ClawRouter sends a zero-token pr
 
 **How results are interpreted:**
 
-| HTTP Result | Meaning |
+| Probe Result | Meaning |
 |-------------|---------|
-| 401 / 403 | Key invalid -- the upstream rejected the credential |
-| 402 | Key **valid**, but quota/credits exhausted (shown as a soft warning, not a failure) |
-| Other non-auth statuses | Key accepted (e.g., 400/404/429 on the probe still prove the credential works) |
+| 401 / 403 | Key invalid -- the upstream rejected the credential. The key is **auto-disabled** |
+| 402 / hard-billing body ("insufficient balance", `insufficient_quota`, Z.AI 1113) | Key invalid -- "recharge required". The key is **auto-disabled** |
+| Window-quota body (Kimi `access_terminated`, "usage limit", "billing cycle", Z.AI 1308-1321) | Key **valid** -- the quota window is full but recovers at the reset (soft warning) |
+| Transient 429 / gated probe model | Key **valid** -- soft warning names the cause |
+| Other non-auth statuses | Key accepted (e.g., 400/404 on the probe still prove the credential works) |
 
 ---
 
@@ -116,10 +119,10 @@ The **Fixed** mode is useful when you have many keys (e.g., 50+) but want faster
 Yes, this is one of ClawRouter's core features. Add as many keys as you want. ClawRouter rotates between them automatically when errors occur, effectively combining their quotas into one stable connection.
 
 ### Why was my API key permanently disabled?
-ClawRouter permanently disables a key when it receives an **auth error** (HTTP 401, 402, 403 without content moderation context). This means the key is invalid, expired, or revoked. Check the Error History for details. You can re-enable it manually from the API Keys tab if you believe it was a transient issue.
+ClawRouter permanently disables a key when it receives a **hard auth/billing error** (invalid credential, HTTP 402, "credit balance too low" style bodies). This means the key is invalid, expired, revoked, or out of money. Check the Error History for details. You can re-enable it manually from the API Keys tab if you believe it was a transient issue.
 
 ### A key shows errors but is still active -- why?
-ClawRouter only permanently disables keys on **auth errors** (401, 402, 403). For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally.
+ClawRouter only permanently disables keys on **hard auth/billing errors**. For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally. **Quota-window exhaustion** (Kimi Coding 5-hour/weekly cycles) backs the key off until the window resets -- the key is never disabled and recovers automatically.
 
 ### All keys in cooldown at the same time?
 Add more keys to the pool, switch to Round Robin rotation to distribute load, or reduce request frequency from your client. Cooldowns expire automatically after the backoff period.

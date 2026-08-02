@@ -21,13 +21,15 @@ ClawRouter exposes a RESTful API for managing providers, keys, models, and setti
 
 ## Connection Testing
 
-Zero-token probes -- a free `/models` listing where available, else a `max_tokens: 1` request. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. HTTP 402 = valid with quota soft warning; 401/403 = invalid.
+Every test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.
+
+Key-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save) |
-| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row |
-| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result. Returns `{ results: [...] }` |
+| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |
+| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |
+| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |
 
 ---
 
@@ -70,6 +72,18 @@ Zero-token probes -- a free `/models` listing where available, else a `max_token
 | DELETE | `/api/providers/:id/models/:modelId` | Delete a model |
 | POST | `/api/providers/:id/models/reorder` | Reorder model priorities |
 | POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |
+
+---
+
+## Model Circuits & Usage
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |
+| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |
+| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \| null, invalid? }] }` |
+
+Both usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI's HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.
 
 ---
 

@@ -71,8 +71,12 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 | Setting | Default | Options | Description |
 |---------|---------|---------|-------------|
 | **Rate Limit Backoff** (`rate_limit_backoff_s`) | `60` | Any positive integer (seconds) | How long a key is put in cooldown after hitting a rate limit (HTTP 429). |
+| **Quota Backoff** (`quota_backoff_s`) | `1800` | 60 - 86400 (seconds) | Backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly cycles, Z.AI 5-hour/7-day windows). Also caps provider-reported reset times. The key is never disabled -- it recovers when the window resets. |
 | **Circuit Breaker Threshold** (`circuit_breaker_threshold`) | `5` | Any positive integer | Number of provider-level failures (all keys exhausted) within the failure window before the circuit opens. |
 | **Circuit Breaker Cooldown** (`circuit_breaker_cooldown_s`) | `30` | Any positive integer (seconds) | How long the circuit stays OPEN before transitioning to HALF_OPEN for a recovery test. |
+| **Model Circuit Threshold** (`model_circuit_threshold`) | `2` | 1 - 100 | Consecutive failures before a model's circuit opens and the model is skipped (routed straight to the next fallback model). |
+| **Model Circuit Permanent Cooldown** (`model_circuit_permanent_cooldown_s`) | `1800` | 30 - 86400 (seconds) | Model-circuit cooldown for not-found/invalid/gated model errors (MODEL_ERROR). |
+| **Model Circuit Transient Cooldown** (`model_circuit_transient_cooldown_s`) | `120` | 10 - 3600 (seconds) | Model-circuit cooldown for overloaded/rate-limited model failures (OVERLOADED / RATE_LIMIT). |
 
 ### Log Retention
 
@@ -101,6 +105,7 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 | Rotation trigger | Only when the current key encounters an error |
 | Best for | Maximizing usage of a single primary key before rotating |
 | Rate limit handling | Failed key enters cooldown (default 60s, configurable), next key used |
+| Quota window exhaustion | Failed key backed off until the window reset (default cap 1800s, `quota_backoff_s`), **never disabled** -- recovers automatically |
 | Auth error handling | Failed key permanently disabled, next key used |
 
 ### Round Robin
@@ -135,6 +140,21 @@ The Circuit Breaker is automatic and applies per-provider. Threshold and cooldow
 | **HALF_OPEN** | Testing recovery after cooldown | One test request sent. Success > CLOSED. Failure > back to OPEN. |
 
 > Circuit breaker is in-memory and resets on proxy restart. Can be manually reset from the Settings tab.
+
+---
+
+## Model Circuit Breaker Parameters
+
+The Model Circuit Breaker is automatic and applies **per model, per provider**. When a model fails `model_circuit_threshold` consecutive times, the router skips it entirely -- requests route straight to the next fallback model with no upstream call. One `model_circuit_open` notification fires at trip time; repeats are silent.
+
+| Parameter | Default | Configurable | Description |
+|-----------|---------|--------------|-------------|
+| **Failure Threshold** | 2 | Yes (`model_circuit_threshold`) | Consecutive model failures before the circuit opens |
+| **Permanent Cooldown** | 1800 seconds | Yes (`model_circuit_permanent_cooldown_s`) | Cooldown for MODEL_ERROR (not found / invalid / gated) |
+| **Transient Cooldown** | 120 seconds | Yes (`model_circuit_transient_cooldown_s`) | Cooldown for OVERLOADED / RATE_LIMIT model failures |
+| **Recovery** | Success resets counter | No | After cooldown the model is probed; a success closes the circuit |
+
+Open model circuits are visible as amber "Skipped" badges on the Models tab (`GET /api/providers/:id/model-circuits`). If every candidate model has an open circuit, the requested model is probed anyway (fail-open). Model circuits are in-memory and reset on proxy restart.
 
 ---
 
@@ -176,14 +196,17 @@ Configured in the provider's **Fallback** tab or the global **Fallback** page (s
 | Type | Severity | Badge Color | Trigger Condition |
 |------|----------|------------|-------------------|
 | `key_disabled` | Critical | Red | API key permanently disabled (AUTH_ERROR) |
-| `key_rate_limited` | Warning | Yellow | Key entered 60s cooldown (RATE_LIMIT) |
+| `key_rate_limited` | Warning | Yellow | Key entered cooldown (RATE_LIMIT or QUOTA_EXHAUSTED window backoff) |
 | `circuit_open` | Critical | Red | Circuit breaker tripped (5 failures in 60s) |
 | `provider_cooldown` | Info | Green | Provider recovered (circuit HALF_OPEN > CLOSED) |
 | `all_keys_failed` | Critical | Red | Every key for provider exhausted |
 | `model_fallback` | Info | Blue | Model error > switched to fallback model |
+| `model_circuit_open` | Warning | Amber | Model failed repeatedly > model circuit opened, model skipped |
 | `provider_fallback` | Warning | Yellow | Provider failure > switched to fallback provider |
 
 **Storage:** In-memory ring buffer, max 100. Cleared on restart. Delivered via WebSocket in real-time.
+
+**Throttling:** Repeat-condition notifications (`key_rate_limited`, `all_keys_failed`, `model_fallback`, `provider_fallback`) are deduplicated for 5 minutes -- the first fires, repeats are suppressed while the condition persists. Transition events (`key_disabled`, `circuit_open`, `provider_cooldown`, `model_circuit_open`) always fire immediately.
 
 ---
 

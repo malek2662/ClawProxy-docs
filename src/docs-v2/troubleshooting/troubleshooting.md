@@ -72,6 +72,13 @@ Diagnose and resolve common issues with ClawRouter.
 3. If the key was disabled incorrectly, re-enable it from the API Keys tab.
 4. Add a new valid key if needed.
 
+> **Exceptions:** Not every 403 is an auth error. A 403 "requires a subscription" body (Ollama Cloud gated models) is a **model error** -- the key stays enabled. A 403 `access_terminated_error` (Kimi Coding quota windows) is **quota exhaustion** -- the key backs off until the window resets and is never disabled. And not every 429 is a rate limit: Z.AI puts a business code in `error.code` that decides the outcome (1113 = hard billing > key disabled; 1308-1321 = quota windows > backoff only). See the provider-specific sections below.
+
+### Problem: Key backed off for a long time but not disabled (Kimi Coding)
+**Cause:** A Kimi Coding quota window (5-hour, weekly, or monthly) is full. Kimi returns HTTP 403 `access_terminated_error`, which ClawRouter classifies as quota exhaustion -- not an auth error.
+**What ClawRouter does:** Backs the key off until the **actual window reset** (probed from Kimi's usage endpoint, capped at `quota_backoff_s`, default 1800s). The key is never disabled and recovers automatically.
+**Solution:** No action needed. Check the provider's **Quota** tab (**Fetch Quota** button) for live per-key, per-window remaining quota and reset countdowns. Add more keys if you regularly exhaust windows.
+
 ### Problem: Requests succeed but return wrong/empty responses
 **Possible causes:**
 - Incorrect API format configured for the provider.
@@ -91,7 +98,9 @@ Diagnose and resolve common issues with ClawRouter.
 4. Check the **Error History** first to understand why it was disabled -- it may have genuine auth issues.
 
 ### Problem: How do I check if a key actually works?
-Use the built-in **connection testing**: click the test button on the key's row (or **Test All Keys**). The probe is zero-token. A 401/403 means the key is invalid; a 402 means the key is valid but out of quota; other results confirm the credential is accepted. The latest result persists in the **Last Test** column.
+Use the built-in **connection testing**: click the test button on the key's row (or **Test All Keys**). Each test runs a free `/models` check followed by a 1-token generation probe. A 401/403 means the key is invalid; hard billing (HTTP 402, "insufficient balance" / `insufficient_quota`) means the account is out of money ("recharge required"); a window-quota body (Kimi `access_terminated`, Z.AI codes 1308-1321) means the key is valid and recovers at the window reset; other results confirm the credential is accepted. The latest result persists in the **Last Test** column.
+
+> **Auto-disable:** When a test proves a key definitively invalid (bad/expired key or hard billing), the key is **auto-disabled** -- you'll see a **"Failed · disabled"** badge and a warning toast naming the key. Transient failures, rate limits, window quota, and content-moderation rejections never disable a key.
 
 ### Problem: "This provider uses no API keys" error when adding a key
 **Cause:** The provider's API Key Mode is `None` (keyless presets like OpenCode Zen, Kilo AI (Free), Ollama Local). These providers need no keys -- ClawRouter sends the required headers automatically.
@@ -279,6 +288,18 @@ http://localhost:3030/proxy/{provider-id}/v1beta
 **Explanation:** Groq uses a custom HTTP 498 for flex tier capacity limits. ClawRouter classifies this as RATE_LIMIT.
 **Solution:** Wait for the rate limit backoff period (default 60 seconds, configurable in **Settings**), or add more keys / a fallback provider.
 
+### Z.AI -- Key disabled after a 429 "rate limit"
+**Explanation:** Z.AI returns almost every error as HTTP 429 with a numeric-string business code in `error.code`. The code decides the outcome: **1113** (insufficient balance) is hard billing and disables the key; **1309/1314/1315** (expired/wrong plan) also disable it; **1308/1310/1316-1321** are self-resetting 5-hour/7-day quota windows (backoff only, never disabled); **1302/1313** are real rate limits; **1311** means your plan doesn't include the model (model fallback).
+**Solution:** Check the key's Error History for the actual business code. For 1113, recharge the account; for window codes, wait for the reset (visible on the **Quota** tab).
+
+### Z.AI GLM Coding -- Quota tab shows "key valid, no active plan"
+**Explanation:** The key authenticates, but the account has no active GLM Coding Plan. Z.AI's monitor endpoint returns a "coding plan" error payload for such keys. The key is **valid** and is never disabled for this.
+**Solution:** Subscribe to a GLM Coding Plan on Z.AI, or use the key with the **Z.AI API** (general) preset instead, which is balance-based.
+
+### Z.AI -- Key auto-disabled from the Quota tab even though the API returned HTTP 200
+**Explanation:** This is expected. Z.AI's monitor endpoint returns HTTP 200 with `{"code":1000,"msg":"Authentication Failed","success":false}` for a **dead key**. ClawRouter detects this envelope and treats it exactly like a real 401 -- the key is disabled, with the same error history and notification as a real failed request.
+**Solution:** Verify the key in your Z.AI console, replace it if revoked, or re-enable it from the API Keys tab if you believe it was a mistake.
+
 ### MiniMax -- Requests succeed but errors in body
 **Explanation:** MiniMax returns HTTP 200 for most errors with custom status codes in the response body. ClawRouter parses the body to detect these:
 - Status 1004, 2049, 1008 > AUTH_ERROR
@@ -287,6 +308,10 @@ http://localhost:3030/proxy/{provider-id}/v1beta
 
 ### Ollama Cloud -- Key requirements
 **Note:** Ollama Cloud uses header-based auth managed by ClawRouter. Add `sk-not-required` as the key. Do not leave the keys tab empty as the managed mode requires at least one key entry.
+
+### Ollama Cloud -- HTTP 403 "requires a subscription" on some models
+**Explanation:** Ollama Cloud returns HTTP 403 "this model requires a subscription, upgrade for access" for plan-gated models. ClawRouter classifies this as MODEL_ERROR, not an auth error -- your key is **not** disabled. Ollama's API does not mark which models are free vs paid, so gated models are discovered at runtime: after repeated failures they show an amber **"Skipped"** badge on the Models tab (model circuit breaker).
+**Solution:** Remove the gated model from your fallback list (or upgrade your Ollama plan). With Model Fallback enabled, requests automatically cascade to the next working model.
 
 ### Perplexity -- No models returned from Fetch
 **Explanation:** Perplexity does not have a public `/v1/models` endpoint. ClawRouter returns a hardcoded list of known supported models instead.

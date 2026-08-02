@@ -58,6 +58,8 @@ Check for more: https://ollama.com/search?c=cloud&o=newest
 2. Go to **API Keys** tab > add `sk-not-required` as the key (Ollama Cloud uses header auth; ClawRouter manages the flow).
 3. Copy the **Base URL**.
 
+> **Plan-gated models:** Ollama Cloud returns HTTP 403 "this model requires a subscription, upgrade for access" for models outside your plan. ClawRouter classifies this as a **model error** -- your key stays enabled, and Model Fallback / the model circuit handle it automatically. There is no free-vs-paid marker in Ollama's API, so gated models are discovered at runtime: after a couple of failures they show an amber **"Skipped"** badge on the **Models** tab. Remove those models from your list (or upgrade your plan) to avoid fallback hops.
+
 ---
 
 ## Google AI Studio (Gemini)
