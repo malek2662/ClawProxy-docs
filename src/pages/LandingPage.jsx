@@ -1,40 +1,102 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, ArrowLeftRight, Shield, Zap, Layers, RefreshCw, Server, Search, X, Bell, Settings } from 'lucide-react';
+import { ArrowRight, ArrowLeftRight, Shield, Zap, Layers, RefreshCw, Server, Bell, Settings, Sparkles, X, Lock, Gauge } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import clawLogo from '../assets/claw-logo.svg';
+import Reveal from '../components/Reveal';
+import TerminalWindow from '../components/TerminalWindow';
+import ProvidersMarquee from '../components/ProvidersMarquee';
+import StatCell from '../components/StatCell';
+import ClientProviderDiagram from '../components/ClientProviderDiagram';
+
+const FEATURES = [
+    {
+        title: '50 Provider Presets',
+        desc: 'One-click setup for 50 providers — including free-tier options like OpenRouter, Gemini and Groq, plus keyless presets that need no signup at all.',
+        icon: Zap
+    },
+    {
+        title: 'Any Client, Any Provider',
+        desc: 'Automatic translation between OpenAI, Responses, Anthropic and Gemini API formats. Any AI client works with any provider — byte-identical passthrough when formats match.',
+        icon: ArrowLeftRight
+    },
+    {
+        title: 'Smart Key Rotation',
+        desc: 'Add multiple API keys to a single provider. ClawRouter intelligently load-balances them with On-Error Backoff and Round-Robin.',
+        icon: RefreshCw
+    },
+    {
+        title: 'Advanced Failover',
+        desc: 'Model-level fallback and cross-format provider failover chains keep your AI brain thinking even during outages — any provider can back up any other.',
+        icon: Shield
+    },
+    {
+        title: 'Multi-Provider Routing',
+        desc: 'Route requests via per-provider endpoints. Manage OpenAI, Anthropic, Gemini and more from a single interface.',
+        icon: Layers
+    },
+    {
+        title: 'Zero-Buffer Streaming',
+        desc: 'Native streaming pass-through ensures your AI responses are delivered instantly with zero artificial lag — even across translated formats.',
+        icon: Zap
+    },
+    {
+        title: 'Real-time Dashboard & Alerts',
+        desc: 'Professional dark-themed dashboard with live WebSocket logs and instant alerts for key rotations, circuit breakers, and fallback activations.',
+        icon: Bell
+    },
+    {
+        title: 'Global Settings & Security',
+        desc: 'Centralized panel for retry policies, circuit breakers, rate limiting — plus built-in security with dashboard password and proxy API key authentication.',
+        icon: Settings
+    }
+];
+
+const STATS = [
+    { num: '50', suffix: '', label: 'Provider presets built in' },
+    { num: '4', suffix: '', label: 'API formats translated' },
+    { num: '7', suffix: '', label: 'AI client setups generated' },
+    { num: '100', suffix: '%', label: 'Data stored locally' }
+];
+
+function Shot({ src, alt, onZoom, className = '' }) {
+    return (
+        <button type="button" className={`media-frame${className ? ` ${className}` : ''}`} onClick={() => onZoom(src)} aria-label={`Enlarge screenshot: ${alt}`}>
+            <img src={src} alt={alt} loading="lazy" />
+        </button>
+    );
+}
+
+function BrowserShot({ src, alt, url, onZoom, className = '' }) {
+    return (
+        <button type="button" className={`media-frame browser-frame${className ? ` ${className}` : ''}`} onClick={() => onZoom(src)} aria-label={`Enlarge screenshot: ${alt}`}>
+            <span className="browser-bar" aria-hidden="true">
+                <span className="browser-dots"><i /><i /><i /></span>
+                <span className="browser-url"><Lock size={10} aria-hidden="true" /> {url}</span>
+            </span>
+            <img src={src} alt={alt} loading="lazy" />
+        </button>
+    );
+}
+
+function Showcase({ eyebrow, title, children, media, reverse = false, tint = false }) {
+    return (
+        <section className={`section${tint ? ' section-tint' : ''}`}>
+            <div className={`container showcase-grid${reverse ? ' showcase-reverse' : ''}`}>
+                <Reveal className="showcase-text">
+                    <div className="section-eyebrow">{eyebrow}</div>
+                    <h2 className="showcase-title">{title}</h2>
+                    {children}
+                </Reveal>
+                <Reveal className="showcase-media reveal-scale" delay={120}>
+                    {media}
+                </Reveal>
+            </div>
+        </section>
+    );
+}
 
 export default function LandingPage() {
     const [selectedImage, setSelectedImage] = useState(null);
-    const [isMobile, setIsMobile] = useState(false);
-    const [carouselIndex, setCarouselIndex] = useState(0);
-    const carouselRef = useRef(null);
-
-    // Mobile detection
-    useEffect(() => {
-        const mq = window.matchMedia('(max-width: 768px)');
-        setIsMobile(mq.matches);
-        const handler = (e) => setIsMobile(e.matches);
-        mq.addEventListener('change', handler);
-        return () => mq.removeEventListener('change', handler);
-    }, []);
-
-    // Carousel scroll tracking
-    const handleCarouselScroll = useCallback(() => {
-        const el = carouselRef.current;
-        if (!el || !el.children.length) return;
-        const cardWidth = el.children[0].offsetWidth + 12; // card + gap
-        const idx = Math.round(el.scrollLeft / (cardWidth * 2));
-        setCarouselIndex(Math.max(0, Math.min(idx, 3)));
-    }, []);
-
-    const scrollToCard = useCallback((pageIdx) => {
-        const el = carouselRef.current;
-        if (!el || !el.children.length) return;
-        const cardWidth = el.children[0].offsetWidth + 12;
-        el.scrollTo({ left: pageIdx * cardWidth * 2, behavior: 'smooth' });
-        setCarouselIndex(pageIdx);
-    }, []);
 
     // Attach Polar checkout overlay to [data-polar-checkout] elements after React render
     useEffect(() => {
@@ -44,630 +106,340 @@ export default function LandingPage() {
     }, []);
 
     // Prevent body scroll when image lightbox is open
-    React.useEffect(() => {
-        if (selectedImage) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
+    useEffect(() => {
+        document.body.style.overflow = selectedImage ? 'hidden' : 'unset';
         return () => { document.body.style.overflow = 'unset'; };
     }, [selectedImage]);
 
-    const features = [
-        {
-            title: '50 Provider Presets',
-            desc: 'One-click setup for 50 providers — including free-tier options like OpenRouter, Gemini and Groq, plus keyless presets that need no signup at all.',
-            icon: <Zap className="feature-icon" />
-        },
-        {
-            title: 'Any Client, Any Provider',
-            desc: 'Automatic translation between OpenAI, Responses, Anthropic and Gemini API formats. Any AI client works with any provider — byte-identical passthrough when formats match.',
-            icon: <ArrowLeftRight className="feature-icon" />
-        },
-        {
-            title: 'Smart Key Rotation',
-            desc: 'Add multiple API keys to a single provider. ClawRouter intelligently load-balances them with On-Error Backoff and Round-Robin.',
-            icon: <RefreshCw className="feature-icon" />
-        },
-        {
-            title: 'Advanced Failover',
-            desc: 'Model-level fallback and cross-format provider failover chains keep your AI brain thinking even during outages — any provider can back up any other.',
-            icon: <Shield className="feature-icon" />
-        },
-        {
-            title: 'Multi-Provider Routing',
-            desc: 'Route requests via per-provider endpoints. Manage OpenAI, Anthropic, Gemini and more from a single interface.',
-            icon: <Layers className="feature-icon" />
-        },
-        {
-            title: 'Zero-Buffer Streaming',
-            desc: 'Native streaming pass-through ensures your AI responses are delivered instantly with zero artificial lag — even across translated formats.',
-            icon: <Zap className="feature-icon" />
-        },
-        {
-            title: 'Real-time Dashboard & Alerts',
-            desc: 'Professional dark-themed dashboard with live WebSocket logs and instant alerts for key rotations, circuit breakers, and fallback activations.',
-            icon: <Bell className="feature-icon" />
-        },
-        {
-            title: 'Global Settings & Security',
-            desc: 'Centralized panel for retry policies, circuit breakers, rate limiting — plus built-in security with dashboard password and proxy API key authentication.',
-            icon: <Settings className="feature-icon" />
-        }
-    ];
+    // Close lightbox on Escape
+    useEffect(() => {
+        if (!selectedImage) return;
+        const handler = (e) => { if (e.key === 'Escape') setSelectedImage(null); };
+        window.addEventListener('keydown', handler);
+        return () => window.removeEventListener('keydown', handler);
+    }, [selectedImage]);
 
     return (
-        <div className="animate-fade-in">
-            {/* Hero Section */}
-            <section className="hero-section" style={{ textAlign: 'center', padding: '80px 20px', position: 'relative', overflow: 'hidden' }}>
-                <div className="hero-glow" style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: '80vw', height: '80vh', background: 'radial-gradient(circle, rgba(80, 223, 144, 0.08) 0%, rgba(18, 18, 18, 0) 70%)', zIndex: -1, borderRadius: '50%' }}></div>
-
-                <div className="hero-heading-row" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '1.5rem' }}>
-                    <img src={clawLogo} alt="ClawRouter Logo" className="hero-logo" style={{ width: '64px', height: '64px', flexShrink: 0 }} />
-                    <h1 className="hero-title" style={{ fontSize: '3.5rem', margin: 0, maxWidth: '1000px', lineHeight: '1.1' }}>
-                        Self-hosted <span className="gradient-text">AI Routing Gateway</span>
-                    </h1>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', marginBottom: '1.5rem', color: 'var(--primary)' }}>
-                    <span style={{ background: 'rgba(80, 223, 144, 0.1)', padding: '6px 16px', borderRadius: '99px', fontSize: '0.95rem', fontWeight: '600', border: '1px solid rgba(80, 223, 144, 0.2)' }}>
-                        Onetime Purchase — $20 Lifetime License
-                    </span>
-                </div>
-                <p style={{ fontSize: '1.2rem', color: 'var(--text-muted)', maxWidth: '640px', margin: '0 auto 2.5rem', lineHeight: '1.6' }}>
-                    Route, manage, and monitor your AI API requests across multiple providers from a single endpoint. Automatic format translation means <span style={{ color: 'var(--text-main)' }}>any AI client works with any provider</span> — with absolute control over your API keys, routing rules, and application stability.
-                </p>
-
-                <div className="hero-cta-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', marginBottom: '60px' }}>
-                    <div className="hero-cta-row" style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-                        <a href="https://buy.polar.sh/polar_cl_8wTBwKsDWMEVH5yLL4uQo2GMOPhE6V0cOytzu41fw3t" data-polar-checkout data-polar-checkout-theme="dark" className="btn-primary hero-cta-btn" style={{ padding: '10px 24px', fontSize: '1.05rem', textDecoration: 'none' }}>
-                            Get Lifetime Access — $20
-                        </a>
-                        <Link to="/docs" className="btn-secondary hero-cta-btn" style={{ padding: '10px 24px', fontSize: '1.05rem' }}>
-                            Documentation
-                        </Link>
-                    </div>
-                    <div style={{
-                        marginTop: '30px',
-                        padding: '12px 28px',
-                        background: 'rgba(255, 255, 255, 0.012)',
-                        backdropFilter: 'blur(10px)',
-                        borderRadius: '100px',
-                        border: '1px solid rgba(255, 255, 255, 0.05)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)'
-                    }}>
-                        <Shield size={16} style={{ color: 'var(--primary)', opacity: 0.8 }} />
-                        <p style={{
-                            fontSize: '0.88rem',
-                            color: 'var(--text-muted)',
-                            margin: 0,
-                            lineHeight: '1',
-                            fontWeight: '300',
-                            letterSpacing: '0.01em'
-                        }}>
-                            Secure checkout powered by <span style={{ color: 'var(--primary)', fontWeight: '500' }}>Polar</span> — $20 one-time purchase
+        <div>
+            {/* ============ Hero ============ */}
+            <section className="hero-section">
+                <div className="hero-grid">
+                    <div className="hero-copy">
+                        <span className="hero-eyebrow hero-a1"><i aria-hidden="true" /> One-time purchase — $20 lifetime license</span>
+                        <h1 className="hero-title hero-a2">
+                            Self-hosted <span className="accent">AI Routing Gateway</span>
+                        </h1>
+                        <p className="hero-lead hero-a3">
+                            Route, manage, and monitor your AI API requests across multiple providers from a single endpoint. Automatic format translation means <strong>any AI client works with any provider</strong> — with absolute control over your API keys, routing rules, and application stability.
                         </p>
+                        <div className="hero-cta-row hero-a4">
+                            <a href="https://buy.polar.sh/polar_cl_8wTBwKsDWMEVH5yLL4uQo2GMOPhE6V0cOytzu41fw3t" data-polar-checkout data-polar-checkout-theme="dark" className="btn-primary">
+                                Get Lifetime Access — $20
+                            </a>
+                            <Link to="/docs" className="btn-secondary">
+                                Documentation <ArrowRight size={15} aria-hidden="true" />
+                            </Link>
+                        </div>
+                        <div className="hero-meta hero-a5">
+                            <span><Shield size={13} aria-hidden="true" /> Secure checkout powered by Polar</span>
+                            <span><Server size={13} aria-hidden="true" /> Linux · macOS · Windows</span>
+                            <span><Zap size={13} aria-hidden="true" /> Dashboard at localhost:3030</span>
+                        </div>
                     </div>
-                </div>
-
-                <div className="container" onClick={() => setSelectedImage('assets/screenshots/dashboard.png')} style={{ cursor: 'pointer' }}>
-                    <img
-                        src="assets/screenshots/dashboard.png"
-                        alt="ClawRouter Dashboard"
-                        className="img-showcase delay-1 animate-fade-in"
-                        style={{ marginTop: '0', transition: 'all 0.3s ease' }}
-                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    />
+                    <div className="hero-term hero-a6">
+                        <TerminalWindow />
+                    </div>
                 </div>
             </section>
 
-            {/* Features Section */}
-            <section style={{ padding: '60px 0', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container">
-                    <h2 style={{ fontSize: '2.5rem', textAlign: 'center', marginBottom: '10px' }}>
-                        Uninterrupted <span className="gradient-text">Continuity</span>
-                    </h2>
-                    <p style={{ textAlign: 'center', color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto 40px' }}>
-                        Built to handle the chaotic nature of AI APIs safely and securely.
-                    </p>
+            {/* ============ Providers marquee ============ */}
+            <ProvidersMarquee />
 
-                    {isMobile ? (
-                        <div className="feature-carousel-wrapper">
-                            <div className="feature-carousel" ref={carouselRef} onScroll={handleCarouselScroll}>
-                                {features.map((feature, index) => (
-                                    <div key={index} className="feature-card glass-panel carousel-card">
-                                        {feature.icon}
-                                        <h3 className="feature-title">{feature.title}</h3>
-                                        <p className="feature-desc">{feature.desc}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="carousel-dots">
-                                {[0, 1, 2, 3].map(i => (
-                                    <button
-                                        key={i}
-                                        className={`carousel-dot${carouselIndex === i ? ' active' : ''}`}
-                                        onClick={() => scrollToCard(i)}
-                                        aria-label={`Cards ${i * 2 + 1}-${i * 2 + 2}`}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="feature-grid">
-                            {features.map((feature, index) => (
-                                <div key={index} className="feature-card glass-panel delay-2">
-                                    {feature.icon}
+            {/* ============ Stats ============ */}
+            <section className="stats-strip" aria-label="Key numbers">
+                <div className="container">
+                    <div className="stats-grid">
+                        {STATS.map((s, i) => (
+                            <StatCell key={s.label} num={s.num} suffix={s.suffix} label={s.label} delay={i * 90} />
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* ============ Features ============ */}
+            <section className="section">
+                <div className="container">
+                    <Reveal className="section-head">
+                        <div className="section-eyebrow">Reliability engineering</div>
+                        <h2 className="section-title">Uninterrupted <span className="accent">continuity</span></h2>
+                        <p className="section-desc">Built to handle the chaotic nature of AI APIs safely and securely.</p>
+                    </Reveal>
+                    <div className="feature-grid">
+                        {FEATURES.map((feature, index) => {
+                            const Icon = feature.icon;
+                            return (
+                                <Reveal key={feature.title} className="feature-card" delay={(index % 4) * 70}>
+                                    <span className="feature-icon-tile"><Icon size={18} aria-hidden="true" /></span>
                                     <h3 className="feature-title">{feature.title}</h3>
                                     <p className="feature-desc">{feature.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {/* Showcase Sections */}
-
-            {/* 1. Providers Management */}
-            <section className="showcase-section" style={{ padding: '80px 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Manage Multiple Providers</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Add multiple API providers easily. ClawRouter speaks all four major API formats — OpenAI Completions, OpenAI Responses, Anthropic Messages, and Google Gemini — and translates between them automatically. Add, rotate, and monitor API keys with automatic error tracking and seamless fallback mechanisms.
-                        </p>
-                        <Link to="/docs?tab=providerDirectory" className="btn-secondary" style={{ marginTop: '10px' }}>
-                            Read the Documentation
-                        </Link>
-                    </div>
-                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/providers.png')}>
-                        <img
-                            src="assets/screenshots/providers.png"
-                            alt="Providers Management"
-                            className="img-showcase"
-                            style={{ margin: 0, transition: 'all 0.3s ease' }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        />
+                                </Reveal>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
 
-            {/* 2. Quick Setup & Templates (NEW) */}
-            <section className="showcase-section" style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Quick Setup Templates</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Get up and running in seconds with <strong style={{ color: 'var(--text-main)' }}>50 built-in provider presets</strong> — including free-tier providers like OpenRouter, Google Gemini, Groq and Cerebras, plus keyless options like OpenCode Zen and Kilo AI that need no signup at all. Select a preset, add your API key if required, and you're ready to start routing.
+            {/* ============ Any Client ↔ Any Provider ============ */}
+            <section className="section section-tint">
+                <div className="container diagram-grid">
+                    <Reveal className="diagram-copy">
+                        <div className="section-eyebrow">Format translation</div>
+                        <h2 className="section-title">Any client <span className="accent">↔</span> any provider</h2>
+                        <p className="showcase-body">
+                            Stop worrying about API formats. Claude Code, OpenCode, Codex, Cline, OpenClaw — every AI client connects to ClawRouter the same way, and ClawRouter speaks to every provider in its native format. Requests and responses are translated automatically, streaming included, in both directions.
                         </p>
-                        <Link to="/docs?tab=firstProvider&anchor=add-a-provider-via-quick-setup" className="btn-secondary">
-                            View Provider Templates
-                        </Link>
-                    </div>
-                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/providers-templat.png')}>
-                        <img
-                            src="assets/screenshots/providers-templat.png"
-                            alt="Quick Setup Templates"
-                            className="img-showcase"
-                            style={{ margin: 0, transition: 'all 0.3s ease' }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* 3. Advanced Failover & Fallback (NEW) */}
-            <section className="showcase-section" style={{ padding: '80px 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Advanced Failover & Fallback</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Ensure maximum uptime with multi-layered redundancy. ClawRouter handles both model-level unavailability and total provider outages seamlessly.
-                        </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div>
-                                <h4 style={{ color: 'var(--primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <RefreshCw size={18} /> Model Fallback
-                                </h4>
-                                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', margin: 0 }}>
-                                    Silently retry with alternative models within the same provider if the primary model is unavailable.
-                                </p>
-                                <Link to="/docs?tab=modelFallback" style={{ color: 'var(--primary)', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
-                                    Learn about Model Fallback →
-                                </Link>
-                            </div>
-                            <div>
-                                <h4 style={{ color: 'var(--primary)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Shield size={18} /> Provider Fallback Chain
-                                </h4>
-                                <p style={{ fontSize: '0.95rem', color: 'var(--text-muted)', margin: 0 }}>
-                                    Configure prioritized chains of backup providers. Any provider can back up any other — even with a different API format — because ClawRouter translates between formats automatically.
-                                </p>
-                                <Link to="/docs?tab=providerFallback" style={{ color: 'var(--primary)', fontSize: '0.9rem', textDecoration: 'none', display: 'inline-block', marginTop: '8px' }}>
-                                    Learn about Fallback Chains →
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                    <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
-                        <img
-                            src="assets/screenshots/Model-Fallback.png"
-                            alt="Model Fallback Configuration"
-                            className="img-showcase"
-                            style={{
-                                margin: 0,
-                                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                position: 'relative',
-                                zIndex: 2
-                            }}
-                            onClick={() => setSelectedImage('assets/screenshots/Model-Fallback.png')}
-                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.zIndex = 3; }}
-                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.zIndex = 2; }}
-                        />
-                        <img
-                            src="assets/screenshots/Provider-Fallback-Chain.png"
-                            alt="Provider Fallback Chain Configuration"
-                            className="img-showcase stacked-image-secondary"
-                            style={{
-                                margin: '-40px 0 0 40px',
-                                width: '90%',
-                                opacity: 0.9,
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                border: '1px solid rgba(80, 223, 144, 0.2)',
-                                zIndex: 1
-                            }}
-                            onClick={() => setSelectedImage('assets/screenshots/Provider-Fallback-Chain.png')}
-                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.opacity = '1'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '0.9'; }}
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* 4. Any Client, Any Provider — Format Translation (NEW) */}
-            <section className="showcase-section" style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Any Client, Any Provider</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Stop worrying about API formats. ClawRouter detects your client's format and translates requests and responses automatically — streaming included — so every AI client works with every provider, in both directions.
-                        </p>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0' }}>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <ArrowLeftRight size={16} color="var(--primary)" />
-                                </div>
-                                Full fidelity: tools, reasoning, usage & images
-                            </li>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <Zap size={16} color="var(--primary)" />
-                                </div>
-                                Zero-copy passthrough when formats match
-                            </li>
+                        <ul className="showcase-list">
+                            <li><span className="list-dot"><ArrowLeftRight size={14} aria-hidden="true" /></span> Full fidelity: tools, reasoning, usage & images</li>
+                            <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Zero-copy passthrough when formats match</li>
                         </ul>
-                        <Link to="/docs?tab=formatTranslation" className="btn-secondary">
-                            How Format Translation Works
+                        <Link to="/docs?tab=formatTranslation" className="link-arrow">
+                            How format translation works <ArrowRight size={14} aria-hidden="true" />
                         </Link>
+                    </Reveal>
+                    <Reveal className="diagram-visual reveal-scale" delay={120}>
+                        <ClientProviderDiagram />
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* ============ 1. Dashboard overview ============ */}
+            <Showcase
+                eyebrow="Command center"
+                title={<><Gauge size={26} aria-hidden="true" /> Every request, one dashboard</>}
+                tint
+                media={<BrowserShot src="assets/screenshots/dashboard-overview.png" url="localhost:3030" alt="ClawRouter Dashboard Overview" onZoom={setSelectedImage} />}
+            >
+                <p className="showcase-body">
+                    A professional dark-themed control plane for your entire AI stack. Live request volume, success rates, token usage and estimated cost — across every provider and key — update in real time over WebSockets.
+                </p>
+                <ul className="showcase-list">
+                    <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Live stats, charts and per-provider health</li>
+                    <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> 100% local — your data never leaves your machine</li>
+                </ul>
+            </Showcase>
+
+            {/* ============ 2. Providers Management ============ */}
+            <Showcase
+                eyebrow="Providers"
+                title="Manage Multiple Providers"
+                reverse
+                media={
+                    <div className="media-stack">
+                        <BrowserShot src="assets/screenshots/providers-list.png" url="localhost:3030/providers" alt="Providers Management" onZoom={setSelectedImage} />
+                        <Shot src="assets/screenshots/provider-keys.png" alt="Provider API Keys with rotation status" onZoom={setSelectedImage} className="media-frame-secondary" />
                     </div>
-                    <div style={{ flex: '1 1 500px' }}>
-                        <div className="glass-panel" style={{ padding: '32px', borderRadius: '16px', border: '1px solid var(--border-light)', background: 'var(--bg-card)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1 1 130px' }}>
-                                    <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '2px' }}>Your client</div>
-                                    {['Claude Code', 'OpenClaw', 'Cline', 'Codex CLI'].map((name) => (
-                                        <div key={name} style={{ padding: '8px 14px', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', border: '1px solid var(--border-light)', fontSize: '0.9rem', color: 'var(--text-main)', textAlign: 'center' }}>{name}</div>
-                                    ))}
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', color: 'var(--primary)', flexShrink: 0 }}>
-                                    <ArrowLeftRight size={28} />
-                                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', maxWidth: '90px', lineHeight: '1.4' }}>automatic translation</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: '1 1 130px' }}>
-                                    <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '2px' }}>Any provider</div>
-                                    {['OpenAI', 'Anthropic', 'Google Gemini', 'OpenRouter'].map((name) => (
-                                        <div key={name} style={{ padding: '8px 14px', borderRadius: '8px', background: 'rgba(80, 223, 144, 0.07)', border: '1px solid rgba(80, 223, 144, 0.25)', fontSize: '0.9rem', color: 'var(--text-main)', textAlign: 'center' }}>{name}</div>
-                                    ))}
-                                </div>
-                            </div>
-                            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', margin: '20px 0 0', lineHeight: '1.6' }}>
-                                OpenAI Completions · OpenAI Responses · Anthropic Messages · Google Gemini — every combination, both directions
-                            </p>
+                }
+            >
+                <p className="showcase-body">
+                    Add multiple API providers easily. ClawRouter speaks all four major API formats — OpenAI Completions, OpenAI Responses, Anthropic Messages, and Google Gemini — and translates between them automatically. Add, rotate, and monitor API keys with automatic error tracking and seamless fallback mechanisms.
+                </p>
+                <Link to="/docs?tab=providerDirectory" className="link-arrow">
+                    Read the documentation <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+            </Showcase>
+
+            {/* ============ 3. Quick Setup Templates ============ */}
+            <Showcase
+                eyebrow="Onboarding"
+                title="Quick Setup Templates"
+                tint
+                media={<BrowserShot src="assets/screenshots/providers-presets.png" url="localhost:3030/providers" alt="Quick Setup Templates" onZoom={setSelectedImage} />}
+            >
+                <p className="showcase-body">
+                    Get up and running in seconds with <strong>50 built-in provider presets</strong> — including free-tier providers like OpenRouter, Google Gemini, Groq and Cerebras, plus keyless options like OpenCode Zen and Kilo AI that need no signup at all. Select a preset, add your API key if required, and you're ready to start routing.
+                </p>
+                <Link to="/docs?tab=firstProvider&anchor=add-a-provider-via-quick-setup" className="link-arrow">
+                    View provider templates <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+            </Showcase>
+
+            {/* ============ 4. Advanced Failover & Fallback ============ */}
+            <Showcase
+                eyebrow="Redundancy"
+                title="Advanced Failover & Fallback"
+                reverse
+                media={
+                    <div className="media-stack">
+                        <BrowserShot src="assets/screenshots/provider-fallback.png" url="localhost:3030/providers" alt="Provider Fallback Chain Configuration" onZoom={setSelectedImage} />
+                        <Shot src="assets/screenshots/provider-models.png" alt="Model Fallback Configuration" onZoom={setSelectedImage} className="media-frame-secondary" />
+                    </div>
+                }
+            >
+                <p className="showcase-body">
+                    Ensure maximum uptime with multi-layered redundancy. ClawRouter handles both model-level unavailability and total provider outages seamlessly.
+                </p>
+                <div className="notif-list">
+                    <div className="notif-item">
+                        <span className="list-dot"><RefreshCw size={14} aria-hidden="true" /></span>
+                        <div>
+                            <strong style={{ color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>Model Fallback</strong>
+                            <span className="notif-desc">Silently retry with alternative models within the same provider if the primary model is unavailable.{' '}
+                                <Link to="/docs?tab=modelFallback" className="link-arrow" style={{ fontSize: '0.88rem' }}>Learn more <ArrowRight size={12} aria-hidden="true" /></Link>
+                            </span>
+                        </div>
+                    </div>
+                    <div className="notif-item">
+                        <span className="list-dot"><Shield size={14} aria-hidden="true" /></span>
+                        <div>
+                            <strong style={{ color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>Provider Fallback Chain</strong>
+                            <span className="notif-desc">Configure prioritized chains of backup providers. Any provider can back up any other — even with a different API format — because ClawRouter translates between formats automatically.{' '}
+                                <Link to="/docs?tab=providerFallback" className="link-arrow" style={{ fontSize: '0.88rem' }}>Learn more <ArrowRight size={12} aria-hidden="true" /></Link>
+                            </span>
                         </div>
                     </div>
                 </div>
-            </section>
+            </Showcase>
 
-            {/* 5. AI Prompt Assistant */}
-            <section className="showcase-section" style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>🪄 AI Prompt Assistant</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Configure your AI agents with zero effort. The smart Prompt Assistant generates tailor-made setup instructions for <strong style={{ color: 'var(--text-main)' }}>7 clients — OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Aider, and custom tools — for every provider you add</strong>, with the correct model IDs, connection settings, and your proxy API key embedded automatically.
-                        </p>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0' }}>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <Zap size={16} color="var(--primary)" />
-                                </div>
-                                One-click configuration prompts for every provider
-                            </li>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <RefreshCw size={16} color="var(--primary)" />
-                                </div>
-                                Auto-discovery of upstream model IDs
-                            </li>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <Shield size={16} color="var(--primary)" />
-                                </div>
-                                Proxy API key embedded automatically
-                            </li>
-                        </ul>
-                        <Link to="/docs?tab=aiClientSetup" className="btn-secondary">
-                            How to use AI Assistant
-                        </Link>
-                    </div>
-                    <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative' }}>
-                        <img
-                            src="assets/screenshots/providers-ai2.png"
-                            alt="AI Prompt Assistant Feature"
-                            className="img-showcase"
-                            style={{
-                                margin: 0,
-                                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                position: 'relative',
-                                zIndex: 2
-                            }}
-                            onClick={() => setSelectedImage('assets/screenshots/providers-ai2.png')}
-                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.zIndex = 3; }}
-                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.zIndex = 2; }}
-                        />
-                        <img
-                            src="assets/screenshots/providers-ai1.png"
-                            alt="AI Assistant Prompt Generation"
-                            className="img-showcase stacked-image-secondary"
-                            style={{
-                                margin: '-40px 0 0 40px',
-                                width: '90%',
-                                opacity: 0.9,
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                border: '1px solid rgba(80, 223, 144, 0.2)',
-                                zIndex: 1
-                            }}
-                            onClick={() => setSelectedImage('assets/screenshots/providers-ai1.png')}
-                            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.opacity = '1'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.opacity = '0.9'; }}
-                        />
-                    </div>
-                </div>
-            </section>
+            {/* ============ 6. Quota tracking ============ */}
+            <Showcase
+                eyebrow="Quota tracking"
+                title="Know your limits before you hit them"
+                reverse
+                media={<BrowserShot src="assets/screenshots/provider-quota.png" url="localhost:3030/providers" alt="Per-key quota windows for a subscription provider" onZoom={setSelectedImage} />}
+            >
+                <p className="showcase-body">
+                    Subscription providers like Kimi for Coding and Z.AI GLM Coding report live quota windows — 5-hour, weekly and monthly cycles. ClawRouter probes every key and shows exactly how much headroom each one has left, and when it resets.
+                </p>
+                <ul className="showcase-list">
+                    <li><span className="list-dot"><Gauge size={14} aria-hidden="true" /></span> Per-key quota cards with reset countdowns</li>
+                    <li><span className="list-dot"><RefreshCw size={14} aria-hidden="true" /></span> Exhausted keys back off until their window resets — then recover automatically</li>
+                </ul>
+            </Showcase>
 
-            {/* 5. Logs Showcase Section */}
-            <section className="showcase-section" style={{ padding: '80px 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>Real-time Request Logs</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Full request and response logs with live WebSocket streaming. Monitor your AI API usage in real-time, debug issues instantly, and keep track of your active keys and token usage without leaving the dashboard.
-                        </p>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <Zap size={16} color="var(--primary)" />
-                                </div>
-                                Live streaming logs using WebSockets
-                            </li>
-                            <li style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                <div style={{ background: 'var(--bg-card)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                    <Shield size={16} color="var(--primary)" />
-                                </div>
-                                Detailed error tracking and API responses
-                            </li>
-                        </ul>
-                        <Link to="/docs?tab=monitoring&anchor=view-and-filter-logs" className="btn-secondary" style={{ marginTop: '20px' }}>
-                            Explore Request Logs
-                        </Link>
+            {/* ============ 7. AI Prompt Assistant ============ */}
+            <Showcase
+                eyebrow="Automation"
+                title={<><Sparkles size={26} aria-hidden="true" /> AI Prompt Assistant</>}
+                tint
+                media={
+                    <div className="media-stack">
+                        <Shot src="assets/screenshots/providers-ai2.png" alt="AI Prompt Assistant Feature" onZoom={setSelectedImage} />
+                        <Shot src="assets/screenshots/providers-ai1.png" alt="AI Assistant Prompt Generation" onZoom={setSelectedImage} className="media-frame-secondary" />
                     </div>
-                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/logs.png')}>
-                        <img
-                            src="assets/screenshots/logs.png"
-                            alt="Real-time Request Logs"
-                            className="img-showcase"
-                            style={{ margin: 0, transition: 'all 0.3s ease' }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        />
-                    </div>
-                </div>
-            </section>
+                }
+            >
+                <p className="showcase-body">
+                    Configure your AI agents with zero effort. The smart Prompt Assistant generates tailor-made setup instructions for <strong>7 clients — OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Aider, and custom tools — for every provider you add</strong>, with the correct model IDs, connection settings, and your proxy API key embedded automatically.
+                </p>
+                <ul className="showcase-list">
+                    <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> One-click configuration prompts for every provider</li>
+                    <li><span className="list-dot"><RefreshCw size={14} aria-hidden="true" /></span> Auto-discovery of upstream model IDs</li>
+                    <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> Proxy API key embedded automatically</li>
+                </ul>
+                <Link to="/docs?tab=aiClientSetup" className="link-arrow">
+                    How to use the AI Assistant <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+            </Showcase>
 
-            {/* 6. Real-time Notifications */}
-            <section className="showcase-section" style={{ padding: '80px 0', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap', flexDirection: 'row-reverse' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px' }}>🔔 Real-time Notifications</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Stay ahead of every event without watching logs. ClawRouter's built-in notification system delivers instant alerts for key rotations, circuit breaker trips, fallback activations, and more — all via WebSocket, directly in the dashboard.
-                        </p>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '24px' }}>
-                            {[
-                                { label: 'Key Disabled', color: '#ef4444', desc: 'Instant alert when an API key is permanently disabled' },
-                                { label: 'Circuit Open', color: '#ef4444', desc: 'Know the moment a provider trips its circuit breaker' },
-                                { label: 'Model / Provider Fallback', color: '#f59e0b', desc: 'See every automatic fallback as it happens' },
-                                { label: 'Recovered', color: '#22c55e', desc: 'Confirmed when a provider comes back online' },
-                            ].map((item) => (
-                                <div key={item.label} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                    <span style={{ background: `${item.color}20`, color: item.color, border: `1px solid ${item.color}40`, borderRadius: '6px', padding: '2px 10px', fontSize: '0.78rem', fontWeight: '600', whiteSpace: 'nowrap', marginTop: '2px' }}>
-                                        {item.label}
-                                    </span>
-                                    <span style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: '1.5' }}>{item.desc}</span>
-                                </div>
-                            ))}
+            {/* ============ 8. Real-time Request Logs ============ */}
+            <Showcase
+                eyebrow="Observability"
+                title="Real-time Request Logs"
+                reverse
+                media={<Shot src="assets/screenshots/logs.png" alt="Real-time Request Logs" onZoom={setSelectedImage} />}
+            >
+                <p className="showcase-body">
+                    Full request and response logs with live WebSocket streaming. Monitor your AI API usage in real-time, debug issues instantly, and keep track of your active keys and token usage without leaving the dashboard.
+                </p>
+                <ul className="showcase-list">
+                    <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Live streaming logs using WebSockets</li>
+                    <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> Detailed error tracking and API responses</li>
+                </ul>
+                <Link to="/docs?tab=monitoring&anchor=view-and-filter-logs" className="link-arrow">
+                    Explore request logs <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+            </Showcase>
+
+            {/* ============ 9. Real-time Notifications ============ */}
+            <Showcase
+                eyebrow="Alerting"
+                title={<><Bell size={26} aria-hidden="true" /> Real-time Notifications</>}
+                tint
+                media={<Shot src="assets/screenshots/notifications.png" alt="Real-time Notifications" onZoom={setSelectedImage} />}
+            >
+                <p className="showcase-body">
+                    Stay ahead of every event without watching logs. ClawRouter's built-in notification system delivers instant alerts for key rotations, circuit breaker trips, fallback activations, and more — all via WebSocket, directly in the dashboard.
+                </p>
+                <div className="notif-list">
+                    {[
+                        { label: 'Key Disabled', color: '#ef4444', desc: 'Instant alert when an API key is permanently disabled' },
+                        { label: 'Circuit Open', color: '#ef4444', desc: 'Know the moment a provider trips its circuit breaker' },
+                        { label: 'Model / Provider Fallback', color: '#f59e0b', desc: 'See every automatic fallback as it happens' },
+                        { label: 'Recovered', color: '#22c55e', desc: 'Confirmed when a provider comes back online' },
+                    ].map((item) => (
+                        <div key={item.label} className="notif-item">
+                            <span className="notif-chip" style={{ background: `${item.color}20`, color: item.color, border: `1px solid ${item.color}40` }}>
+                                {item.label}
+                            </span>
+                            <span className="notif-desc">{item.desc}</span>
                         </div>
-                        <Link to="/docs?tab=monitoring&anchor=monitor-events-with-notifications" className="btn-secondary">
-                            Learn about Notifications →
-                        </Link>
-                    </div>
-                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/notifications.png')}>
-                        <img
-                            src="assets/screenshots/notifications.png"
-                            alt="Real-time Notifications"
-                            className="img-showcase"
-                            style={{ margin: 0, transition: 'all 0.3s ease' }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                            onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                e.currentTarget.parentElement.innerHTML = `
-                                    <div style="background:rgba(255,255,255,0.03);border:2px dashed rgba(255,255,255,0.1);border-radius:12px;padding:60px 40px;text-align:center;color:rgba(255,255,255,0.3);">
-                                        <div style="font-size:3rem;margin-bottom:12px;">🔔</div>
-                                        <div style="font-size:0.9rem;">Screenshot coming soon</div>
-                                        <div style="font-size:0.75rem;margin-top:6px;opacity:0.6;">Add: assets/screenshots/notifications.png</div>
-                                    </div>`;
-                            }}
-                        />
-                    </div>
+                    ))}
                 </div>
-            </section>
+                <Link to="/docs?tab=monitoring&anchor=monitor-events-with-notifications" className="link-arrow">
+                    Learn about notifications <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+            </Showcase>
 
-            {/* 7. Global Settings */}
-            <section className="showcase-section" style={{ padding: '80px 0', background: 'var(--bg-card)', borderTop: '1px solid var(--border-light)' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '40px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 400px' }}>
-                        <h2 style={{ fontSize: '2.2rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Settings size={32} style={{ color: 'var(--primary)' }} /> Global Settings
-                        </h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: '1.8' }}>
-                            Fine-tune every aspect of your router from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, and security — all without touching config files.
+            {/* ============ 10. Global Settings ============ */}
+            <Showcase
+                eyebrow="Control plane"
+                title={<><Settings size={26} aria-hidden="true" /> Global Settings</>}
+                media={<Shot src="assets/screenshots/settings.png" alt="Global Settings Panel" onZoom={setSelectedImage} />}
+            >
+                <p className="showcase-body">
+                    Fine-tune every aspect of your router from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, and security — all without touching config files.
+                </p>
+                <ul className="showcase-list">
+                    <li><span className="list-dot"><RefreshCw size={14} aria-hidden="true" /></span> Retry & circuit breaker configuration</li>
+                    <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> Proxy API key & dashboard password security</li>
+                    <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Rate limit backoff & failover tuning</li>
+                    <li><span className="list-dot"><Server size={14} aria-hidden="true" /></span> Logging, notifications & routing behavior</li>
+                </ul>
+                <Link to="/docs?tab=globalSettings" className="link-arrow">
+                    Learn about settings <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+            </Showcase>
+
+            {/* ============ CTA ============ */}
+            <section className="cta-section">
+                <div className="container">
+                    <Reveal className="cta-box reveal-scale">
+                        <h2>Ready to Take Control?</h2>
+                        <p>
+                            Set up ClawRouter in minutes and ensure your AI applications never experience downtime due to API limits.
                         </p>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px 0' }}>
-                            {[
-                                { icon: <RefreshCw size={16} color="var(--primary)" />, text: 'Retry & circuit breaker configuration' },
-                                { icon: <Shield size={16} color="var(--primary)" />, text: 'Proxy API key & dashboard password security' },
-                                { icon: <Zap size={16} color="var(--primary)" />, text: 'Rate limit backoff & failover tuning' },
-                                { icon: <Server size={16} color="var(--primary)" />, text: 'Logging, notifications & routing behavior' },
-                            ].map((item, idx) => (
-                                <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', color: 'var(--text-main)' }}>
-                                    <div style={{ background: 'var(--bg-darker)', width: '30px', height: '30px', borderRadius: '50%', border: '1px solid var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                                        {item.icon}
-                                    </div>
-                                    {item.text}
-                                </li>
-                            ))}
-                        </ul>
-                        <Link to="/docs?tab=globalSettings" className="btn-secondary">
-                            Learn about Settings →
+                        <Link to="/docs?tab=quickstart" className="btn-primary">
+                            View Quickstart Guide <ArrowRight size={15} aria-hidden="true" />
                         </Link>
-                    </div>
-                    <div style={{ flex: '1 1 500px', cursor: 'pointer' }} onClick={() => setSelectedImage('assets/screenshots/settings.png')}>
-                        <img
-                            src="assets/screenshots/settings.png"
-                            alt="Global Settings Panel"
-                            className="img-showcase"
-                            style={{ margin: 0, transition: 'all 0.3s ease' }}
-                            onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                            onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                            onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                                e.currentTarget.parentElement.innerHTML = `
-                                    <div style="background:rgba(255,255,255,0.03);border:2px dashed rgba(255,255,255,0.1);border-radius:12px;padding:60px 40px;text-align:center;color:rgba(255,255,255,0.3);">
-                                        <div style="font-size:3rem;margin-bottom:12px;">&#9881;</div>
-                                        <div style="font-size:0.9rem;">Screenshot coming soon</div>
-                                        <div style="font-size:0.75rem;margin-top:6px;opacity:0.6;">Add: assets/screenshots/settings.png</div>
-                                    </div>`;
-                            }}
-                        />
-                    </div>
+                    </Reveal>
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="showcase-section cta-section" style={{ padding: '100px 0', textAlign: 'center' }}>
-                <div className="container cta-box" style={{ maxWidth: '800px', background: 'var(--bg-card)', padding: '60px', borderRadius: '16px', border: '1px solid var(--border-focus)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-                    <h2 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>Ready to Take Control?</h2>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '1.2rem', marginBottom: '30px' }}>
-                        Set up ClawRouter in minutes and ensure your AI applications never experience downtime due to API limits.
-                    </p>
-                    <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
-                        <Link to="/docs" className="btn-primary">
-                            View Quickstart Guide
-                        </Link>
-                    </div>
-                </div>
-            </section>
-
-            {/* Lightbox Modal via Portal */}
+            {/* ============ Lightbox ============ */}
             {selectedImage && createPortal(
-                <div
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        width: '100vw',
-                        height: '100vh',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
-                        backdropFilter: 'blur(10px)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 9999,
-                        padding: '20px',
-                        cursor: 'zoom-out',
-                        animation: 'fadeIn 0.2s ease-out'
-                    }}
-                    onClick={() => setSelectedImage(null)}
-                >
+                <div className="lightbox-overlay" onClick={() => setSelectedImage(null)}>
                     <button
-                        style={{
-                            position: 'absolute',
-                            top: '20px',
-                            right: '20px',
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            borderRadius: '50%',
-                            width: '44px',
-                            height: '44px',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            color: 'white',
-                            cursor: 'pointer',
-                            zIndex: 10000,
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
-                        onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+                        type="button"
+                        className="lightbox-close"
                         onClick={(e) => { e.stopPropagation(); setSelectedImage(null); }}
+                        aria-label="Close preview"
                     >
-                        <X size={24} />
+                        <X size={22} aria-hidden="true" />
                     </button>
                     <img
                         src={selectedImage}
-                        alt="Preview"
-                        style={{
-                            maxWidth: '95vw',
-                            maxHeight: '90vh',
-                            borderRadius: '12px',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.8)',
-                            objectFit: 'contain',
-                            cursor: 'default',
-                            animation: 'scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
-                        }}
+                        alt="Screenshot preview"
+                        className="lightbox-img"
                         onClick={(e) => e.stopPropagation()}
                     />
                 </div>,
@@ -675,17 +447,4 @@ export default function LandingPage() {
             )}
         </div>
     );
-}
-
-// Add keyframes for Lightbox
-const styles = `
-@keyframes scaleUp {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-`;
-if (typeof document !== 'undefined') {
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = styles;
-    document.head.appendChild(styleSheet);
 }

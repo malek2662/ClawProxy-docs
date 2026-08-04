@@ -2,7 +2,7 @@
 
 A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -89,7 +89,7 @@ Genuine free tiers or quotas. You need a free API key from each provider -- the 
 |-------|---------|
 | **Name / API Format / Upstream URL** | Core connection settings, auto-filled |
 | **API Key Mode** | `Managed`, `None`, or `Pass Through` -- pre-set correctly per preset |
-| **Icon & Brand Color** | Shown on provider cards throughout the dashboard |
+| **Brand Icon** | Real brand icons shown on provider cards throughout the dashboard -- rendered in color by default, switchable to mono in **Settings > Appearance** (per browser). Unmapped/custom providers get a 2-letter brand-color tile |
 | **Category** | `free` or `apikey` -- controls grouping in the Add Provider panel |
 | **Get API Key link** | Direct link to the provider's API key page |
 | **Signup link** | Direct link to create an account (where available) |

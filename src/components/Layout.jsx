@@ -27,23 +27,23 @@ export default function Layout() {
     }, [location.pathname]);
 
     const navLinks = [
-        { name: 'Home', path: '/', icon: <Home size={16} /> },
-        { name: 'Documentation', path: '/docs', icon: <Book size={16} /> }
+        { name: 'Home', path: '/', icon: <Home size={15} aria-hidden="true" /> },
+        { name: 'Documentation', path: '/docs', icon: <Book size={15} aria-hidden="true" /> }
     ];
 
     return (
         <>
             <nav className="glass-nav">
-                <div className="container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                    <Link to="/" onClick={() => window.scrollTo(0, 0)} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-main)' }}>
+                <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                    <Link to="/" onClick={() => window.scrollTo(0, 0)} className="nav-logo">
                         <img src={clawLogo} alt="ClawRouter Logo" style={{ width: '28px', height: '28px' }} />
-                        <span className="nav-logo-text" style={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: '1.2rem', letterSpacing: '0.5px' }}>
-                            ClawRouter
-                        </span>
+                        <span className="nav-logo-text">ClawRouter</span>
                     </Link>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <span className="nav-version"><i aria-hidden="true" />v1.0.14</span>
+
+                        <div style={{ display: 'flex', gap: '6px' }}>
                             {navLinks.map((link) => {
                                 const isActive = location.pathname === link.path || (link.path !== '/' && location.pathname.startsWith(link.path));
                                 return (
@@ -51,8 +51,7 @@ export default function Layout() {
                                         key={link.path}
                                         to={link.path}
                                         onClick={() => window.scrollTo(0, 0)}
-                                        className={isActive ? "btn-primary" : "btn-secondary"}
-                                        style={{ padding: '6px 14px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}
+                                        className={`nav-link${isActive ? ' active' : ''}`}
                                     >
                                         {link.icon}
                                         <span className="nav-btn-label">{link.name}</span>
@@ -63,26 +62,24 @@ export default function Layout() {
 
                         <div style={{ width: '1px', height: '24px', background: 'var(--border-light)' }}></div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                             <a
                                 href="mailto:support@clawrouter.qzz.io"
                                 title="Contact via Email"
-                                style={{ color: 'var(--text-muted)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
-                                onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                                onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                                aria-label="Contact via Email"
+                                className="nav-icon-btn"
                             >
-                                <Mail size={20} />
+                                <Mail size={18} aria-hidden="true" />
                             </a>
                             <a
                                 href="https://reddit.com/user/Malek262"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 title="Contact via Reddit"
-                                style={{ color: 'var(--text-muted)', transition: 'color 0.2s', display: 'flex', alignItems: 'center' }}
-                                onMouseOver={(e) => e.currentTarget.style.color = 'var(--primary)'}
-                                onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                                aria-label="Contact via Reddit"
+                                className="nav-icon-btn"
                             >
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-label="Reddit">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z" />
                                 </svg>
                             </a>
@@ -102,51 +99,38 @@ export default function Layout() {
                 <Outlet />
             </main>
 
-            <footer className="site-footer" style={{
-                borderTop: '1px solid var(--border-light)',
-                padding: '80px 0 40px',
-                marginTop: '100px',
-                background: 'rgba(10, 10, 10, 0.4)',
-                backdropFilter: 'blur(10px)'
-            }}>
+            <footer className="site-footer">
                 <div className="container">
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                        gap: '60px',
-                        marginBottom: '60px'
-                    }}>
+                    <div className="footer-grid">
                         {/* Column 1: Brand */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <img src={clawLogo} alt="ClawRouter Logo" style={{ width: '32px', height: '32px' }} />
-                                <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: '700', fontSize: '1.4rem', color: 'var(--text-main)', letterSpacing: '0.5px' }}>
-                                    ClawRouter
-                                </span>
+                        <div className="footer-brand">
+                            <div className="footer-brand-row">
+                                <img src={clawLogo} alt="ClawRouter Logo" style={{ width: '30px', height: '30px' }} />
+                                <span className="footer-brand-name">ClawRouter</span>
                             </div>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.95rem', lineHeight: '1.7', margin: 0 }}>
+                            <p className="footer-tagline">
                                 High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.
                             </p>
                         </div>
 
                         {/* Column 2: Project */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: '600', margin: 0 }}>Project</h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <Link to="/docs" onClick={() => window.scrollTo(0, 0)} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'var(--text-muted)'}>Documentation</Link>
-                                <Link to="/docs?tab=quickstart" onClick={() => window.scrollTo(0, 0)} style={{ color: 'var(--text-muted)', textDecoration: 'none', fontSize: '0.9rem', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = 'var(--primary)'} onMouseOut={(e) => e.target.style.color = 'var(--text-muted)'}>Quickstart Guide</Link>
+                        <div>
+                            <h4 className="footer-heading">Project</h4>
+                            <div className="footer-links">
+                                <Link to="/docs" onClick={() => window.scrollTo(0, 0)} className="footer-link">Documentation</Link>
+                                <Link to="/docs?tab=quickstart" onClick={() => window.scrollTo(0, 0)} className="footer-link">Quickstart Guide</Link>
                             </div>
                         </div>
 
                         {/* Column 3: Connect */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <h4 style={{ fontSize: '1.1rem', color: 'var(--text-main)', fontWeight: '600', margin: 0 }}>Connect</h4>
-                            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                                <a href="mailto:support@clawrouter.qzz.io" title="Email" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path><rect width="20" height="16" x="2" y="4" rx="2"></rect></svg>
+                        <div>
+                            <h4 className="footer-heading">Connect</h4>
+                            <div className="footer-social">
+                                <a href="mailto:support@clawrouter.qzz.io" title="Email" aria-label="Contact via Email" className="nav-icon-btn">
+                                    <Mail size={20} aria-hidden="true" />
                                 </a>
-                                <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" style={{ color: 'var(--text-muted)', transition: 'all 0.2s', display: 'flex', alignItems: 'center' }} onMouseOver={(e) => { e.currentTarget.style.color = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-3px)'; }} onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-label="Reddit">
+                                <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" aria-label="Contact via Reddit" className="nav-icon-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                         <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z" />
                                     </svg>
                                 </a>
@@ -154,24 +138,16 @@ export default function Layout() {
                         </div>
                     </div>
 
-                    <div style={{
-                        borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-                        paddingTop: '30px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        flexWrap: 'wrap',
-                        gap: '20px'
-                    }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: 0 }}>
+                    <div className="footer-bottom">
+                        <div>
+                            <p className="footer-copy">
                                 &copy; {new Date().getFullYear()} ClawRouter. All rights reserved.
                             </p>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.3)', fontSize: '0.75rem', maxWidth: '400px', margin: 0, lineHeight: '1.4' }}>
-                                <span style={{ color: 'var(--text-main)', fontWeight: '500' }}>Terms & Refund Policy:</span> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.
+                            <p className="footer-legal">
+                                <strong>Terms & Refund Policy:</strong> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.
                             </p>
                         </div>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                        <div className="footer-author">
                             Developed by Malek-Rsh
                         </div>
                     </div>
@@ -179,11 +155,12 @@ export default function Layout() {
             </footer>
 
             <button
+                type="button"
                 className={`scroll-to-top${showScrollTop ? ' visible' : ''}`}
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 aria-label="Scroll to top"
             >
-                <ArrowUp size={20} />
+                <ArrowUp size={18} aria-hidden="true" />
             </button>
         </>
     );

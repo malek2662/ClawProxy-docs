@@ -2,7 +2,7 @@
 
 Diagnose and resolve common issues with ClawRouter.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -76,8 +76,13 @@ Diagnose and resolve common issues with ClawRouter.
 
 ### Problem: Key backed off for a long time but not disabled (Kimi Coding)
 **Cause:** A Kimi Coding quota window (5-hour, weekly, or monthly) is full. Kimi returns HTTP 403 `access_terminated_error`, which ClawRouter classifies as quota exhaustion -- not an auth error.
-**What ClawRouter does:** Backs the key off until the **actual window reset** (probed from Kimi's usage endpoint, capped at `quota_backoff_s`, default 1800s). The key is never disabled and recovers automatically.
-**Solution:** No action needed. Check the provider's **Quota** tab (**Fetch Quota** button) for live per-key, per-window remaining quota and reset countdowns. Add more keys if you regularly exhaust windows.
+**What ClawRouter does:** Backs the key off until **its own exhausted window's reset** -- read from the key's saved quota snapshot, so a 5-hour exhaustion cools down until the 5-hour reset and a weekly exhaustion until the weekly reset (no shared blanket cooldown). The key is never disabled and recovers automatically.
+**Solution:** No action needed. Check the provider's **Quota** tab (**Fetch Quota** button) for live per-key, per-window remaining quota and reset countdowns -- usable keys are sorted first. Add more keys if you regularly exhaust windows.
+
+### Problem: "Monthly usage cycle exhausted" but the Quota tab shows 5-hour/weekly quota available
+**Cause:** The key's **monthly billing cycle** is exhausted -- a separate limit from the 5-hour and weekly windows.
+**What ClawRouter does:** The key is **not disabled**. It is retried in ~10-day steps anchored to its last successful use until the monthly cycle renews.
+**Solution:** No action needed -- the key recovers when the billing cycle renews. Route around it by adding more keys or a fallback provider if this happens regularly.
 
 ### Problem: Requests succeed but return wrong/empty responses
 **Possible causes:**
@@ -327,7 +332,7 @@ If all else fails and you need to start fresh:
    ```bash
    clawrouter stop
    ```
-2. Delete the local database and restart:
+2. Delete the local database file `clawrouter.db` (in the ClawRouter installation directory), then restart:
    ```bash
    clawrouter start
    ```

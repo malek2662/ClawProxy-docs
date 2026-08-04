@@ -1,19 +1,57 @@
-# AI Client Setup (Prompt for AI)
+# Client Setup Overview
 
-The **Prompt for AI** dialog generates ready-to-paste setup instructions for 7 AI clients, tailored to the specific provider -- with the correct Base URL, model IDs, and config format for each client.
+ClawRouter works with any AI client that supports a custom base URL. This page explains the two setup methods and what all clients have in common -- then points you to the dedicated guide for your client.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
-## Opening the Dialog
+## Dedicated Client Guides
+
+Step-by-step instructions -- exact config files, copy-paste snippets, and troubleshooting -- for each client:
+
+| Client | Guide |
+|--------|-------|
+| **OpenClaw** | Client Setup > **OpenClaw** |
+| **OpenCode** | Client Setup > **OpenCode** |
+| **Claude Code** | Client Setup > **Claude Code** |
+| **Codex CLI** | Client Setup > **Codex CLI** |
+| **Cline** | Client Setup > **Cline** |
+| **Aider, Kilo CLI, and any other client** | Client Setup > **Other / Custom Clients** |
+
+---
+
+## What Every Client Needs
+
+Regardless of the client, three things are always required:
+
+1. **A running ClawRouter** -- `clawrouter status` should show the service up (default port **3030**).
+2. **A configured provider** -- created in the dashboard, with API keys added (unless it is a keyless preset).
+3. **The proxy API key** -- shown in **Settings** > **Proxy API Key**. Clients authenticate to ClawRouter with this key; ClawRouter then injects the real upstream key itself.
+
+Requests without a valid proxy API key get HTTP 401. The key can be sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style).
+
+> **Any client, any provider:** ClawRouter detects the client's API format from the request path and translates to the provider's format automatically -- every client below works with **every** provider, regardless of format.
+
+---
+
+## Method 1: "Prompt for AI" (Recommended)
+
+Every provider page has a **"Prompt for AI"** button (on the Base URL banner) that opens a tabbed dialog with ready-to-paste setup instructions for 7 AI clients:
+
+| Tab | Target Client |
+|-----|---------------|
+| **OpenClaw** (default) | `openclaw.json` via `config.patch`, using native provider IDs where available |
+| **OpenCode** | `opencode.json` custom provider (`@ai-sdk/openai-compatible` or `@ai-sdk/anthropic`) |
+| **Claude Code** | `~/.claude/settings.json` env block |
+| **Codex CLI** | `~/.codex/config.toml` model provider |
+| **Cline** | OpenAI Compatible settings fields |
+| **Aider** | Environment variables + `openai/` model prefix |
+| **Custom / Other** | Generic endpoint reference, env export blocks, and a curl example |
 
 1. Open the provider's detail page.
 2. Click **"Prompt for AI"** on the **Base URL** banner at the top.
-3. A tabbed modal opens with one tab per client: **OpenClaw** (default), **OpenCode**, **Claude Code**, **Codex CLI**, **Cline**, **Aider**, **Custom / Other**.
-4. Select your client's tab, click **Copy**, and paste the prompt to your AI agent (or follow the instructions yourself).
-
-The modal is fixed-height (85vh) with internal scrolling, and the tabs wrap onto multiple rows -- all 7 clients are always visible, never hidden behind a scrollbar.
+3. Select your client's tab, click **Copy**, and paste the prompt to your AI agent (or follow the instructions yourself).
 
 **How templates are generated:**
 - Model lists come from the provider's **actual saved models** (Models tab). If none are saved, the preset's recommended models are used.
@@ -22,96 +60,17 @@ The modal is fixed-height (85vh) with internal scrolling, and the tabs wrap onto
 
 ---
 
-## Base URL Rules by Client
+## Method 2: Manual Configuration
+
+Prefer editing config files yourself? Each dedicated client guide has the exact file path and a copy-paste config block. The only client-specific differences are the config file location and the base URL suffix:
 
 | Client | Base URL Suffix |
 |--------|-----------------|
-| OpenClaw | `/v1` (or `/v1beta` for Google) -- as shown on the banner |
+| OpenClaw | `/v1` (or `/v1beta` for Google) -- as shown on the provider's banner |
 | OpenCode | `/v1` required |
 | Codex CLI | `/v1` required |
 | Cline | `/v1` required |
 | Aider | `/v1` required |
 | Claude Code | **No** `/v1` -- Claude Code appends `/v1/messages` itself |
 
----
-
-## OpenClaw
-
-The default tab. Generates instructions for the OpenClaw agent to update `openclaw.json` safely via the `config.patch` gateway tool (backup first, merge only, plus model allowlist registration).
-
-- Uses **native OpenClaw provider IDs** where available (e.g., `google`, `nvidia`, `zai`, `ollama`, `opencode`, `kilocode`) so built-in provider features are preserved.
-- Includes `X-Title` / `X-Provider` headers so ClawRouter can identify the client.
-
-Works with all API formats.
-
-## OpenCode
-
-Generates an `opencode.json` custom provider block (project root or `~/.config/opencode/opencode.json`).
-
-- Uses `@ai-sdk/openai-compatible` for OpenAI formats, `@ai-sdk/anthropic` for `anthropic-messages`.
-- The `baseURL` must end at `/v1` -- OpenCode appends the endpoint path itself.
-- Works with all API formats -- ClawRouter translates automatically when the provider's format differs.
-
-## Claude Code
-
-Generates an `env` block for `~/.claude/settings.json`:
-
-```json
-{
-  "env": {
-    "ANTHROPIC_BASE_URL": "http://localhost:3030/proxy/your-provider",
-    "ANTHROPIC_AUTH_TOKEN": "cr_your_proxy_key",
-    "ANTHROPIC_MODEL": "model-id",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "model-id"
-  }
-}
-```
-
-- `ANTHROPIC_BASE_URL` has **no** `/v1` suffix -- Claude Code appends `/v1/messages` itself.
-- `ANTHROPIC_AUTH_TOKEN` is your proxy API key (the template embeds it automatically).
-- Works with **all** providers. For non-Anthropic providers, ClawRouter translates the API format automatically and injects the Claude Code identity/system preamble, so the experience matches native Anthropic behavior.
-
-## Codex CLI
-
-Generates a `[model_providers.<slug>]` table for `~/.codex/config.toml`:
-
-```toml
-model = "model-id"
-model_provider = "clawrouter-your-provider"
-
-[model_providers.clawrouter-your-provider]
-name = "ClawRouter Your Provider"
-base_url = "http://localhost:3030/proxy/your-provider/v1"
-env_key = "CLAWROUTER_API_KEY"
-wire_api = "chat"
-```
-
-- `wire_api` is `"responses"` for `openai-responses` providers, `"chat"` otherwise.
-- The key is read from an environment variable: `export CLAWROUTER_API_KEY="cr_your_proxy_key"` -- use the proxy API key from **Settings** > **Proxy API Key** (the template embeds it automatically).
-- Works with **all** providers -- ClawRouter translates automatically when the provider's format differs.
-
-## Cline
-
-Generates values for Cline's **OpenAI Compatible** settings (Base URL, API Key, Model ID). The Base URL must end at `/v1` -- Cline appends `/chat/completions` itself. Works with **all** providers -- ClawRouter translates automatically when the provider's format differs.
-
-## Aider
-
-Generates environment variables plus the launch command:
-
-```bash
-export OPENAI_API_BASE="http://localhost:3030/proxy/your-provider/v1"
-export OPENAI_API_KEY="cr_your_proxy_key"
-aider --model openai/model-id
-```
-
-The `openai/` prefix tells aider to treat it as a generic OpenAI-compatible endpoint. Works with **all** providers -- ClawRouter translates automatically when the provider's format differs.
-
-## Custom / Other
-
-A generic reference for any client that supports a custom base URL: the correct endpoint URLs for the provider's API format, auth header guidance, available model IDs, and a ready-to-run `curl` example. Works with all API formats.
-
-The tab also includes **ready-to-paste environment variable export blocks** for shell-based setups:
-
-- **Anthropic style:** `ANTHROPIC_BASE_URL`, `ANTHROPIC_AUTH_TOKEN`, `ANTHROPIC_MODEL` -- with commented per-model swap lines for switching models quickly
-- **OpenAI style:** `OPENAI_BASE_URL`, `OPENAI_API_KEY`
-- **Google style:** `GOOGLE_GEMINI_BASE_URL`, `GEMINI_API_KEY`
+The base URL always starts with `http://localhost:3030/proxy/{provider-id}` (adjust host/port if you changed them).

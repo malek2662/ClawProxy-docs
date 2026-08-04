@@ -2,7 +2,7 @@
 
 Answers to common questions about ClawRouter configuration and usage.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -101,10 +101,15 @@ Click **Settings** in the sidebar to access the **Global Settings** page. This p
 | **Key Retry Mode** | `all` | `all` = try every available key; `fixed` = try up to a fixed limit |
 | **Key Retry Limit** | `5` | Max keys to try per request (only applies when mode is `fixed`) |
 | **Rate Limit Backoff** | `60s` | Cooldown duration after a key hits a rate limit |
+| **Quota Backoff** | `1800s` | Fallback cooldown for quota-window exhaustion when no exact window reset is known (exact per-key resets are used when available) |
 | **Circuit Breaker Threshold** | `5` | Failures within window before circuit opens |
 | **Circuit Breaker Cooldown** | `30s` | Seconds before a tripped circuit enters half-open state |
+| **Model Circuit Threshold / Cooldowns** | `2` / `1800s` / `120s` | Consecutive model failures before a model is skipped, and its permanent/transient cooldowns |
+| **Require Proxy API Key** | `true` | Clients must present the proxy API key on every proxy request (managed from the Proxy API Key card) |
 | **Auto Cleanup Logs** | `true` | Enable automatic log retention cleanup |
 | **Log Retention Days** | `7` | Days to keep request logs before auto-cleanup |
+
+The Settings page also has an **Appearance** card (provider icon style: Color/Mono, remembered per browser) and a **Dashboard Security** card (change the dashboard password).
 
 ### What is the difference between "all" and "fixed" key retry mode?
 - **All** (default): On failure, ClawRouter tries every available key for the provider before giving up and triggering the fallback chain.

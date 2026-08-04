@@ -2,7 +2,7 @@
 
 Step-by-step guides for adding, managing, testing, and troubleshooting API keys in ClawRouter.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 

@@ -2,7 +2,7 @@
 
 Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -26,7 +26,7 @@ Step-by-step guide for configuring system-wide proxy behavior: key retry strateg
 | Setting | Default | Description |
 |---------|---------|-------------|
 | **Rate Limit Backoff** | `60` seconds | How long a key is put on cooldown after a rate limit error. |
-| **Quota Backoff** | `1800` seconds | Backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly cycles, Z.AI 5-hour/7-day windows). Caps provider-reported reset times. The key is never disabled -- it recovers at the window reset. |
+| **Quota Backoff** | `1800` seconds | Fallback backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly/monthly cycles, Z.AI 5-hour/7-day windows) when no exact reset time is known. When ClawRouter knows the key's actual window reset (per-key quota snapshot, usage probe, or monthly-cycle anchor), that exact time is used instead. The key is never disabled -- it recovers at the window reset. |
 | **Circuit Breaker Threshold** | `5` | Number of provider-level failures within the time window before the circuit opens. |
 | **Circuit Breaker Cooldown** | `30` seconds | How long before a tripped circuit enters the half-open state for a recovery test. |
 | **Model Circuit Threshold** | `2` | Consecutive failures before a model is skipped entirely (routed straight to the next fallback model). |
@@ -70,6 +70,19 @@ Requests without a valid key get HTTP 401 with the error body shaped in the clie
 > **Dashboard API is unchanged:** The admin API (`/api/*`) still uses the dashboard password session token, not the proxy key.
 
 > **Pass Through limitation:** Providers with API Key Mode **Pass Through** forward the client's credential to the upstream provider. With proxy auth enabled, that credential is the proxy key -- not a valid upstream key. Pass Through mode and proxy auth are effectively incompatible; use **Managed** or **None** mode for such providers.
+
+---
+
+## Appearance (Provider Icon Style)
+
+Providers show **real brand icons** across the dashboard (provider cards, detail pages, fallback chains). The **Appearance** card on the **Settings** page controls how those icons are rendered:
+
+| Style | Description |
+|-------|-------------|
+| **Color** (default) | Full brand colors |
+| **Mono** | Single-tone glyphs that follow the dashboard text color |
+
+The toggle applies **instantly** and is remembered **per browser** (stored in local storage on this device -- it does not sync to other browsers or machines). Brands that have no color variant render mono in both modes, and unmapped/custom providers fall back to a 2-letter brand-color tile.
 
 ---
 

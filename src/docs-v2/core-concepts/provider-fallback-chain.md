@@ -2,7 +2,7 @@
 
 Switches to a completely different provider when the primary provider fails entirely (all keys exhausted or circuit breaker opens).
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 

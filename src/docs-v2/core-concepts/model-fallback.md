@@ -2,7 +2,7 @@
 
 Automatically retries a failed request with an alternative model, **same provider, same API key**.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -56,7 +56,7 @@ The **Fetch Models** button queries the upstream provider's API and displays ava
 - Click **+ Add** next to any model to add it to the fallback list.
 - Click **Add All Free** to add every free model at once (bypass providers).
 
-**Caching:** Results are cached in memory for **5 minutes** -- repeated fetches within that window return instantly, and concurrent fetches are deduplicated into a single upstream request. The cache is invalidated automatically whenever a key is added, deleted, or toggled (model catalogs can differ per key tier). Once results are displayed, the button becomes **Refresh** -- clicking it forces a fresh fetch, bypassing the cache.
+Results are cached for 5 minutes and the button becomes **Refresh** once results are shown -- see **How-To Guides > Configuring Models > Discover Available Models** for the full caching and refresh behavior.
 
 > **Note:** For providers without a public models endpoint (Perplexity, MiniMax), ClawRouter returns a hardcoded list of known supported models. Anthropic has a live paginated `/v1/models` endpoint -- ClawRouter fetches it for real, with a hardcoded list only as a fallback.
 

@@ -2,7 +2,7 @@
 
 An overview of ClawRouter's architecture, request flow, and core design principles.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -41,7 +41,7 @@ When a request arrives, ClawRouter:
 
 ClawRouter provides **50 built-in provider presets** pre-configured with the correct name, API format, upstream URL, and API key mode. Each preset also carries:
 
-- **Icon & brand color** -- shown on provider cards across the dashboard
+- **Brand icon** -- real provider brand icons shown on provider cards across the dashboard (color or mono, switchable in Settings > Appearance)
 - **Category** -- `free` or `apikey`, used for grouping in the Add Provider panel
 - **Get API Key / signup links** -- direct links to the provider's key page
 - **Default headers** -- static headers merged into every upstream request (keyless presets)
@@ -86,13 +86,13 @@ Each provider has its own format. ClawRouter translates requests into the correc
 - **Fallback**: Global view of every provider's fallback chain, with the full chain editor
 - **Logs**: Request log viewer with real-time updates
 - **Usage**: Token usage and estimated cost breakdown per provider/model
-- **Settings**: Global configuration for key retry, rate limit backoff, circuit breaker, and log management
+- **Settings**: Global configuration for key retry, rate limit/quota backoff, circuit breaker, log management, proxy API key, dashboard password, and appearance (provider icon style)
 - **Bell icon**: Notification panel
 - **Update badge**: Shows when a new version is available
 
-### Provider Detail Page (5 Tabs)
+### Provider Detail Page (Tabs)
 
-Tabs are URL-synced -- you can deep-link to a specific tab with `?tab=overview|keys|models|fallback|settings`.
+Tabs are URL-synced -- you can deep-link to a specific tab with `?tab=overview|keys|models|fallback|quota|settings`.
 
 | Tab | Contents |
 |-----|----------|
@@ -100,6 +100,7 @@ Tabs are URL-synced -- you can deep-link to a specific tab with `?tab=overview|k
 | **API Keys** | Add/bulk add keys, key table with status/test results/stats, connection testing, priority reorder |
 | **Models** | Fallback models list, Fetch Models from upstream (5-min cache), Free/Paid badges for bypass providers |
 | **Fallback** | Provider Fallback Chain: visual chain diagram, add/edit/reorder/delete entries |
+| **Quota** | *(Kimi for Coding and Z.AI GLM Coding providers only)* Per-key quota windows, sorted usable keys first -- see Provider Management > View Live Quota & Usage |
 | **Settings** | Circuit breaker status, provider config form |
 
 ---
@@ -118,4 +119,4 @@ Every provider page has a **"Prompt for AI"** button (on the Base URL banner) th
 | **Aider** | Environment variables + `openai/` model prefix |
 | **Custom / Other** | Generic endpoint reference + curl example |
 
-Templates are generated dynamically from the provider's actual saved models (preset models as fallback), with the correct Base URL format per client, and embed your real proxy API key automatically. All 7 tabs work with every provider -- when the client's native format differs from the provider's, the tab shows an amber note that ClawRouter translates automatically. See the AI Client Setup guide for details.
+Templates are generated dynamically from the provider's actual saved models (preset models as fallback), with the correct Base URL format per client, and embed your real proxy API key automatically. All 7 tabs work with every provider -- when the client's native format differs from the provider's, the tab shows an amber note that ClawRouter translates automatically. See the **Client Setup** section for per-client guides.

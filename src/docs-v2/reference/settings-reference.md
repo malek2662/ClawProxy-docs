@@ -2,7 +2,7 @@
 
 Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -71,7 +71,7 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 | Setting | Default | Options | Description |
 |---------|---------|---------|-------------|
 | **Rate Limit Backoff** (`rate_limit_backoff_s`) | `60` | Any positive integer (seconds) | How long a key is put in cooldown after hitting a rate limit (HTTP 429). |
-| **Quota Backoff** (`quota_backoff_s`) | `1800` | 60 - 86400 (seconds) | Backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly cycles, Z.AI 5-hour/7-day windows). Also caps provider-reported reset times. The key is never disabled -- it recovers when the window resets. |
+| **Quota Backoff** (`quota_backoff_s`) | `1800` | 60 - 86400 (seconds) | Fallback backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly/monthly cycles, Z.AI 5-hour/7-day windows) when no exact reset time is known; also caps reset times parsed from error bodies. Per-key window resets from quota snapshots/usage probes (and monthly-cycle anchors) are exact and bypass this cap, with a 30-day sanity ceiling. The key is never disabled -- it recovers when the window resets. |
 | **Circuit Breaker Threshold** (`circuit_breaker_threshold`) | `5` | Any positive integer | Number of provider-level failures (all keys exhausted) within the failure window before the circuit opens. |
 | **Circuit Breaker Cooldown** (`circuit_breaker_cooldown_s`) | `30` | Any positive integer (seconds) | How long the circuit stays OPEN before transitioning to HALF_OPEN for a recovery test. |
 | **Model Circuit Threshold** (`model_circuit_threshold`) | `2` | 1 - 100 | Consecutive failures before a model's circuit opens and the model is skipped (routed straight to the next fallback model). |
@@ -93,6 +93,12 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 
 > Global settings are stored in the database and take effect immediately. Changes to circuit breaker parameters apply to new failure tracking -- existing circuit breaker states are not retroactively affected.
 
+### Appearance (Browser-Local)
+
+| Setting | Default | Options | Description |
+|---------|---------|---------|-------------|
+| **Provider Icon Style** | `Color` | `Color`, `Mono` | How provider brand icons are rendered across the dashboard. Managed from the **Appearance** card on the Settings page; applies instantly. Stored in the browser's local storage (`clawrouter-icon-style`) -- per-device, not synced, not part of the global settings API. Brands without a color variant render mono in both modes; unmapped/custom providers get a 2-letter brand-color tile. |
+
 ---
 
 ## Key Rotation Strategies
@@ -105,7 +111,7 @@ These settings apply to the entire proxy and are configured on the **Settings** 
 | Rotation trigger | Only when the current key encounters an error |
 | Best for | Maximizing usage of a single primary key before rotating |
 | Rate limit handling | Failed key enters cooldown (default 60s, configurable), next key used |
-| Quota window exhaustion | Failed key backed off until the window reset (default cap 1800s, `quota_backoff_s`), **never disabled** -- recovers automatically |
+| Quota window exhaustion | Failed key backed off until its own exhausted window's reset (window-accurate per key; `quota_backoff_s` default 1800s only when no exact reset is known), **never disabled** -- recovers automatically |
 | Auth error handling | Failed key permanently disabled, next key used |
 
 ### Round Robin

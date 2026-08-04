@@ -2,7 +2,7 @@
 
 Step-by-step guides for managing provider lifecycle: testing connections, resetting the circuit breaker, configuring timeouts, enabling/disabling, and deleting providers.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -11,7 +11,7 @@ Step-by-step guides for managing provider lifecycle: testing connections, resett
 The Providers list groups your providers into three sections: **Free-Friendly**, **API Key Providers**, and **Custom**.
 
 Each provider card shows:
-- Provider icon, name, and API format badge
+- Provider **brand icon** (real brand icons; color or mono -- switchable in **Settings > Appearance**), name, and API format badge
 - A **health badge**:
 
 | Badge | Meaning |
@@ -55,7 +55,7 @@ Other providers don't see the tab -- deep links to `?tab=quota` fall back to the
 
 1. Open the provider's detail page and click the **Quota** tab.
 2. Click **Fetch Quota** -- nothing auto-fetches; the probe runs only on demand (it costs no tokens).
-3. You get **one card per enabled key** (each key is a separate quota account):
+3. You get **one card per enabled key** (each key is a separate quota account), **sorted usable keys first** -- then exhausted keys, keys with no active plan, and invalid keys last:
    - **Membership level, region, and parallel limit** badges (plus the plan name for Z.AI)
    - **Per-window progress bars** with remaining quota and a reset countdown -- Kimi: 5-hour window, weekly cycle. Z.AI: 5-hour session and weekly token windows (the weekly window may be percentage-only and renders as %), plus the monthly web-search count
    - **Booster wallet** monthly spending cap (Kimi)
@@ -63,6 +63,12 @@ Other providers don't see the tab -- deep links to `?tab=quota` fall back to the
 4. Per-key probe failures don't fail the other cards -- the affected key shows an inline amber badge instead.
 
 > **Note:** When every key is quota-backed-off, the probe still runs (it costs no tokens) so you can see exactly when each window resets.
+
+### Per-Key Snapshots & Window-Accurate Cooldowns
+
+Every successful quota probe saves a **snapshot of that key's windows** (kind, usage, reset time). ClawRouter uses these snapshots at request time: when a key exhausts a quota window, it cools down until **that key's own exhausted window reset** -- a 5-hour exhaustion cools down until the 5-hour reset, a weekly exhaustion until the weekly reset -- instead of a shared blanket cooldown.
+
+A key can also show 5-hour and weekly quota available yet fail with a **monthly billing-cycle** exhaustion. This surfaces as **"Monthly usage cycle exhausted"** -- the key is **not disabled**; it is retried in ~10-day steps anchored to its last successful use until the cycle renews. See Key Rotation > Quota Window Cooldowns for the full behavior.
 
 ### Probe-Based Auto-Disable
 

@@ -2,7 +2,7 @@
 
 ClawRouter allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -36,12 +36,25 @@ ClawRouter allows you to add **multiple API keys to the same provider**. When on
 | Error | HTTP Status | Key Action |
 |-------|-------------|------------|
 | **Rate Limit** | 429 | Key enters cooldown (default 60 seconds, configurable in **Settings**). Next key used immediately. |
-| **Quota Exhausted** (window quota) | 429, 403, 400, 401 | Key backed off until the quota window resets (default cap 1800 seconds, `quota_backoff_s`). **Never disabled** -- recovers automatically. Next key used. |
+| **Quota Exhausted** (window quota) | 429, 403, 400, 401 | Key backed off until **its own** exhausted quota window resets (window-accurate, per key). **Never disabled** -- recovers automatically. Next key used. |
 | **Auth Error** | 401, 402, hard-billing bodies | Key is permanently disabled. Next key used. |
 | **Overloaded** | 503, 529 | Retries the same key after 2-second wait (up to 2 retries, configurable in **Settings**). |
 | **Model Error** | varies | Handled by Model Fallback (same key, different model). |
 | **Request Error** | 400, 413, 422 | Returned to client immediately (affects all keys equally). |
 | **Server/Timeout/Network Error** | varies | Tries next key. |
+
+---
+
+## Quota Window Cooldowns (Subscription Providers)
+
+Subscription providers with quota windows (Kimi for Coding 5-hour/weekly/monthly cycles, Z.AI 5-hour/weekly windows) get **per-key, window-accurate cooldowns** -- not a shared blanket cooldown:
+
+- Every successful quota probe saves a **per-key snapshot** of that key's windows and reset times.
+- When a key exhausts a window, ClawRouter matches the error to the window kind (5-hour vs weekly) and backs the key off until **that window's actual reset time**. Two keys tripping different windows at the same moment get different, accurate cooldowns.
+- **Monthly billing-cycle exhaustion** ("Monthly usage cycle exhausted") is detected separately: the key is **not disabled** -- it is retried in ~10-day steps anchored to its last successful use until the cycle renews.
+- If no reset time is known (no snapshot, nothing parseable from the error), the `quota_backoff_s` default (1800 seconds, configurable in **Settings**) applies.
+
+The key is **never disabled** for window exhaustion -- it recovers automatically when the window resets.
 
 ---
 
@@ -122,7 +135,7 @@ Yes, this is one of ClawRouter's core features. Add as many keys as you want. Cl
 ClawRouter permanently disables a key when it receives a **hard auth/billing error** (invalid credential, HTTP 402, "credit balance too low" style bodies). This means the key is invalid, expired, revoked, or out of money. Check the Error History for details. You can re-enable it manually from the API Keys tab if you believe it was a transient issue.
 
 ### A key shows errors but is still active -- why?
-ClawRouter only permanently disables keys on **hard auth/billing errors**. For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally. **Quota-window exhaustion** (Kimi Coding 5-hour/weekly cycles) backs the key off until the window resets -- the key is never disabled and recovers automatically.
+ClawRouter only permanently disables keys on **hard auth/billing errors**. For rate limits, server errors, and timeouts, the key enters a temporary cooldown or backoff (default 60 seconds, configurable via the **Settings** page) and continues rotating normally. **Quota-window exhaustion** (Kimi Coding 5-hour/weekly/monthly cycles) backs the key off until its own window resets -- the key is never disabled and recovers automatically.
 
 ### All keys in cooldown at the same time?
 Add more keys to the pool, switch to Round Robin rotation to distribute load, or reduce request frequency from your client. Cooldowns expire automatically after the backoff period.

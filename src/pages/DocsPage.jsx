@@ -6,6 +6,7 @@ import rehypeSlug from 'rehype-slug';
 import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { Copy, Check, Search, X, Menu, ListTree } from 'lucide-react';
 import { docs, DOC_SECTIONS, searchIndex } from '../data/docs';
 
 /* ---------- Scrollable table wrapper with overflow detection ---------- */
@@ -46,50 +47,20 @@ function CodeBlock({ language, children }) {
         navigator.clipboard.writeText(String(children).replace(/\n$/, '')).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
-        });
+        }).catch(() => {});
     }, [children]);
 
     return (
-        <div style={{ position: 'relative', marginBottom: '1.5rem' }}>
-            {/* Language badge + copy button bar */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                background: 'rgba(80, 223, 144, 0.06)',
-                borderTopLeftRadius: '8px',
-                borderTopRightRadius: '8px',
-                border: '1px solid var(--border-light)',
-                borderBottom: 'none',
-                padding: '6px 12px',
-            }}>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    {language || 'text'}
-                </span>
+        <div className="code-block">
+            <div className="code-block-bar">
+                <span className="code-lang"><i className="code-lang-dot" aria-hidden="true" />{language || 'text'}</span>
                 <button
+                    type="button"
                     onClick={handleCopy}
-                    style={{
-                        background: copied ? 'rgba(80, 223, 144, 0.15)' : 'rgba(255, 255, 255, 0.06)',
-                        border: `1px solid ${copied ? 'rgba(80, 223, 144, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
-                        color: copied ? 'var(--primary)' : 'var(--text-muted)',
-                        borderRadius: '5px',
-                        padding: '3px 10px',
-                        fontSize: '0.75rem',
-                        cursor: 'pointer',
-                        fontFamily: 'Outfit, sans-serif',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '5px',
-                        transition: 'all 0.2s ease',
-                    }}
-                    onMouseOver={(e) => { if (!copied) { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.color = 'var(--text-main)'; }}}
-                    onMouseOut={(e) => { if (!copied) { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)'; e.currentTarget.style.color = 'var(--text-muted)'; }}}
+                    className={`code-copy${copied ? ' copied' : ''}`}
+                    aria-label="Copy code block"
                 >
-                    {copied ? (
-                        <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!</>
-                    ) : (
-                        <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy</>
-                    )}
+                    {copied ? <><Check size={13} aria-hidden="true" /> Copied</> : <><Copy size={13} aria-hidden="true" /> Copy</>}
                 </button>
             </div>
             <SyntaxHighlighter
@@ -97,24 +68,20 @@ function CodeBlock({ language, children }) {
                 style={oneDark}
                 customStyle={{
                     margin: 0,
-                    borderTopLeftRadius: 0,
-                    borderTopRightRadius: 0,
-                    borderBottomLeftRadius: '8px',
-                    borderBottomRightRadius: '8px',
-                    border: '1px solid var(--border-light)',
-                    borderTop: 'none',
-                    fontSize: '0.88em',
-                    padding: '1.2rem',
-                    background: '#121212',
+                    border: 'none',
+                    borderRadius: 0,
+                    fontSize: '0.85rem',
+                    padding: '16px 18px',
+                    background: 'transparent',
+                    lineHeight: 1.7,
                 }}
-                codeTagProps={{ style: { fontFamily: 'JetBrains Mono, monospace' } }}
+                codeTagProps={{ style: { fontFamily: 'var(--font-mono)' } }}
             >
                 {String(children).replace(/\n$/, '')}
             </SyntaxHighlighter>
         </div>
     );
 }
-
 
 /* ---------- Docs Search component ---------- */
 function DocSearch({ onNavigate }) {
@@ -254,7 +221,7 @@ function DocSearch({ onNavigate }) {
         <div className="docs-search-wrapper">
             <div className="docs-search-input-box">
                 <span className="docs-search-icon">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <Search size={15} aria-hidden="true" />
                 </span>
                 <input
                     ref={inputRef}
@@ -268,11 +235,11 @@ function DocSearch({ onNavigate }) {
                 />
                 {query ? (
                     <button className="docs-search-clear" onClick={clearSearch} aria-label="Clear search">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <X size={14} aria-hidden="true" />
                     </button>
                 ) : (
                     <span className="docs-search-kbd">
-                        <kbd>{navigator.platform?.includes('Mac') ? '\u2318' : 'Ctrl'}</kbd>
+                        <kbd>{navigator.platform?.includes('Mac') ? '⌘' : 'Ctrl'}</kbd>
                         <kbd>K</kbd>
                     </span>
                 )}
@@ -302,13 +269,38 @@ function DocSearch({ onNavigate }) {
                         </>
                     ) : (
                         <div className="docs-search-empty">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <Search size={24} aria-hidden="true" />
                             No results for &ldquo;{query}&rdquo;
                         </div>
                     )}
                 </div>
             )}
         </div>
+    );
+}
+
+/* ---------- Sidebar navigation (shared by desktop rail and mobile drawer) ---------- */
+function DocsNav({ activeTab, onSelect }) {
+    return (
+        <>
+            {DOC_SECTIONS.map((section) => (
+                <div key={section.label} className="docs-nav-section">
+                    <h3 className="docs-nav-label">{section.label}</h3>
+                    <div className="docs-nav-items">
+                        {section.keys.map((key) => (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => onSelect(key)}
+                                className={`docs-nav-item${activeTab === key ? ' active' : ''}`}
+                            >
+                                {docs[key].title}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </>
     );
 }
 
@@ -342,6 +334,13 @@ export default function DocsPage() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setActiveHeading('');
         }
+    }, []);
+
+    const handleNavSelect = useCallback((key) => {
+        setActiveTab(key);
+        setDrawerOpen(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setActiveHeading('');
     }, []);
 
     // Utility to scroll directly to the heading by ID
@@ -415,144 +414,48 @@ export default function DocsPage() {
 
     return (
         <>
-        {/* Mobile docs menu button — outside animate-fade-in so position:fixed works */}
-        <button
-            className="docs-mobile-menu-btn"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open navigation"
-        >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-        </button>
+            {/* Mobile docs menu button — outside animate-fade-in so position:fixed works */}
+            <button
+                type="button"
+                className="docs-mobile-menu-btn"
+                onClick={() => setDrawerOpen(true)}
+                aria-label="Open navigation"
+            >
+                <Menu size={18} aria-hidden="true" />
+            </button>
 
-        {/* Mobile navigation drawer */}
-        {drawerOpen && (
-            <div className="docs-drawer-backdrop" onClick={() => setDrawerOpen(false)}>
-                <aside className="docs-drawer" onClick={(e) => e.stopPropagation()}>
-                    <div className="docs-drawer-header">
-                        <span style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '1rem' }}>Documentation</span>
-                        <button
-                            onClick={() => setDrawerOpen(false)}
-                            style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex' }}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                        </button>
-                    </div>
-                    <DocSearch onNavigate={handleSearchNavigate} />
-                    {DOC_SECTIONS.map((section, sectionIdx) => (
-                        <div key={sectionIdx} style={{ marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: 600 }}>
-                                {section.label}
-                            </h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                {section.keys.map((key) => {
-                                    const isActive = activeTab === key;
-                                    return (
-                                        <button
-                                            key={key}
-                                            onClick={() => {
-                                                setActiveTab(key);
-                                                setDrawerOpen(false);
-                                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                setActiveHeading('');
-                                            }}
-                                            style={{
-                                                width: '100%',
-                                                background: isActive ? 'rgba(80, 223, 144, 0.1)' : 'transparent',
-                                                color: isActive ? 'var(--primary)' : 'var(--text-main)',
-                                                border: 'none',
-                                                padding: '10px 12px',
-                                                borderRadius: '6px',
-                                                textAlign: 'left',
-                                                cursor: 'pointer',
-                                                fontWeight: isActive ? 500 : 400,
-                                                fontFamily: 'Outfit, sans-serif',
-                                                fontSize: '0.95rem',
-                                                transition: 'background 0.15s'
-                                            }}
-                                        >
-                                            {docs[key].title}
-                                        </button>
-                                    );
-                                })}
-                            </div>
+            {/* Mobile navigation drawer */}
+            {drawerOpen && (
+                <div className="docs-drawer-backdrop" onClick={() => setDrawerOpen(false)}>
+                    <aside className="docs-drawer" onClick={(e) => e.stopPropagation()}>
+                        <div className="docs-drawer-header">
+                            <span style={{ fontWeight: 600, color: 'var(--text-main)', fontSize: '1rem' }}>Documentation</span>
+                            <button
+                                type="button"
+                                onClick={() => setDrawerOpen(false)}
+                                aria-label="Close navigation"
+                                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px', display: 'flex' }}
+                            >
+                                <X size={20} aria-hidden="true" />
+                            </button>
                         </div>
-                    ))}
-                </aside>
-            </div>
-        )}
+                        <DocSearch onNavigate={handleSearchNavigate} />
+                        <DocsNav activeTab={activeTab} onSelect={handleNavSelect} />
+                    </aside>
+                </div>
+            )}
 
-        <div className="animate-fade-in" style={{ display: 'flex', justifyContent: 'center', width: '100%', padding: '0 20px 60px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', width: '100%', maxWidth: '1400px', gap: '40px' }}>
+            <div className="animate-fade-in docs-layout">
+                <div className="docs-layout-inner">
 
-                {/* Left Sidebar: Document Selection */}
-                <aside className="left-sidebar" style={{
-                    width: '260px',
-                    flexShrink: 0,
-                    position: 'sticky',
-                    top: 'calc(var(--nav-height) + 40px)',
-                    height: 'calc(100vh - var(--nav-height) - 80px)',
-                    overflowY: 'auto',
-                    borderRight: '1px solid var(--border-light)',
-                    paddingRight: '20px'
-                }}>
-                    <DocSearch onNavigate={handleSearchNavigate} />
-                    {DOC_SECTIONS.map((section, sectionIdx) => (
-                        <div key={sectionIdx} style={{ marginBottom: '20px' }}>
-                            <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '8px', color: 'var(--text-muted)', fontWeight: '600' }}>
-                                {section.label}
-                            </h3>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                {section.keys.map((key) => {
-                                    const isActive = activeTab === key;
-                                    return (
-                                        <button
-                                            key={key}
-                                            onClick={() => {
-                                                setActiveTab(key);
-                                                window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                setActiveHeading('');
-                                            }}
-                                            style={{
-                                                width: '100%',
-                                                background: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-                                                color: isActive ? 'var(--primary)' : 'var(--text-main)',
-                                                border: 'none',
-                                                padding: '8px 12px',
-                                                borderRadius: '6px',
-                                                textAlign: 'left',
-                                                cursor: 'pointer',
-                                                fontWeight: isActive ? '500' : '400',
-                                                transition: 'all 0.15s ease',
-                                                fontFamily: 'Outfit, sans-serif',
-                                                fontSize: '0.93rem'
-                                            }}
-                                            onMouseOver={(e) => {
-                                                if (!isActive) {
-                                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
-                                                }
-                                            }}
-                                            onMouseOut={(e) => {
-                                                if (!isActive) {
-                                                    e.currentTarget.style.background = 'transparent';
-                                                }
-                                            }}
-                                        >
-                                            {docs[key].title}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    ))}
-                </aside>
+                    {/* Left Sidebar: Document Selection */}
+                    <aside className="docs-side-left">
+                        <DocSearch onNavigate={handleSearchNavigate} />
+                        <DocsNav activeTab={activeTab} onSelect={handleNavSelect} />
+                    </aside>
 
-                {/* Center: Markdown Content Area */}
-                <main style={{ flex: 1, minWidth: 0, maxWidth: '800px' }}>
-                    <div style={{ padding: '0 20px' }}>
+                    {/* Center: Markdown Content Area */}
+                    <main className="docs-main">
                         <div className="md-content">
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
@@ -603,88 +506,48 @@ export default function DocsPage() {
                                 {docs[activeTab].content}
                             </ReactMarkdown>
                         </div>
-                    </div>
-                </main>
+                    </main>
 
-                {/* Right Sidebar: Table of Contents (On this page) */}
-                <aside className="right-sidebar" style={{
-                    width: '280px',
-                    flexShrink: 0,
-                    position: 'sticky',
-                    top: 'calc(var(--nav-height) + 40px)',
-                    height: 'calc(100vh - var(--nav-height) - 80px)',
-                    overflowY: 'auto'
-                }}>
-                    {docs[activeTab].toc && docs[activeTab].toc.length > 0 && (
-                        <div className="animate-fade-in" style={{ paddingLeft: '16px', borderLeft: '1px solid var(--border-light)' }}>
-                            <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-main)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="21" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
-                                On this page
-                            </div>
+                    {/* Right Sidebar: Table of Contents (On this page) */}
+                    <aside className="docs-side-right">
+                        {docs[activeTab].toc && docs[activeTab].toc.length > 0 && (
+                            <div className="toc-wrap">
+                                <div className="toc-label">
+                                    <ListTree size={14} aria-hidden="true" />
+                                    On this page
+                                </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                {docs[activeTab].toc.map((h2, idx) => {
-                                    const isH2Active = activeHeading === h2.id;
-                                    return (
-                                        <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div className="toc-items">
+                                    {docs[activeTab].toc.map((h2) => (
+                                        <React.Fragment key={h2.id}>
                                             <button
+                                                type="button"
                                                 onClick={() => scrollToHeading(h2.id)}
-                                                style={{
-                                                    background: 'transparent',
-                                                    border: 'none',
-                                                    color: isH2Active ? 'var(--primary)' : 'var(--text-muted)',
-                                                    textAlign: 'left',
-                                                    fontSize: '0.85rem',
-                                                    cursor: 'pointer',
-                                                    fontFamily: 'Outfit, sans-serif',
-                                                    transition: 'color 0.2s',
-                                                    padding: '2px 0',
-                                                    lineHeight: '1.4'
-                                                }}
-                                                onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-main)'}
-                                                onMouseOut={(e) => e.currentTarget.style.color = isH2Active ? 'var(--primary)' : 'var(--text-muted)'}
+                                                className={`toc-link${activeHeading === h2.id ? ' active' : ''}`}
                                             >
                                                 {h2.title}
                                             </button>
 
                                             {/* Render h3 sub-items if present */}
-                                            {h2.items && h2.items.length > 0 && h2.items.map((h3, subIdx) => {
-                                                const isH3Active = activeHeading === h3.id;
-                                                return (
-                                                    <button
-                                                        key={`sub-${subIdx}`}
-                                                        onClick={() => scrollToHeading(h3.id)}
-                                                        style={{
-                                                            background: 'transparent',
-                                                            border: 'none',
-                                                            color: isH3Active ? 'var(--primary)' : 'rgba(161, 161, 170, 0.6)',
-                                                            textAlign: 'left',
-                                                            fontSize: '0.8rem',
-                                                            cursor: 'pointer',
-                                                            fontFamily: 'Outfit, sans-serif',
-                                                            marginLeft: '12px',
-                                                            padding: '2px 0',
-                                                            transition: 'all 0.2s',
-                                                            lineHeight: '1.4'
-                                                        }}
-                                                        onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-main)'}
-                                                        onMouseOut={(e) => e.currentTarget.style.color = isH3Active ? 'var(--primary)' : 'rgba(161, 161, 170, 0.6)'}
-                                                    >
-                                                        {h3.title}
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-                                    );
-                                })}
+                                            {h2.items && h2.items.length > 0 && h2.items.map((h3) => (
+                                                <button
+                                                    type="button"
+                                                    key={h3.id}
+                                                    onClick={() => scrollToHeading(h3.id)}
+                                                    className={`toc-link toc-link-sub${activeHeading === h3.id ? ' active' : ''}`}
+                                                >
+                                                    {h3.title}
+                                                </button>
+                                            ))}
+                                        </React.Fragment>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </aside>
+                        )}
+                    </aside>
 
+                </div>
             </div>
-
-        </div>
         </>
     );
 }

@@ -2,7 +2,7 @@
 
 Step-by-step guides for discovering models, adding them to your provider, and enabling Model Fallback.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 ---
 
@@ -61,15 +61,11 @@ When you create a provider from a **Quick Setup preset**, the preset's recommend
 
 ## Model Circuit Breaker ("Skipped" Badges)
 
-Models that fail repeatedly are skipped automatically so requests don't waste time hitting a dead model.
-
-- After **2 consecutive failures** (default, `model_circuit_threshold` in **Settings**), the model's circuit opens and later requests skip it entirely, routing straight to the next fallback model.
-- While skipped, the model's row on the **Models** tab shows an amber **"Skipped - reason - ~time"** badge with the failure reason and approximate remaining cooldown.
-- Cooldowns depend on why the model failed: **not found / invalid / gated** > 30 minutes (default, `model_circuit_permanent_cooldown_s`); **overloaded / rate-limited** > 2 minutes (default, `model_circuit_transient_cooldown_s`).
-- A single notification fires when the circuit trips -- there is no per-request spam.
-- Once the cooldown expires, the model is probed again; a success resets its counter.
+Models that fail repeatedly are skipped automatically so requests don't waste time hitting a dead model. While skipped, the model's row on the **Models** tab shows an amber **"Skipped - reason - ~time"** badge with the failure reason and approximate remaining cooldown.
 
 > **Tip:** Plan-gated models (e.g., Ollama Cloud models that require a subscription) surface this way. Providers don't mark free vs paid models in their API, so a gated model is discovered at runtime and shows up as a "Skipped" badge. Remove it from your fallback list if you don't have the required plan.
+
+See **Core Concepts > Model Fallback > Model Circuit Breaker** for the full behavior (thresholds, error-type-aware cooldowns, fail-open probing, and the related settings).
 
 ---
 

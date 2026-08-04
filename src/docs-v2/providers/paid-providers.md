@@ -2,7 +2,7 @@
 
 Configure paid API providers securely in ClawRouter. All keys are stored locally -- never sent externally.
 
-> **Version 1.0.14**
+> **Version 1.0.15**
 
 > **Important:** ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 
@@ -216,8 +216,9 @@ Seeded models: `kimi-for-coding`, `kimi-k2.7-code`, `kimi-k2.6`, `kimi-k2.5`, `k
 Kimi Coding enforces **5-hour, weekly, and monthly quota windows**. When a window is full, the API returns HTTP 403 `access_terminated_error` (not 429). ClawRouter classifies this as **quota exhaustion**, not an auth error:
 
 - The key enters a **timed backoff** and is **never disabled** -- it recovers automatically when the window resets.
-- ClawRouter probes Kimi's usage endpoint for the actual reset time and backs off until then (capped at `quota_backoff_s`, default 1800s, configurable in **Settings**).
-- The provider's **Quota** tab (`?tab=quota`, **Fetch Quota** button) shows one card per enabled key: membership level, region, parallel limit, per-window progress bars (5-hour window, weekly cycle) with remaining quota and reset countdowns, and the booster wallet monthly cap.
+- Cooldowns are **per-key and window-accurate**: every successful quota probe saves a snapshot of that key's windows, and on exhaustion the key cools down until **its own exhausted window's reset** (5-hour trip > 5-hour reset; weekly trip > weekly reset -- no shared blanket cooldown).
+- **Monthly billing-cycle exhaustion** is detected separately ("Monthly usage cycle exhausted"): the key stays enabled and is retried in ~10-day steps anchored to its last successful use until the cycle renews.
+- The provider's **Quota** tab (`?tab=quota`, **Fetch Quota** button) shows one card per enabled key -- sorted usable keys first -- with membership level, region, parallel limit, per-window progress bars (5-hour window, weekly cycle) with remaining quota and reset countdowns, and the booster wallet monthly cap.
 
 ---
 

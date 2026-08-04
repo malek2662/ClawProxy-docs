@@ -26,7 +26,6 @@
         { "key": "managingKeys", "title": "Managing API Keys", "path": "guides/managing-api-keys.md" },
         { "key": "configuringModels", "title": "Configuring Models", "path": "guides/configuring-models.md" },
         { "key": "configuringFallback", "title": "Configuring Fallback", "path": "guides/configuring-fallback.md" },
-        { "key": "configuringOpenclaw", "title": "Configuring OpenClaw", "path": "guides/configuring-openclaw.md" },
         { "key": "monitoring", "title": "Monitoring & Notifications", "path": "guides/monitoring-notifications.md" },
         { "key": "providerManagement", "title": "Provider Management", "path": "guides/provider-management.md" },
         { "key": "globalSettings", "title": "Global Settings", "path": "guides/global-settings.md" }
@@ -42,11 +41,15 @@
       ]
     },
     {
-      "title": "Integrations",
+      "title": "Client Setup",
       "items": [
-        { "key": "aiClientSetup", "title": "AI Client Setup (Prompt for AI)", "path": "integrations/ai-client-setup.md" },
-        { "key": "openclawIntegration", "title": "OpenClaw Integration", "path": "integrations/openclaw-integration.md" },
-        { "key": "opencodeKiloIntegration", "title": "OpenCode & Kilo CLI", "path": "integrations/opencode-kilo-integration.md" }
+        { "key": "aiClientSetup", "title": "Client Setup Overview", "path": "integrations/ai-client-setup.md" },
+        { "key": "openclawSetup", "title": "OpenClaw", "path": "integrations/openclaw-setup.md" },
+        { "key": "opencodeSetup", "title": "OpenCode", "path": "integrations/opencode-setup.md" },
+        { "key": "claudeCodeSetup", "title": "Claude Code", "path": "integrations/claude-code-setup.md" },
+        { "key": "codexCliSetup", "title": "Codex CLI", "path": "integrations/codex-cli-setup.md" },
+        { "key": "clineSetup", "title": "Cline", "path": "integrations/cline-setup.md" },
+        { "key": "otherClients", "title": "Other / Custom Clients", "path": "integrations/other-clients.md" }
       ]
     },
     {
