@@ -2,7 +2,7 @@
 
 These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required. Each preset includes a **Get API Key** link directly in the Add Provider form.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 > **About `apiKey`:** In every OpenClaw configuration below, `cr_your_proxy_key` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog on each provider page inserts it automatically.
 

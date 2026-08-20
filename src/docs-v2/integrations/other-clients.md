@@ -2,7 +2,7 @@
 
 Any AI client that supports a custom base URL can route through ClawRouter. This page gives the generic connection details, ready-to-paste environment variable blocks, and a guide for Aider.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 

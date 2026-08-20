@@ -2,7 +2,7 @@
 
 OpenCode is a terminal AI coding agent configured through an `opencode.json` file. This guide points it at ClawRouter so it benefits from key rotation, fallback chains, circuit breaking, and centralized logging.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 

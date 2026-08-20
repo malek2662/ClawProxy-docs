@@ -2,7 +2,7 @@
 
 Claude Code is Anthropic's terminal coding agent. It speaks the Anthropic Messages API -- which ClawRouter exposes on every provider -- so you can route Claude Code through ClawRouter to any configured provider, including non-Anthropic ones.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 

@@ -2,7 +2,7 @@
 
 Step-by-step guides for managing provider lifecycle: testing connections, resetting the circuit breaker, configuring timeouts, enabling/disabling, and deleting providers.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 

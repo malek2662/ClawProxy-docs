@@ -2,7 +2,7 @@
 
 Answers to common questions about ClawRouter configuration and usage.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 

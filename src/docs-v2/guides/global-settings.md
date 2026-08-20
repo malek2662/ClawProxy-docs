@@ -2,7 +2,7 @@
 
 Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 

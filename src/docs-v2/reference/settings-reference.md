@@ -2,7 +2,7 @@
 
 Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 

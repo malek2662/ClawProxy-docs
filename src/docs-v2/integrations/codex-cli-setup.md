@@ -2,7 +2,7 @@
 
 Codex CLI is OpenAI's terminal coding agent, configured through `~/.codex/config.toml`. This guide registers ClawRouter as a custom model provider so Codex routes through it.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
