@@ -51,7 +51,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
 Automatic health monitoring that prevents cascading failures by temporarily stopping requests to a failing provider.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -124,7 +124,7 @@ Yes. The circuit breaker is in-memory and resets to CLOSED on every restart. Thi
 
 ClawRouter classifies upstream errors to determine the correct recovery action. Each error type triggers a specific behavior in the retry cascade.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -231,7 +231,7 @@ Z.AI returns a numeric-string code in \`error.code\` that overrides the HTTP sta
 
 ClawRouter automatically translates between AI API formats, so any AI client works with any provider -- regardless of which API format each side speaks.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -318,7 +318,7 @@ Claude Code clients (detected via the \`claude-cli\` user-agent) automatically r
 
 An overview of ClawRouter's architecture, request flow, and core design principles.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -441,7 +441,7 @@ Templates are generated dynamically from the provider's actual saved models (pre
 
 ClawRouter allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -582,7 +582,7 @@ Add more keys to the pool, switch to Round Robin rotation to distribute load, or
 
 Automatically retries a failed request with an alternative model, **same provider, same API key**.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -705,7 +705,7 @@ The model's circuit breaker is open -- it failed repeatedly (default: 2 consecut
 
 Switches to a completely different provider when the primary provider fails entirely (all keys exhausted or circuit breaker opens).
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -805,7 +805,7 @@ The fallback provider uses different model naming conventions. Edit the fallback
 
 Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Quick Setup presets or create a custom configuration.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -892,7 +892,7 @@ After creating your first provider:
 
 ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -998,7 +998,7 @@ The only external requests ClawRouter makes are:
 
 Get ClawRouter running and route your first AI request in minutes.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 > **Installation Note:** ClawRouter is premium software. After your payment is confirmed, you will receive the installation command and setup instructions automatically.
 
@@ -1181,7 +1181,7 @@ For OpenClaw or any compatible client, add the provider to your configuration:
 
 Step-by-step guide for setting up provider fallback chains and building a complete multi-provider fallback system.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -1272,7 +1272,7 @@ Step-by-step guide for setting up provider fallback chains and building a comple
 
 Step-by-step guides for discovering models, adding them to your provider, and enabling Model Fallback.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -1348,7 +1348,7 @@ See **Core Concepts > Model Fallback > Model Circuit Breaker** for the full beha
 
 Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -1442,7 +1442,7 @@ If you have many API keys (e.g., 50+) but want faster failover to a fallback pro
 
 Step-by-step guides for adding, managing, testing, and troubleshooting API keys in ClawRouter.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -1604,7 +1604,7 @@ To zero all counters (total, success, failed, consecutive errors) for a key:
 
 Step-by-step guides for monitoring proxy activity through notifications, request logs, and usage stats.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -1713,7 +1713,7 @@ The **Usage** page in the sidebar breaks down token consumption and cost per pro
 
 Step-by-step guides for managing provider lifecycle: testing connections, resetting the circuit breaker, configuring timeouts, enabling/disabling, and deleting providers.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -1878,7 +1878,7 @@ A disabled provider:
 
 ClawRouter works with any AI client that supports a custom base URL. This page explains the two setup methods and what all clients have in common -- then points you to the dedicated guide for your client.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -1954,7 +1954,7 @@ The base URL always starts with \`http://localhost:3030/proxy/{provider-id}\` (a
 
 Claude Code is Anthropic's terminal coding agent. It speaks the Anthropic Messages API -- which ClawRouter exposes on every provider -- so you can route Claude Code through ClawRouter to any configured provider, including non-Anthropic ones.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -2047,7 +2047,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/messages \\
 
 Cline is an AI coding assistant that runs as a VS Code extension. It has a built-in "OpenAI Compatible" provider option -- point it at ClawRouter and every request benefits from key rotation, fallback chains, and logging.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -2126,7 +2126,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/chat/completions \\
 
 Codex CLI is OpenAI's terminal coding agent, configured through \`~/.codex/config.toml\`. This guide registers ClawRouter as a custom model provider so Codex routes through it.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -2232,7 +2232,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/chat/completions \\
 
 OpenClaw is an AI agent client configured through a JSON file (\`openclaw.json\`). This guide connects it to ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -2367,7 +2367,7 @@ For ready-to-use OpenClaw configuration snippets per provider, see:
 
 OpenCode is a terminal AI coding agent configured through an \`opencode.json\` file. This guide points it at ClawRouter so it benefits from key rotation, fallback chains, circuit breaking, and centralized logging.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -2485,7 +2485,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/chat/completions \\
 
 Any AI client that supports a custom base URL can route through ClawRouter. This page gives the generic connection details, ready-to-paste environment variable blocks, and a guide for Aider.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -2588,7 +2588,7 @@ A successful JSON response means the provider, keys, and proxy auth are all work
 
 Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add, no signup required.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 > **No Setup Tricks Needed:** Keyless presets ship with API Key Mode \`None\` pre-selected. Just pick the preset and click **Create Provider** -- do **not** add any API keys. The keys table is replaced by an informational card, and the add-key endpoint rejects keys for these providers.
 
@@ -2734,7 +2734,7 @@ For both hosted bypass providers:
 
 Speech-to-Text (Scribe) and Text-to-Speech through ClawRouter. ElevenLabs is a **passthrough audio provider** -- requests are forwarded byte-identical, with your managed API key injected automatically.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 > **Not a chat provider:** ElevenLabs has no chat completions. Chat-style requests (\`/v1/chat/completions\`, \`/v1/messages\`, etc.) sent to an ElevenLabs provider fail with HTTP 400 -- format translation does not apply.
 
@@ -2822,7 +2822,7 @@ The **Test** button uses a zero-cost \`GET /v1/user\` probe -- no characters are
 
 These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required. Each preset includes a **Get API Key** link directly in the Add Provider form.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 > **About \`apiKey\`:** In every OpenClaw configuration below, \`cr_your_proxy_key\` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog on each provider page inserts it automatically.
 
@@ -3255,7 +3255,7 @@ Coding-focused models.
 
 Configure paid API providers securely in ClawRouter. All keys are stored locally -- never sent externally.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 > **Important:** ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 
@@ -3733,7 +3733,7 @@ Seeded models: \`glm-5.2\`, \`kimi-k2.7-code\`, \`deepseek-v4-pro\`, \`minimax-m
 
 A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -3863,11 +3863,11 @@ For providers not in the preset list, use the **Custom** option with a blank for
 
 - ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 - **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
-`,sP='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.16**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n| PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |\n\n---\n\n## Dashboard Authentication\n\nAll `/api/*` endpoints (except `/api/health` and `/api/auth/*`) require a session token from login -- send it as `Authorization: Bearer <token>`.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/auth/login` | Verify the dashboard password (`{ password }`). Returns `{ token }` (12-hour session) |\n| POST | `/api/auth/logout` | Invalidate the current session token |\n| GET | `/api/auth/session` | Validate the current session token |\n| POST | `/api/auth/change-password` | Change the dashboard password (`{ currentPassword, newPassword }`). Invalidates all sessions |\n\n---\n\n## Connection Testing\n\nEvery test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.\n\nKey-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| POST | `/api/providers/:id/keys/bulk-delete` | Bulk delete keys (`{ key_ids }`, provider-scoped, max 500 per call). Returns `{ deleted }` |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Model Circuits & Usage\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |\n| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \\| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |\n| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \\| null, invalid? }] }` |\n\nBoth usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI\'s HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',cP=`# CLI Commands
+`,sP='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.17**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n| PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |\n\n---\n\n## Dashboard Authentication\n\nAll `/api/*` endpoints (except `/api/health` and `/api/auth/*`) require a session token from login -- send it as `Authorization: Bearer <token>`.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/auth/login` | Verify the dashboard password (`{ password }`). Returns `{ token }` (12-hour session) |\n| POST | `/api/auth/logout` | Invalidate the current session token |\n| GET | `/api/auth/session` | Validate the current session token |\n| POST | `/api/auth/change-password` | Change the dashboard password (`{ currentPassword, newPassword }`). Invalidates all sessions |\n\n---\n\n## Connection Testing\n\nEvery test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.\n\nKey-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| POST | `/api/providers/:id/keys/bulk-delete` | Bulk delete keys (`{ key_ids }`, provider-scoped, max 500 per call). Returns `{ deleted }` |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Model Circuits & Usage\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |\n| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \\| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |\n| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \\| null, invalid? }] }` |\n\nBoth usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI\'s HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',cP=`# CLI Commands
 
 ClawRouter includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -3978,7 +3978,7 @@ If the native service manager isn't available, ClawRouter falls back to a built-
 
 All environment variables that ClawRouter recognizes, with their defaults and descriptions.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -4012,7 +4012,7 @@ All environment variables that ClawRouter recognizes, with their defaults and de
 
 Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -4291,7 +4291,7 @@ If you need help with activation:
 
 Answers to common questions about ClawRouter configuration and usage.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
@@ -4430,7 +4430,7 @@ Delete the local database file and restart ClawRouter. This removes all provider
 
 Diagnose and resolve common issues with ClawRouter.
 
-> **Version 1.0.16**
+> **Version 1.0.17**
 
 ---
 
