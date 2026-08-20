@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const FAKE_KEY = 'cr_demo_K7x9f2mQ4p';
 
@@ -100,10 +100,33 @@ const TABS = [
 
 export default function TerminalWindow() {
     const [active, setActive] = useState('curl');
+    const [paused, setPaused] = useState(false);
+    const [autoStopped, setAutoStopped] = useState(false);
     const activeTab = TABS.find((t) => t.id === active);
 
+    // Idle auto-cycle: rotate tabs until the user interacts or hovers
+    useEffect(() => {
+        if (autoStopped || paused) return;
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const id = setInterval(() => {
+            setActive((cur) => TABS[(TABS.findIndex((t) => t.id === cur) + 1) % TABS.length].id);
+        }, 4500);
+        return () => clearInterval(id);
+    }, [autoStopped, paused]);
+
+    const selectTab = (id) => {
+        setAutoStopped(true);
+        setActive(id);
+    };
+
     return (
-        <div className="aterm">
+        <div
+            className="aterm"
+            onMouseEnter={() => setPaused(true)}
+            onMouseLeave={() => setPaused(false)}
+            onFocusCapture={() => setPaused(true)}
+            onBlurCapture={() => setPaused(false)}
+        >
             <div className="aterm-bar">
                 <span className="aterm-dots" aria-hidden="true"><i /><i /><i /></span>
                 <div className="aterm-tabs" role="tablist" aria-label="Setup examples">
@@ -116,7 +139,7 @@ export default function TerminalWindow() {
                             aria-selected={active === t.id}
                             aria-controls={`aterm-pane-${t.id}`}
                             className={`aterm-tab${active === t.id ? ' active' : ''}`}
-                            onClick={() => setActive(t.id)}
+                            onClick={() => selectTab(t.id)}
                         >
                             {t.label}
                         </button>
@@ -126,10 +149,11 @@ export default function TerminalWindow() {
             </div>
             <div className="aterm-body">
                 <div
+                    key={active}
                     role="tabpanel"
                     id={`aterm-pane-${activeTab.id}`}
                     aria-labelledby={`aterm-tab-${activeTab.id}`}
-                    className="aterm-pane"
+                    className="aterm-pane aterm-pane-enter"
                 >
                     <div className="aterm-pane-inner">
                         <activeTab.Pane />

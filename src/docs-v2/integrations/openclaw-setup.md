@@ -2,7 +2,7 @@
 
 OpenClaw is an AI agent client configured through a JSON file (`openclaw.json`). This guide connects it to ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -82,6 +82,8 @@ Without this step, the models will **not** appear in `/model` or be usable by an
 | OpenAI Responses | `openai-responses` | `http://localhost:3030/proxy/{provider-id}/v1` |
 | Anthropic Messages | `anthropic-messages` | `http://localhost:3030/proxy/{provider-id}/v1` |
 | Google Generative AI | `google-generative-ai` | `http://localhost:3030/proxy/{provider-id}/v1beta` |
+
+> **Audio providers:** the `elevenlabs` format (ElevenLabs Speech-to-Text / Text-to-Speech) is a passthrough audio API -- it is not a chat provider and cannot be used from OpenClaw. See Providers > ElevenLabs (Audio).
 
 ---
 

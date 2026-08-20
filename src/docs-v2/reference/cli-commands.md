@@ -2,7 +2,7 @@
 
 ClawRouter includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 

@@ -2,7 +2,7 @@
 
 Answers to common questions about ClawRouter configuration and usage.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -14,7 +14,7 @@ Answers to common questions about ClawRouter configuration and usage.
 **Exception:** Add models to the provider's **Models tab** if you want to use **Model Fallback** (automatic retry with a different model). Saved models also appear as model options when configuring the Provider Fallback Chain, and power the **Automatic** cascade on fallback entries.
 
 ### What's the fastest way to add a new provider?
-Use **Quick Setup** in the Add Provider panel. Search or browse the grid of 50 pre-built presets, grouped into **Free & Free-Tier** and **API Key Providers**. All fields are auto-filled -- including the correct API Key Mode -- so you only need to add your API key (keyless presets need no key at all).
+Use **Quick Setup** in the Add Provider panel. Search or browse the grid of 51 pre-built presets, grouped into **Free & Free-Tier** and **API Key Providers**. All fields are auto-filled -- including the correct API Key Mode -- so you only need to add your API key (keyless presets need no key at all).
 
 ### What are the available API formats?
 | Format | Description | Proxy URL Pattern |
@@ -23,6 +23,7 @@ Use **Quick Setup** in the Add Provider panel. Search or browse the grid of 50 p
 | `openai-responses` | OpenAI Responses API | `/proxy/{id}/v1` |
 | `anthropic-messages` | Anthropic Claude Messages | `/proxy/{id}/v1` |
 | `google-generative-ai` | Google Gemini API | `/proxy/{id}/v1beta` |
+| `elevenlabs` | ElevenLabs audio (STT/TTS) -- passthrough, no translation | `/proxy/{id}/v1` |
 
 ### Can I use different API formats together?
 **Yes.** Each provider has its own format. ClawRouter translates requests into the correct format for each upstream -- any client format works with any provider format. The **Provider Fallback Chain** can also mix formats: any provider can be a fallback target, and cross-format fallbacks are translated automatically. See API Format Translation.
@@ -83,6 +84,9 @@ Default port is **3030**. Override with the `PORT` environment variable or `--po
 
 ### Where is data stored?
 Everything is stored locally on your machine. Providers, keys, logs, and configurations are kept in a local database in the installation directory.
+
+### What is the dashboard password?
+The dashboard (including the admin API and live log feed) is protected by a password. On first run the password is **`changeme`** -- change it from **Settings** > **Dashboard Security**. Your session lasts 12 hours and is cleared when you close the browser tab, so you sign in again on your next visit.
 
 ### Does ClawRouter send data externally?
 The only external requests ClawRouter makes are:

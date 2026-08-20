@@ -2,7 +2,7 @@
 
 An overview of ClawRouter's architecture, request flow, and core design principles.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -39,7 +39,7 @@ When a request arrives, ClawRouter:
 
 ## Provider Presets
 
-ClawRouter provides **50 built-in provider presets** pre-configured with the correct name, API format, upstream URL, and API key mode. Each preset also carries:
+ClawRouter provides **51 built-in provider presets** pre-configured with the correct name, API format, upstream URL, and API key mode. Each preset also carries:
 
 - **Brand icon** -- real provider brand icons shown on provider cards across the dashboard (color or mono, switchable in Settings > Appearance)
 - **Category** -- `free` or `apikey`, used for grouping in the Add Provider panel
@@ -63,8 +63,9 @@ Popular presets include OpenRouter, Google Gemini, Groq, Cerebras, NVIDIA NIM, O
 | `openai-responses` | OpenAI Responses API | `/proxy/{id}/v1` |
 | `anthropic-messages` | Anthropic Claude Messages | `/proxy/{id}/v1` |
 | `google-generative-ai` | Google Gemini API | `/proxy/{id}/v1beta` |
+| `elevenlabs` | ElevenLabs audio (STT/TTS) -- passthrough, no translation | `/proxy/{id}/v1` |
 
-Each provider has its own format. ClawRouter translates requests into the correct format for each upstream -- any client format works with any provider format (any-to-any). When formats match, traffic passes through byte-identical with zero overhead. See API Format Translation for details.
+Each provider has its own format. ClawRouter translates requests into the correct format for each upstream -- any client format works with any provider format (any-to-any). When formats match, traffic passes through byte-identical with zero overhead. See API Format Translation for details. (Exception: `elevenlabs` is a non-chat audio passthrough -- see Providers > ElevenLabs (Audio).)
 
 ---
 

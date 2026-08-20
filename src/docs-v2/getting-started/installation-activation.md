@@ -2,7 +2,7 @@
 
 ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -43,9 +43,10 @@ clawrouter start
 ### Step 1: Get Your Installation ID
 
 1. Open your browser and go to `http://localhost:3030`.
-2. You will see the **Awaiting Activation** screen.
-3. Your unique **Installation ID** is displayed on screen.
-4. Click **Copy** to copy the Installation ID to your clipboard.
+2. **Sign in** with the dashboard password. On first run the password is `changeme` -- change it from **Settings** > **Dashboard Security** once you are in.
+3. You will see the **Awaiting Activation** screen.
+4. Your unique **Installation ID** is displayed on screen.
+5. Click **Copy** to copy the Installation ID to your clipboard.
 
 ### Step 2: Request Activation
 

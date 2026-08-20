@@ -2,7 +2,7 @@
 
 Any AI client that supports a custom base URL can route through ClawRouter. This page gives the generic connection details, ready-to-paste environment variable blocks, and a guide for Aider.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -27,6 +27,8 @@ ClawRouter accepts **every endpoint style on every provider** and translates int
 | Google Generative AI | `http://localhost:3030/proxy/{provider-id}/v1beta` | Generate: `POST .../v1beta/models/{model}:generateContent` |
 
 **Authentication:** send the proxy API key as `Authorization: Bearer cr_your_proxy_key` (OpenAI style) or `x-api-key: cr_your_proxy_key` (Anthropic style). ClawRouter validates it, then injects the real upstream key itself.
+
+> **Audio (ElevenLabs):** `elevenlabs` providers expose the ElevenLabs Speech-to-Text / Text-to-Speech API at `/proxy/{provider-id}/v1` -- see Providers > ElevenLabs (Audio) for curl examples.
 
 ---
 

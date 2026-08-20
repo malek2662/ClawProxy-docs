@@ -2,7 +2,7 @@
 
 Cline is an AI coding assistant that runs as a VS Code extension. It has a built-in "OpenAI Compatible" provider option -- point it at ClawRouter and every request benefits from key rotation, fallback chains, and logging.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 

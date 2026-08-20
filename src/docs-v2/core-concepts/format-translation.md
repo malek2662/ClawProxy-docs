@@ -2,7 +2,7 @@
 
 ClawRouter automatically translates between AI API formats, so any AI client works with any provider -- regardless of which API format each side speaks.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -24,6 +24,8 @@ Your client keeps using its native format. ClawRouter detects it, translates to 
 | `google-generative-ai` | Google Gemini API | `/proxy/{id}/v1beta` |
 
 Every combination works: an OpenAI-style client can talk to an Anthropic-format provider, a Claude Code client can talk to a Google Gemini provider, and so on.
+
+> **Excluded from translation:** the `elevenlabs` format (ElevenLabs audio) is a **non-chat passthrough** -- requests are forwarded byte-identical, and chat-style requests to an ElevenLabs provider fail with HTTP 400. See Providers > ElevenLabs (Audio).
 
 ---
 
@@ -81,4 +83,5 @@ Claude Code clients (detected via the `claude-cli` user-agent) automatically rec
 ## Limitations
 
 - **Non-chat endpoints are not translated.** Embeddings, image generation, model listings, and similar endpoints pass through as before. Translation applies to chat-style request/response traffic.
+- **The `elevenlabs` format is never translated.** ElevenLabs is a passthrough audio provider (Speech-to-Text / Text-to-Speech) -- every request is forwarded byte-identical regardless of path.
 - **Pass Through key mode + proxy API key auth are incompatible.** Providers in Pass Through mode forward the client's credential upstream -- with proxy auth enabled, that credential is the proxy key, not a real provider key. Use Managed or None mode for such providers. See Global Settings > Proxy API Key.

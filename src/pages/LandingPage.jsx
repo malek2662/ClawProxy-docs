@@ -1,55 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, ArrowLeftRight, Shield, Zap, Layers, RefreshCw, Server, Bell, Settings, Sparkles, X, Lock, Gauge } from 'lucide-react';
+import { ArrowRight, ArrowLeftRight, Shield, Zap, RefreshCw, Server, Settings, Sparkles, X, Lock, Gauge } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import TerminalWindow from '../components/TerminalWindow';
 import ProvidersMarquee from '../components/ProvidersMarquee';
 import StatCell from '../components/StatCell';
 import ClientProviderDiagram from '../components/ClientProviderDiagram';
+import Capabilities from '../components/Capabilities';
+import CommandCenter from '../components/CommandCenter';
+import HowItWorks from '../components/HowItWorks';
+import Pricing from '../components/Pricing';
+import Faq from '../components/Faq';
+import { useGlowCards } from '../hooks/useGlowCards';
+import { useTilt } from '../hooks/useTilt';
 
-const FEATURES = [
-    {
-        title: '50 Provider Presets',
-        desc: 'One-click setup for 50 providers — including free-tier options like OpenRouter, Gemini and Groq, plus keyless presets that need no signup at all.',
-        icon: Zap
-    },
-    {
-        title: 'Any Client, Any Provider',
-        desc: 'Automatic translation between OpenAI, Responses, Anthropic and Gemini API formats. Any AI client works with any provider — byte-identical passthrough when formats match.',
-        icon: ArrowLeftRight
-    },
-    {
-        title: 'Smart Key Rotation',
-        desc: 'Add multiple API keys to a single provider. ClawRouter intelligently load-balances them with On-Error Backoff and Round-Robin.',
-        icon: RefreshCw
-    },
-    {
-        title: 'Advanced Failover',
-        desc: 'Model-level fallback and cross-format provider failover chains keep your AI brain thinking even during outages — any provider can back up any other.',
-        icon: Shield
-    },
-    {
-        title: 'Multi-Provider Routing',
-        desc: 'Route requests via per-provider endpoints. Manage OpenAI, Anthropic, Gemini and more from a single interface.',
-        icon: Layers
-    },
-    {
-        title: 'Zero-Buffer Streaming',
-        desc: 'Native streaming pass-through ensures your AI responses are delivered instantly with zero artificial lag — even across translated formats.',
-        icon: Zap
-    },
-    {
-        title: 'Real-time Dashboard & Alerts',
-        desc: 'Professional dark-themed dashboard with live WebSocket logs and instant alerts for key rotations, circuit breakers, and fallback activations.',
-        icon: Bell
-    },
-    {
-        title: 'Global Settings & Security',
-        desc: 'Centralized panel for retry policies, circuit breakers, rate limiting — plus built-in security with dashboard password and proxy API key authentication.',
-        icon: Settings
-    }
-];
+const POLAR_URL = 'https://buy.polar.sh/polar_cl_8wTBwKsDWMEVH5yLL4uQo2GMOPhE6V0cOytzu41fw3t';
 
 const STATS = [
     { num: '50', suffix: '', label: 'Provider presets built in' },
@@ -58,10 +24,30 @@ const STATS = [
     { num: '100', suffix: '%', label: 'Data stored locally' }
 ];
 
+// Intrinsic sizes of every screenshot below. Passed to <img> so the browser
+// reserves the exact box before lazy images decode — no layout shift while
+// scrolling (which would also throw off scrollIntoView targets).
+const SHOT_DIMS = {
+    'assets/screenshots/providers-list.png': [2880, 1800],
+    'assets/screenshots/provider-keys.png': [2880, 1800],
+    'assets/screenshots/providers-presets.png': [2880, 1800],
+    'assets/screenshots/provider-fallback.png': [2880, 1800],
+    'assets/screenshots/provider-models.png': [2880, 1800],
+    'assets/screenshots/provider-quota.png': [2880, 1800],
+    'assets/screenshots/providers-ai1.png': [1863, 958],
+    'assets/screenshots/providers-ai2.png': [1863, 958],
+    'assets/screenshots/settings.png': [1699, 952]
+};
+
+function shotDims(src) {
+    const d = SHOT_DIMS[src];
+    return d ? { width: d[0], height: d[1] } : {};
+}
+
 function Shot({ src, alt, onZoom, className = '' }) {
     return (
         <button type="button" className={`media-frame${className ? ` ${className}` : ''}`} onClick={() => onZoom(src)} aria-label={`Enlarge screenshot: ${alt}`}>
-            <img src={src} alt={alt} loading="lazy" />
+            <img src={src} alt={alt} loading="lazy" {...shotDims(src)} />
         </button>
     );
 }
@@ -73,7 +59,7 @@ function BrowserShot({ src, alt, url, onZoom, className = '' }) {
                 <span className="browser-dots"><i /><i /><i /></span>
                 <span className="browser-url"><Lock size={10} aria-hidden="true" /> {url}</span>
             </span>
-            <img src={src} alt={alt} loading="lazy" />
+            <img src={src} alt={alt} loading="lazy" {...shotDims(src)} />
         </button>
     );
 }
@@ -95,15 +81,40 @@ function Showcase({ eyebrow, title, children, media, reverse = false, tint = fal
     );
 }
 
+function ShowcaseWide({ eyebrow, title, desc, list, link, media, tint = false }) {
+    return (
+        <section className={`section${tint ? ' section-tint' : ''}`}>
+            <div className="container showcase-wide">
+                <Reveal className="section-head center">
+                    <div className="section-eyebrow">{eyebrow}</div>
+                    <h2 className="section-title">{title}</h2>
+                    <p className="section-desc">{desc}</p>
+                    <ul className="showcase-list showcase-list-center">
+                        {list.map((item) => (
+                            <li key={item.text}>
+                                <span className="list-dot">{item.icon}</span> {item.text}
+                            </li>
+                        ))}
+                    </ul>
+                    {link && (
+                        <Link to={link.to} className="link-arrow">
+                            {link.label} <ArrowRight size={14} aria-hidden="true" />
+                        </Link>
+                    )}
+                </Reveal>
+                <Reveal className="showcase-wide-media reveal-scale" delay={120}>
+                    {media}
+                </Reveal>
+            </div>
+        </section>
+    );
+}
+
 export default function LandingPage() {
     const [selectedImage, setSelectedImage] = useState(null);
-
-    // Attach Polar checkout overlay to [data-polar-checkout] elements after React render
-    useEffect(() => {
-        if (window.Polar?.EmbedCheckout) {
-            window.Polar.EmbedCheckout.init();
-        }
-    }, []);
+    const rootRef = useRef(null);
+    const tiltRef = useTilt(4);
+    useGlowCards(rootRef);
 
     // Prevent body scroll when image lightbox is open
     useEffect(() => {
@@ -119,10 +130,29 @@ export default function LandingPage() {
         return () => window.removeEventListener('keydown', handler);
     }, [selectedImage]);
 
+    // Pause every CSS animation inside sections that are offscreen. The page
+    // keeps its full motion design where you look, and drops to near-zero
+    // idle CPU everywhere else. Targets carry static classNames, so toggling
+    // the marker class never fights React.
+    useEffect(() => {
+        const targets = rootRef.current ? rootRef.current.querySelectorAll('[data-anim]') : [];
+        if (!targets.length) return undefined;
+        const io = new IntersectionObserver(
+            (entries) => {
+                for (const e of entries) e.target.classList.toggle('anim-offscreen', !e.isIntersecting);
+            },
+            { rootMargin: '160px 0px' }
+        );
+        targets.forEach((el) => io.observe(el));
+        return () => io.disconnect();
+    }, []);
+
     return (
-        <div>
+        <div ref={rootRef}>
             {/* ============ Hero ============ */}
-            <section className="hero-section">
+            <section className="hero-section" data-anim>
+                <span className="hero-glow hero-glow-a" aria-hidden="true" />
+                <span className="hero-glow hero-glow-b" aria-hidden="true" />
                 <div className="hero-grid">
                     <div className="hero-copy">
                         <span className="hero-eyebrow hero-a1"><i aria-hidden="true" /> One-time purchase — $20 lifetime license</span>
@@ -133,9 +163,16 @@ export default function LandingPage() {
                             Route, manage, and monitor your AI API requests across multiple providers from a single endpoint. Automatic format translation means <strong>any AI client works with any provider</strong> — with absolute control over your API keys, routing rules, and application stability.
                         </p>
                         <div className="hero-cta-row hero-a4">
-                            <a href="https://buy.polar.sh/polar_cl_8wTBwKsDWMEVH5yLL4uQo2GMOPhE6V0cOytzu41fw3t" data-polar-checkout data-polar-checkout-theme="dark" className="btn-primary">
+                            <button
+                                type="button"
+                                className="btn-primary"
+                                onClick={() => document.getElementById('pricing')?.scrollIntoView({
+                                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                                    block: 'start'
+                                })}
+                            >
                                 Get Lifetime Access — $20
-                            </a>
+                            </button>
                             <Link to="/docs" className="btn-secondary">
                                 Documentation <ArrowRight size={15} aria-hidden="true" />
                             </Link>
@@ -147,7 +184,9 @@ export default function LandingPage() {
                         </div>
                     </div>
                     <div className="hero-term hero-a6">
-                        <TerminalWindow />
+                        <div className="tilt-wrap" ref={tiltRef}>
+                            <TerminalWindow />
+                        </div>
                     </div>
                 </div>
             </section>
@@ -155,42 +194,8 @@ export default function LandingPage() {
             {/* ============ Providers marquee ============ */}
             <ProvidersMarquee />
 
-            {/* ============ Stats ============ */}
-            <section className="stats-strip" aria-label="Key numbers">
-                <div className="container">
-                    <div className="stats-grid">
-                        {STATS.map((s, i) => (
-                            <StatCell key={s.label} num={s.num} suffix={s.suffix} label={s.label} delay={i * 90} />
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* ============ Features ============ */}
-            <section className="section">
-                <div className="container">
-                    <Reveal className="section-head">
-                        <div className="section-eyebrow">Reliability engineering</div>
-                        <h2 className="section-title">Uninterrupted <span className="accent">continuity</span></h2>
-                        <p className="section-desc">Built to handle the chaotic nature of AI APIs safely and securely.</p>
-                    </Reveal>
-                    <div className="feature-grid">
-                        {FEATURES.map((feature, index) => {
-                            const Icon = feature.icon;
-                            return (
-                                <Reveal key={feature.title} className="feature-card" delay={(index % 4) * 70}>
-                                    <span className="feature-icon-tile"><Icon size={18} aria-hidden="true" /></span>
-                                    <h3 className="feature-title">{feature.title}</h3>
-                                    <p className="feature-desc">{feature.desc}</p>
-                                </Reveal>
-                            );
-                        })}
-                    </div>
-                </div>
-            </section>
-
             {/* ============ Any Client ↔ Any Provider ============ */}
-            <section className="section section-tint">
+            <section className="section section-tint" data-anim>
                 <div className="container diagram-grid">
                     <Reveal className="diagram-copy">
                         <div className="section-eyebrow">Format translation</div>
@@ -212,23 +217,21 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* ============ 1. Dashboard overview ============ */}
-            <Showcase
-                eyebrow="Command center"
-                title={<><Gauge size={26} aria-hidden="true" /> Every request, one dashboard</>}
-                tint
-                media={<BrowserShot src="assets/screenshots/dashboard-overview.png" url="localhost:3030" alt="ClawRouter Dashboard Overview" onZoom={setSelectedImage} />}
-            >
-                <p className="showcase-body">
-                    A professional dark-themed control plane for your entire AI stack. Live request volume, success rates, token usage and estimated cost — across every provider and key — update in real time over WebSockets.
-                </p>
-                <ul className="showcase-list">
-                    <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Live stats, charts and per-provider health</li>
-                    <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> 100% local — your data never leaves your machine</li>
-                </ul>
-            </Showcase>
+            {/* ============ Stats ============ */}
+            <section className="stats-strip" data-anim aria-label="Key numbers">
+                <div className="container">
+                    <div className="stats-grid">
+                        {STATS.map((s, i) => (
+                            <StatCell key={s.label} num={s.num} suffix={s.suffix} label={s.label} delay={i * 90} />
+                        ))}
+                    </div>
+                </div>
+            </section>
 
-            {/* ============ 2. Providers Management ============ */}
+            {/* ============ Capabilities (animated bento) ============ */}
+            <Capabilities />
+
+            {/* ============ Providers Management ============ */}
             <Showcase
                 eyebrow="Providers"
                 title="Manage Multiple Providers"
@@ -248,7 +251,7 @@ export default function LandingPage() {
                 </Link>
             </Showcase>
 
-            {/* ============ 3. Quick Setup Templates ============ */}
+            {/* ============ Quick Setup Templates ============ */}
             <Showcase
                 eyebrow="Onboarding"
                 title="Quick Setup Templates"
@@ -263,11 +266,15 @@ export default function LandingPage() {
                 </Link>
             </Showcase>
 
-            {/* ============ 4. Advanced Failover & Fallback ============ */}
+            {/* ============ Command center (sticky scroll) ============ */}
+            <CommandCenter onZoom={setSelectedImage} />
+
+            {/* ============ Advanced Failover & Fallback ============ */}
             <Showcase
                 eyebrow="Redundancy"
                 title="Advanced Failover & Fallback"
                 reverse
+                tint
                 media={
                     <div className="media-stack">
                         <BrowserShot src="assets/screenshots/provider-fallback.png" url="localhost:3030/providers" alt="Provider Fallback Chain Configuration" onZoom={setSelectedImage} />
@@ -300,7 +307,7 @@ export default function LandingPage() {
                 </div>
             </Showcase>
 
-            {/* ============ 6. Quota tracking ============ */}
+            {/* ============ Quota tracking ============ */}
             <Showcase
                 eyebrow="Quota tracking"
                 title="Know your limits before you hit them"
@@ -316,7 +323,7 @@ export default function LandingPage() {
                 </ul>
             </Showcase>
 
-            {/* ============ 7. AI Prompt Assistant ============ */}
+            {/* ============ AI Prompt Assistant ============ */}
             <Showcase
                 eyebrow="Automation"
                 title={<><Sparkles size={26} aria-hidden="true" /> AI Prompt Assistant</>}
@@ -341,86 +348,49 @@ export default function LandingPage() {
                 </Link>
             </Showcase>
 
-            {/* ============ 8. Real-time Request Logs ============ */}
-            <Showcase
-                eyebrow="Observability"
-                title="Real-time Request Logs"
-                reverse
-                media={<Shot src="assets/screenshots/logs.png" alt="Real-time Request Logs" onZoom={setSelectedImage} />}
-            >
-                <p className="showcase-body">
-                    Full request and response logs with live WebSocket streaming. Monitor your AI API usage in real-time, debug issues instantly, and keep track of your active keys and token usage without leaving the dashboard.
-                </p>
-                <ul className="showcase-list">
-                    <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Live streaming logs using WebSockets</li>
-                    <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> Detailed error tracking and API responses</li>
-                </ul>
-                <Link to="/docs?tab=monitoring&anchor=view-and-filter-logs" className="link-arrow">
-                    Explore request logs <ArrowRight size={14} aria-hidden="true" />
-                </Link>
-            </Showcase>
-
-            {/* ============ 9. Real-time Notifications ============ */}
-            <Showcase
-                eyebrow="Alerting"
-                title={<><Bell size={26} aria-hidden="true" /> Real-time Notifications</>}
-                tint
-                media={<Shot src="assets/screenshots/notifications.png" alt="Real-time Notifications" onZoom={setSelectedImage} />}
-            >
-                <p className="showcase-body">
-                    Stay ahead of every event without watching logs. ClawRouter's built-in notification system delivers instant alerts for key rotations, circuit breaker trips, fallback activations, and more — all via WebSocket, directly in the dashboard.
-                </p>
-                <div className="notif-list">
-                    {[
-                        { label: 'Key Disabled', color: '#ef4444', desc: 'Instant alert when an API key is permanently disabled' },
-                        { label: 'Circuit Open', color: '#ef4444', desc: 'Know the moment a provider trips its circuit breaker' },
-                        { label: 'Model / Provider Fallback', color: '#f59e0b', desc: 'See every automatic fallback as it happens' },
-                        { label: 'Recovered', color: '#22c55e', desc: 'Confirmed when a provider comes back online' },
-                    ].map((item) => (
-                        <div key={item.label} className="notif-item">
-                            <span className="notif-chip" style={{ background: `${item.color}20`, color: item.color, border: `1px solid ${item.color}40` }}>
-                                {item.label}
-                            </span>
-                            <span className="notif-desc">{item.desc}</span>
-                        </div>
-                    ))}
-                </div>
-                <Link to="/docs?tab=monitoring&anchor=monitor-events-with-notifications" className="link-arrow">
-                    Learn about notifications <ArrowRight size={14} aria-hidden="true" />
-                </Link>
-            </Showcase>
-
-            {/* ============ 10. Global Settings ============ */}
-            <Showcase
+            {/* ============ Global Settings (wide) ============ */}
+            <ShowcaseWide
                 eyebrow="Control plane"
                 title={<><Settings size={26} aria-hidden="true" /> Global Settings</>}
+                desc="Fine-tune every aspect of your router from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, and security — all without touching config files."
+                list={[
+                    { icon: <RefreshCw size={14} aria-hidden="true" />, text: 'Retry & circuit breaker configuration' },
+                    { icon: <Shield size={14} aria-hidden="true" />, text: 'Proxy API key & dashboard password security' },
+                    { icon: <Zap size={14} aria-hidden="true" />, text: 'Rate limit backoff & failover tuning' },
+                    { icon: <Server size={14} aria-hidden="true" />, text: 'Logging, notifications & routing behavior' }
+                ]}
+                link={{ to: '/docs?tab=globalSettings', label: 'Learn about settings' }}
                 media={<Shot src="assets/screenshots/settings.png" alt="Global Settings Panel" onZoom={setSelectedImage} />}
-            >
-                <p className="showcase-body">
-                    Fine-tune every aspect of your router from a single settings panel. Configure global behavior including retry policies, circuit breaker thresholds, rate limiting, and security — all without touching config files.
-                </p>
-                <ul className="showcase-list">
-                    <li><span className="list-dot"><RefreshCw size={14} aria-hidden="true" /></span> Retry & circuit breaker configuration</li>
-                    <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> Proxy API key & dashboard password security</li>
-                    <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Rate limit backoff & failover tuning</li>
-                    <li><span className="list-dot"><Server size={14} aria-hidden="true" /></span> Logging, notifications & routing behavior</li>
-                </ul>
-                <Link to="/docs?tab=globalSettings" className="link-arrow">
-                    Learn about settings <ArrowRight size={14} aria-hidden="true" />
-                </Link>
-            </Showcase>
+            />
+
+            {/* ============ How it works ============ */}
+            <HowItWorks />
+
+            {/* ============ Pricing ============ */}
+            <Pricing />
+
+            {/* ============ FAQ ============ */}
+            <Faq />
 
             {/* ============ CTA ============ */}
-            <section className="cta-section">
+            <section className="cta-section" data-anim>
                 <div className="container">
                     <Reveal className="cta-box reveal-scale">
-                        <h2>Ready to Take Control?</h2>
-                        <p>
-                            Set up ClawRouter in minutes and ensure your AI applications never experience downtime due to API limits.
-                        </p>
-                        <Link to="/docs?tab=quickstart" className="btn-primary">
-                            View Quickstart Guide <ArrowRight size={15} aria-hidden="true" />
-                        </Link>
+                        <div className="cta-orbit" aria-hidden="true" />
+                        <div className="cta-inner">
+                            <h2>Ready to Take Control?</h2>
+                            <p>
+                                One $20 license, lifetime access, set up in minutes. Own your AI stack — routing, keys, failover and monitoring included.
+                            </p>
+                            <div className="cta-actions">
+                                <a href={POLAR_URL} data-polar-checkout data-polar-checkout-theme="dark" className="btn-primary">
+                                    Get Lifetime Access — $20
+                                </a>
+                                <Link to="/docs?tab=quickstart" className="btn-secondary">
+                                    View Quickstart Guide <ArrowRight size={15} aria-hidden="true" />
+                                </Link>
+                            </div>
+                        </div>
                     </Reveal>
                 </div>
             </section>

@@ -1,19 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 let sharedObserver = null;
-const pending = new Set();
+const pending = new Map(); // element -> setVisible
 let scrollRaf = 0;
 
 function revealEl(el) {
-    el.classList.add('is-visible');
+    const setVisible = pending.get(el);
     pending.delete(el);
     sharedObserver?.unobserve(el);
+    if (setVisible) setVisible(true);
     if (pending.size === 0) stopScrollWatch();
 }
 
 function checkAll() {
     const vh = window.innerHeight;
-    for (const el of [...pending]) {
+    for (const el of [...pending.keys()]) {
         // Reveal when in/entering the viewport, or already scrolled past it
         // (instant jumps: End key, find-in-page, deep anchors) — those never
         // produce an IntersectionObserver threshold crossing.
@@ -51,19 +52,21 @@ function getObserver() {
     return sharedObserver;
 }
 
+// Returns [ref, visible]. Visibility is React state (not an imperative class),
+// so re-renders that rewrite className can never strip the revealed state.
 export function useReveal() {
     const ref = useRef(null);
+    const [visible, setVisible] = useState(
+        () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    );
 
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            el.classList.add('is-visible');
-            return;
-        }
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         const observer = getObserver();
         const wasEmpty = pending.size === 0;
-        pending.add(el);
+        pending.set(el, setVisible);
         if (wasEmpty) startScrollWatch();
         observer.observe(el);
         return () => {
@@ -72,5 +75,5 @@ export function useReveal() {
         };
     }, []);
 
-    return ref;
+    return [ref, visible];
 }

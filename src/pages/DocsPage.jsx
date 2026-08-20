@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -281,8 +281,40 @@ function DocSearch({ onNavigate }) {
 
 /* ---------- Sidebar navigation (shared by desktop rail and mobile drawer) ---------- */
 function DocsNav({ activeTab, onSelect }) {
+    const navRef = useRef(null);
+    const [glider, setGlider] = useState(null);
+
+    // Sliding highlight pill that tracks the active nav item
+    useLayoutEffect(() => {
+        const update = () => {
+            const nav = navRef.current;
+            if (!nav) return;
+            const active = nav.querySelector('.docs-nav-item.active');
+            if (active) {
+                setGlider({ top: active.offsetTop, height: active.offsetHeight, visible: true });
+            } else {
+                setGlider((g) => (g ? { ...g, visible: false } : null));
+            }
+        };
+        update();
+        window.addEventListener('resize', update);
+        if (document.fonts?.ready) document.fonts.ready.then(update).catch(() => {});
+        return () => window.removeEventListener('resize', update);
+    }, [activeTab]);
+
     return (
-        <>
+        <div className="docs-nav" ref={navRef}>
+            {glider && (
+                <span
+                    className="docs-nav-glider"
+                    style={{
+                        transform: `translateY(${glider.top}px)`,
+                        height: `${glider.height}px`,
+                        opacity: glider.visible ? 1 : 0,
+                    }}
+                    aria-hidden="true"
+                />
+            )}
             {DOC_SECTIONS.map((section) => (
                 <div key={section.label} className="docs-nav-section">
                     <h3 className="docs-nav-label">{section.label}</h3>
@@ -300,7 +332,7 @@ function DocsNav({ activeTab, onSelect }) {
                     </div>
                 </div>
             ))}
-        </>
+        </div>
     );
 }
 
@@ -354,33 +386,34 @@ export default function DocsPage() {
         }
     };
 
-    // URL parameter handling for deep linking
+    // URL parameter handling for deep linking — tab state derived during
+    // render (React-endorsed pattern); scrolling stays in an effect.
+    const [prevLoc, setPrevLoc] = useState(location);
+    if (prevLoc !== location) {
+        setPrevLoc(location);
+        const tab = new URLSearchParams(location.search).get('tab');
+        if (tab && docs[tab]) setActiveTab(tab);
+        setActiveHeading('');
+    }
+
     useEffect(() => {
         const params = new URLSearchParams(location.search);
         const tab = params.get('tab');
         const anchor = params.get('anchor');
 
-        if (tab && docs[tab]) {
-            setActiveTab(tab);
-
-            // If there's an anchor, we need to wait for the content to render
-            if (anchor) {
-                setTimeout(() => {
-                    const element = document.getElementById(anchor);
-                    if (element) {
-                        const yOffset = -90;
-                        const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
-                        window.scrollTo({ top: y, behavior: 'smooth' });
-                        setActiveHeading(anchor);
-                    }
-                }, 200); // Increased timeout slightly for reliable render
-            } else {
-                window.scrollTo(0, 0);
-            }
-        } else {
-            window.scrollTo(0, 0);
-            setActiveHeading('');
+        if (tab && docs[tab] && anchor) {
+            // Wait for the content to render before scrolling to the heading
+            const timer = setTimeout(() => {
+                const element = document.getElementById(anchor);
+                if (element) {
+                    const y = element.getBoundingClientRect().top + window.scrollY - 90;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                    setActiveHeading(anchor);
+                }
+            }, 200);
+            return () => clearTimeout(timer);
         }
+        window.scrollTo(0, 0);
     }, [location]);
 
     // ScrollSpy logic to highlight active heading in TOC
@@ -456,12 +489,12 @@ export default function DocsPage() {
 
                     {/* Center: Markdown Content Area */}
                     <main className="docs-main">
-                        <div className="md-content">
+                        <div className="md-content md-tab-anim" key={activeTab}>
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 rehypePlugins={[rehypeSlug, rehypeRaw]}
                                 components={{
-                                    code: ({ node, inline, className, children, ...props }) => {
+                                    code: ({ inline, className, children, ...props }) => {
                                         const match = /language-(\w+)/.exec(className || '');
                                         // Block code (inside <pre>)
                                         if (!inline && match) {
@@ -480,7 +513,7 @@ export default function DocsPage() {
                                     table: ({ children, ...props }) => (
                                         <ScrollableTable {...props}>{children}</ScrollableTable>
                                     ),
-                                    a: ({ node, href, children, ...props }) => {
+                                    a: ({ href, children, ...props }) => {
                                         // Handle in-page anchor links (e.g. #guide-1-first-launch)
                                         if (href?.startsWith('#')) {
                                             const anchorId = href.slice(1);

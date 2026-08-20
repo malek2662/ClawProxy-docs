@@ -2,7 +2,7 @@
 
 ClawRouter allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 

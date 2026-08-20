@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 
@@ -75,35 +75,164 @@ function Monogram({ name }) {
     return <span className="provider-chip">{letters}</span>;
 }
 
-function MarqueeList({ ariaHidden = false }) {
-    return (
-        <ul className="providers-marquee-list" aria-hidden={ariaHidden || undefined}>
-            {PROVIDERS.map((p) => (
-                <li key={`${p.name}-${ariaHidden ? 'b' : 'a'}`} className="providers-marquee-item">
-                    <span className="provider-icon">
-                        {p.Icon ? <p.Icon size={20} title={p.name} /> : <Monogram name={p.name} />}
-                    </span>
-                    {p.name}
-                </li>
-            ))}
-        </ul>
-    );
-}
+// Matches the old CSS loop speed (one 28-provider copy per 44s).
+const SPEED = 107;
+// The strip scrolls slowly, so repainting it at full refresh rate is wasted
+// work. Apply the transform at ~30fps — visually identical, half the cost.
+const MIN_APPLY_MS = 1000 / 30;
 
+// Recycled marquee: instead of scrolling one 9000px+ track (wider than GPU
+// texture limits, forcing repaints), we render just enough items to cover the
+// viewport and move the exiting item to the tail. The layer stays ~2 viewports
+// wide, so the scroll is a cheap composited transform.
 export default function ProvidersMarquee() {
+    const sectionRef = useRef(null);
+    const trackRef = useRef(null);
+    const offsetRef = useRef(0);
+    const headWidthRef = useRef(0);
+
+    const initialCount = Math.min(
+        PROVIDERS.length,
+        Math.max(
+            10,
+            Math.ceil(((typeof window !== 'undefined' ? window.innerWidth : 1440) + 500) / 160)
+        )
+    );
+
+    const pointerRef = useRef(initialCount % PROVIDERS.length);
+    const uidRef = useRef(initialCount);
+    const hoverRef = useRef(false);
+    const visibleRef = useRef(false);
+    const runningRef = useRef(false);
+    const rafRef = useRef(0);
+    const lastRef = useRef(0);
+
+    const reduced =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const nextItem = useCallback(() => {
+        const p = PROVIDERS[pointerRef.current];
+        pointerRef.current = (pointerRef.current + 1) % PROVIDERS.length;
+        return { ...p, uid: uidRef.current++ };
+    }, []);
+
+    const [queue, setQueue] = useState(() =>
+        PROVIDERS.slice(0, initialCount).map((p, i) => ({ ...p, uid: i }))
+    );
+
+    const stop = useCallback(() => {
+        runningRef.current = false;
+        cancelAnimationFrame(rafRef.current);
+    }, []);
+
+    const start = useCallback(() => {
+        if (runningRef.current || reduced) return;
+        runningRef.current = true;
+        lastRef.current = performance.now();
+        let lastApply = 0;
+        const loop = (now) => {
+            if (!runningRef.current) return;
+            const dt = Math.min((now - lastRef.current) / 1000, 0.05);
+            lastRef.current = now;
+            offsetRef.current -= SPEED * dt;
+
+            if (now - lastApply >= MIN_APPLY_MS) {
+                lastApply = now;
+                const track = trackRef.current;
+                if (track && headWidthRef.current && offsetRef.current <= -headWidthRef.current) {
+                    const first = track.firstElementChild;
+                    if (first) {
+                        offsetRef.current += headWidthRef.current;
+                        // Move the node synchronously so there is no one-frame gap,
+                        // then sync React's model of the list.
+                        track.appendChild(first);
+                        setQueue((q) => [...q.slice(1), nextItem()]);
+                    }
+                }
+                if (track) {
+                    track.style.transform = `translateX(${offsetRef.current}px)`;
+                }
+            }
+            rafRef.current = requestAnimationFrame(loop);
+        };
+        rafRef.current = requestAnimationFrame(loop);
+    }, [nextItem, reduced]);
+
+    const updateRunState = useCallback(() => {
+        if (visibleRef.current && !hoverRef.current && !document.hidden) {
+            start();
+        } else {
+            stop();
+        }
+    }, [start, stop]);
+
+    // Keep the queue wide enough to cover the viewport plus slack.
+    useEffect(() => {
+        const ensure = () => {
+            const section = sectionRef.current;
+            const track = trackRef.current;
+            if (!section || !track || track.children.length === 0) return;
+            const need = section.clientWidth + 400;
+            const width = track.scrollWidth;
+            if (width >= need || track.children.length >= PROVIDERS.length * 3) return;
+            const avg = width / track.children.length;
+            const addCount = Math.max(1, Math.ceil((need - width) / avg) + 1);
+            setQueue((q) => [...q, ...Array.from({ length: addCount }, nextItem)]);
+        };
+        ensure();
+        window.addEventListener('resize', ensure);
+        return () => window.removeEventListener('resize', ensure);
+    }, [nextItem]);
+
+    // Track the head item width for seamless recycling.
+    useEffect(() => {
+        const first = trackRef.current && trackRef.current.firstElementChild;
+        if (first) headWidthRef.current = first.offsetWidth;
+    }, [queue]);
+
+    // Run only while visible, unhovered, and the tab is focused.
+    useEffect(() => {
+        const io = new IntersectionObserver(
+            (entries) => {
+                visibleRef.current = entries[0].isIntersecting;
+                updateRunState();
+            },
+            { rootMargin: '120px 0px' }
+        );
+        if (sectionRef.current) io.observe(sectionRef.current);
+        const onVisibility = () => updateRunState();
+        document.addEventListener('visibilitychange', onVisibility);
+        return () => {
+            io.disconnect();
+            document.removeEventListener('visibilitychange', onVisibility);
+            stop();
+        };
+    }, [updateRunState, stop]);
+
     return (
-        <section className="providers-strip" aria-label="Supported AI providers">
+        <section ref={sectionRef} className="providers-strip" data-anim aria-label="Supported AI providers">
             <div className="container providers-strip-head">
                 <span className="providers-strip-label">Works with 50 built-in provider presets</span>
                 <Link to="/docs?tab=providerDirectory" className="link-arrow">
                     Browse the provider directory <ArrowRight size={14} aria-hidden="true" />
                 </Link>
             </div>
-            <div className="providers-marquee">
-                <div className="providers-marquee-track">
-                    <MarqueeList />
-                    <MarqueeList ariaHidden />
-                </div>
+            <div
+                className="providers-marquee"
+                onMouseEnter={() => { hoverRef.current = true; updateRunState(); }}
+                onMouseLeave={() => { hoverRef.current = false; updateRunState(); }}
+            >
+                <ul ref={trackRef} className="providers-marquee-track">
+                    {queue.map((p) => (
+                        <li key={p.uid} className="providers-marquee-item">
+                            <span className="provider-icon">
+                                {p.Icon ? <p.Icon size={20} title={p.name} /> : <Monogram name={p.name} />}
+                            </span>
+                            {p.name}
+                        </li>
+                    ))}
+                </ul>
             </div>
         </section>
     );

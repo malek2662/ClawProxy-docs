@@ -2,7 +2,7 @@
 
 All environment variables that ClawRouter recognizes, with their defaults and descriptions.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 

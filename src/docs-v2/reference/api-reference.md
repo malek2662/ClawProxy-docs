@@ -2,7 +2,7 @@
 
 ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -16,6 +16,20 @@ ClawRouter exposes a RESTful API for managing providers, keys, models, and setti
 | PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |
 | DELETE | `/api/providers/:id` | Delete provider (cascades) |
 | PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |
+| PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |
+
+---
+
+## Dashboard Authentication
+
+All `/api/*` endpoints (except `/api/health` and `/api/auth/*`) require a session token from login -- send it as `Authorization: Bearer <token>`.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Verify the dashboard password (`{ password }`). Returns `{ token }` (12-hour session) |
+| POST | `/api/auth/logout` | Invalidate the current session token |
+| GET | `/api/auth/session` | Validate the current session token |
+| POST | `/api/auth/change-password` | Change the dashboard password (`{ currentPassword, newPassword }`). Invalidates all sessions |
 
 ---
 
@@ -40,6 +54,7 @@ Key-level tests **auto-disable** a key when the test proves it definitively inva
 | GET | `/api/providers/:id/keys` | List all keys for provider |
 | POST | `/api/providers/:id/keys` | Add a single key (400 if the provider's API Key Mode is `none`) |
 | POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |
+| POST | `/api/providers/:id/keys/bulk-delete` | Bulk delete keys (`{ key_ids }`, provider-scoped, max 500 per call). Returns `{ deleted }` |
 | PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |
 | DELETE | `/api/providers/:id/keys/:keyId` | Delete key |
 | PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |

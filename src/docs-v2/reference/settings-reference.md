@@ -2,7 +2,7 @@
 
 Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -15,7 +15,7 @@ These settings are configured per provider in the **Settings** tab of the provid
 | Setting | Default | Options | Description |
 |---------|---------|---------|-------------|
 | **Name** | From template or user input | Any string | Unique identifier for the provider. Also generates the provider ID (URL slug). |
-| **API Format** | From template | `openai-completions`, `openai-responses`, `anthropic-messages`, `google-generative-ai` | Determines how ClawRouter communicates with the upstream provider. Set at creation, read-only after. |
+| **API Format** | From template | `openai-completions`, `openai-responses`, `anthropic-messages`, `google-generative-ai`, `elevenlabs` | Determines how ClawRouter communicates with the upstream provider. Set at creation, read-only after. |
 | **Upstream URL** | From template | Any valid URL | The base URL of the upstream AI provider's API. |
 | **Enabled** | `true` | `true` / `false` | Whether the provider accepts proxy requests. Disabled providers are also excluded from fallback chains. |
 
@@ -194,6 +194,9 @@ Configured in the provider's **Fallback** tab or the global **Fallback** page (s
 | `openai-responses` | Bearer token | `/proxy/{id}/v1` | `/v1` |
 | `anthropic-messages` | x-api-key header | `/proxy/{id}/v1` | `/v1` |
 | `google-generative-ai` | Query parameter `?key=` | `/proxy/{id}/v1beta` | `/v1beta` |
+| `elevenlabs` | `xi-api-key` header | `/proxy/{id}/v1` | `/v1` |
+
+> `elevenlabs` is a passthrough audio format (ElevenLabs Speech-to-Text / Text-to-Speech) -- no chat translation. See Providers > ElevenLabs (Audio).
 
 ---
 

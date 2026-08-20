@@ -2,13 +2,13 @@
 
 A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
 ## Built-in Presets
 
-ClawRouter ships **50 built-in provider presets**. Selecting a preset auto-fills every field -- including the correct API Key Mode -- and seeds the preset's recommended models into the provider's Models tab at creation.
+ClawRouter ships **51 built-in provider presets**. Selecting a preset auto-fills every field -- including the correct API Key Mode -- and seeds the preset's recommended models into the provider's Models tab at creation.
 
 ### Keyless Presets (No API Key Required)
 
@@ -80,6 +80,9 @@ Genuine free tiers or quotas. You need a free API key from each provider -- the 
 | Morph | openai-completions | `https://api.morphllm.com/v1` |
 | OpenCode Go | openai-completions | `https://opencode.ai/zen/go/v1` |
 | Ollama Cloud | openai-completions | `https://ollama.com/v1` |
+| ElevenLabs | elevenlabs | `https://api.elevenlabs.io/v1` |
+
+> **Audio provider:** ElevenLabs is a passthrough audio API (Speech-to-Text + Text-to-Speech), not a chat provider -- it uses the dedicated `elevenlabs` API format with `xi-api-key` authentication, handled automatically in Managed key mode. See **ElevenLabs (Audio)** for usage and curl examples.
 
 ---
 
@@ -100,11 +103,12 @@ Genuine free tiers or quotas. You need a free API key from each provider -- the 
 
 ## The Providers Page
 
-The Providers list groups your configured providers into three sections: **Free-Friendly**, **API Key Providers**, and **Custom**. Each card shows:
+The Providers list groups your configured providers into four sections: **Favorites** (starred providers, shown first), **Free-Friendly**, **API Key Providers**, and **Custom**. Each card shows:
 
 - The provider's icon, name, and API format
 - A **health badge**: `No keys` (managed provider with no keys yet), `N errors today` (errors in the last 24h), or `Healthy`
 - A **quick-test button** (lightning icon) that runs a connection probe against the provider
+- A **star button** that adds/removes the provider from Favorites
 - Power (enable/disable) and delete buttons on hover
 
 ---
@@ -113,7 +117,7 @@ The Providers list groups your configured providers into three sections: **Free-
 
 **Quick Setup (Recommended):**
 1. Go to **Providers** > **Add Provider** > **Quick Setup**.
-2. Use the **search box** to filter the 50 presets, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**.
+2. Use the **search box** to filter the 51 presets, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**.
 3. Select a preset -- all settings are pre-filled, including the correct API Key Mode.
 4. Click **Create Provider**. The preset's recommended models are seeded into the Models tab automatically.
 5. Add your API key(s) -- skip this step entirely for keyless presets.

@@ -2,7 +2,7 @@
 
 Get ClawRouter running and route your first AI request in minutes.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 > **Installation Note:** ClawRouter is premium software. After your payment is confirmed, you will receive the installation command and setup instructions automatically.
 
@@ -17,12 +17,13 @@ Get ClawRouter running and route your first AI request in minutes.
    clawrouter start
    ```
 2. **Open the Dashboard** at `http://localhost:3030` in your browser.
-3. If this is your first launch, you will see the **Awaiting Activation** screen:
+3. **Sign in.** The dashboard is password-protected. On first launch the password is `changeme` -- change it later from **Settings** > **Dashboard Security**.
+4. If this is your first launch, you will see the **Awaiting Activation** screen:
    - Your **Installation ID** is displayed on screen.
    - Click the **Copy** button to copy it.
    - Send it to the developer via email or Reddit.
    - Once the developer confirms activation, click **Check Activation** on the screen.
-4. The dashboard loads and you can start adding providers.
+5. The dashboard loads and you can start adding providers.
 
 ---
 
@@ -32,7 +33,7 @@ Navigate to **Providers** > **Add Provider**. You have two methods:
 
 ### Method A: Quick Setup (Recommended)
 
-ClawRouter includes **50 built-in provider presets** with pre-configured settings.
+ClawRouter includes **51 built-in provider presets** with pre-configured settings.
 
 1. Click **Quick Setup** in the Add Provider panel.
 2. Search the preset grid, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**. Popular presets include:
@@ -55,6 +56,7 @@ For providers not in the preset list, or for custom/local endpoints:
      - `OpenAI Responses` -- OpenAI Responses API format
      - `Anthropic Messages` -- Anthropic Claude API
      - `Google Generative AI` -- Google Gemini API
+     - `ElevenLabs (Audio)` -- ElevenLabs Speech-to-Text / Text-to-Speech (passthrough audio, no chat)
    - **Upstream URL**: The official API base URL of the service.
    - **API Key Mode**:
      - `Managed` -- ClawRouter manages multiple keys with rotation (default).
@@ -161,6 +163,7 @@ For OpenClaw or any compatible client, add the provider to your configuration:
 > **Base URL format**: The exact URL depends on the API format:
 > - `openai-completions` / `openai-responses` / `anthropic-messages` > `/proxy/{id}/v1`
 > - `google-generative-ai` > `/proxy/{id}/v1beta`
+> - `elevenlabs` > `/proxy/{id}/v1` (audio passthrough -- see Providers > ElevenLabs (Audio))
 
 ---
 

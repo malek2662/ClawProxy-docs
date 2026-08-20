@@ -2,7 +2,7 @@
 
 Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Quick Setup presets or create a custom configuration.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -14,7 +14,7 @@ Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Q
 2. Click **Providers** in the sidebar.
 3. Click **Add Provider** (button at the top).
 4. Click **Quick Setup**.
-5. A searchable grid of 50 presets appears, grouped into **Free & Free-Tier** and **API Key Providers**. Select your provider (e.g., **Google Gemini**, **Groq**, **OpenRouter**).
+5. A searchable grid of 51 presets appears, grouped into **Free & Free-Tier** and **API Key Providers**. Select your provider (e.g., **Google Gemini**, **Groq**, **OpenRouter**).
 6. All fields are automatically filled:
    - **Name**: Provider name
    - **API Format**: Correct format for this provider
@@ -40,6 +40,7 @@ Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Q
      - `OpenAI Responses` -- for OpenAI Responses API
      - `Anthropic Messages` -- for Anthropic Claude
      - `Google Generative AI` -- for Google Gemini
+     - `ElevenLabs (Audio)` -- for ElevenLabs Speech-to-Text / Text-to-Speech (passthrough audio, no chat)
    - **Upstream URL**: The full base URL of the provider's API (e.g., `https://api.example.com/v1`).
    - **API Key Mode**:
      - `Managed` -- ClawRouter manages multiple keys with rotation

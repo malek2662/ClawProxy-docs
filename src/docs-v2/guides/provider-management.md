@@ -2,13 +2,13 @@
 
 Step-by-step guides for managing provider lifecycle: testing connections, resetting the circuit breaker, configuring timeouts, enabling/disabling, and deleting providers.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
 ## The Providers Page
 
-The Providers list groups your providers into three sections: **Free-Friendly**, **API Key Providers**, and **Custom**.
+The Providers list groups your providers into four sections: **Favorites** (starred providers, shown first), **Free-Friendly**, **API Key Providers**, and **Custom**.
 
 Each provider card shows:
 - Provider **brand icon** (real brand icons; color or mono -- switchable in **Settings > Appearance**), name, and API format badge
@@ -21,6 +21,7 @@ Each provider card shows:
 | **Healthy** | Keys present, no errors today |
 
 - A **quick-test button** (lightning icon) -- runs a connection probe against the provider and shows the result inline
+- A **star button** -- adds/removes the provider from Favorites (also available in the provider detail header)
 - Power (enable/disable) and delete buttons on hover
 
 > **Deep links:** Opening `/providers?add=1` opens the Add Provider panel directly -- the Dashboard's **Add Provider** button uses this.

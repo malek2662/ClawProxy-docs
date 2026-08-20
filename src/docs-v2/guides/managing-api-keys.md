@@ -2,7 +2,7 @@
 
 Step-by-step guides for adding, managing, testing, and troubleshooting API keys in ClawRouter.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
@@ -35,6 +35,18 @@ Step-by-step guides for adding, managing, testing, and troubleshooting API keys 
 3. Paste multiple keys, each on a **new line**.
 4. Click **Add**.
 5. All keys are added with auto-assigned priorities.
+
+---
+
+## Bulk Delete API Keys
+
+**Goal:** Remove many keys at once -- e.g., cleaning up disabled keys.
+
+1. Open the provider's **API Keys** tab.
+2. Select keys with the checkboxes in the table (the header checkbox selects all).
+   - **Shortcut:** Click **Select disabled** to select every disabled key in one click.
+3. Click **Delete N keys** in the selection bar.
+4. Confirm in the dialog. The selected keys are permanently removed.
 
 ---
 

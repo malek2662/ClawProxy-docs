@@ -2,7 +2,7 @@
 
 Step-by-step guide for setting up provider fallback chains and building a complete multi-provider fallback system.
 
-> **Version 1.0.15**
+> **Version 1.0.16**
 
 ---
 
