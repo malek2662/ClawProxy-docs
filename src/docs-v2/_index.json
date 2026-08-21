@@ -49,7 +49,8 @@
         { "key": "opencodeSetup", "title": "OpenCode", "path": "integrations/opencode-setup.md" },
         { "key": "claudeCodeSetup", "title": "Claude Code", "path": "integrations/claude-code-setup.md" },
         { "key": "codexCliSetup", "title": "Codex CLI", "path": "integrations/codex-cli-setup.md" },
-        { "key": "clineSetup", "title": "Cline", "path": "integrations/cline-setup.md" },
+        { "key": "qwenCodeSetup", "title": "Qwen Code", "path": "integrations/qwen-code-setup.md" },
+        { "key": "deepseekHarnessSetup", "title": "DeepSeek Harness", "path": "integrations/deepseek-harness-setup.md" },
         { "key": "otherClients", "title": "Other / Custom Clients", "path": "integrations/other-clients.md" }
       ]
     },

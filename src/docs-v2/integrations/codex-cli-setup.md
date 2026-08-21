@@ -20,7 +20,7 @@ Codex CLI is OpenAI's terminal coding agent, configured through `~/.codex/config
 2. Click **"Prompt for AI"** on the Base URL banner and select the **Codex CLI** tab.
 3. Click **Copy** and paste the prompt to your AI agent -- or follow the generated instructions yourself.
 
-The generated prompt contains the exact `config.toml` block below with the correct `wire_api` for your provider, your saved model IDs, and your real proxy API key.
+The generated prompt contains the exact `config.toml` block below with your saved model IDs and your real proxy API key.
 
 ---
 
@@ -32,12 +32,14 @@ The generated prompt contains the exact `config.toml` block below with the corre
 ```toml
 model = "model-id"
 model_provider = "clawrouter-my-provider"
+model_reasoning_effort = "high"        # optional: minimal|low|medium|high|xhigh — verify per model
+# model_context_window = 200000        # optional: the model's real context window
 
 [model_providers.clawrouter-my-provider]
 name = "ClawRouter My Provider"
 base_url = "http://localhost:3030/proxy/my-provider-id/v1"
 env_key = "CLAWROUTER_API_KEY"
-wire_api = "chat"
+wire_api = "responses"
 ```
 
 3. Set the environment variable Codex reads the key from:
@@ -54,14 +56,16 @@ export CLAWROUTER_API_KEY="cr_your_proxy_key"
 |-------|-------------|
 | `model` | The model ID Codex uses by default. Get model IDs from the provider's **Models** tab > **Fetch Models** |
 | `model_provider` | The key of your `[model_providers.*]` table |
+| `model_reasoning_effort` | Optional reasoning effort: `minimal` / `low` / `medium` / `high` / `xhigh` -- accepted values are model-dependent; check the provider's model docs. ClawRouter translates the setting into the provider's native dialect |
+| `model_context_window` | Optional: the model's real context window in tokens, from the provider's docs |
 | `name` | Display name for the provider |
 | `base_url` | The provider's ClawRouter Base URL -- **must include the `/v1` suffix** exactly as shown |
 | `env_key` | Name of the environment variable Codex reads the API key from (set it to your **proxy API key**) |
-| `wire_api` | `"responses"` for `openai-responses` providers (e.g., Perplexity Agent); `"chat"` for everything else -- ClawRouter translates Chat Completions into the provider's API format automatically |
+| `wire_api` | Always `"responses"` -- the only value current Codex builds support. ClawRouter speaks the Responses API on every provider and translates into the provider's native format automatically |
 
-> **User-level config only:** these keys work in `~/.codex/config.toml`. Project-level `.codex/config.toml` ignores provider definitions.
+> **User-level config only:** these keys work in `~/.codex/config.toml`. Project-level `.codex/config.toml` ignores provider definitions. The provider IDs `openai`, `ollama`, and `lmstudio` are reserved.
 
-> **Note on `wire_api`:** current Codex builds may only support `"responses"`. If your provider is not an `openai-responses` provider and your Codex version rejects `"chat"`, point Codex at an `openai-responses` provider in ClawRouter instead.
+> **`wire_api = "chat"` was removed:** Codex deprecated `"chat"` in Dec 2025 and removed it in Feb 2026 -- a config containing it now fails at startup. Always use `"responses"`; this works with every ClawRouter provider regardless of its own API format, because ClawRouter translates the Responses API automatically.
 
 ---
 

@@ -78,7 +78,7 @@ Step-by-step guide for setting up provider fallback chains and building a comple
 ### Step D: Configure Your AI Client
 
 1. On the **Groq** provider page, click **"Prompt for AI"** on the Base URL banner.
-2. Pick your client's tab (OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Aider, or Custom).
+2. Pick your client's tab (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, or Custom).
 3. Copy the generated prompt and paste it to your AI agent.
 
 ### What Happens on Failure

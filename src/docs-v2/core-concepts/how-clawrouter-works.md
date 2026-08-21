@@ -113,11 +113,11 @@ Every provider page has a **"Prompt for AI"** button (on the Base URL banner) th
 | Tab | Target Client |
 |-----|---------------|
 | **OpenClaw** (default) | `openclaw.json` via `config.patch`, using native provider IDs where available |
-| **OpenCode** | `opencode.json` custom provider (`@ai-sdk/openai-compatible` or `@ai-sdk/anthropic`) |
+| **OpenCode** | `opencode.json` custom provider (`@ai-sdk/openai-compatible`, `@ai-sdk/openai`, or `@ai-sdk/anthropic`) |
 | **Claude Code** | `~/.claude/settings.json` env block |
-| **Codex CLI** | `~/.codex/config.toml` model provider |
-| **Cline** | OpenAI Compatible settings fields |
-| **Aider** | Environment variables + `openai/` model prefix |
+| **Codex CLI** | `~/.codex/config.toml` model provider (Responses API) |
+| **Qwen Code** | Env vars or `~/.qwen/settings.json` `modelProviders` |
+| **DeepSeek Harness** | `~/.dsh/settings.yaml` `llm-pi-ai` provider |
 | **Custom / Other** | Generic endpoint reference + curl example |
 
-Templates are generated dynamically from the provider's actual saved models (preset models as fallback), with the correct Base URL format per client, and embed your real proxy API key automatically. All 7 tabs work with every provider -- when the client's native format differs from the provider's, the tab shows an amber note that ClawRouter translates automatically. See the **Client Setup** section for per-client guides.
+Templates are generated dynamically from the provider's actual saved models (preset models as fallback), with the correct Base URL format per client, per-client model-parameter guidance (context window, reasoning effort keys, and a link to the provider's model docs), and embed your real proxy API key automatically. All 7 tabs work with every provider -- when the client's native format differs from the provider's, the tab shows an amber note that ClawRouter translates automatically. See the **Client Setup** section for per-client guides.

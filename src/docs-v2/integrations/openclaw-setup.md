@@ -21,7 +21,7 @@ The ClawRouter dashboard generates a ready-to-paste prompt that lets OpenClaw's 
 1. Open the provider's detail page in the ClawRouter dashboard.
 2. Click the **"Prompt for AI"** button on the **Base URL** banner -- the **OpenClaw** tab is selected by default.
 3. Click **Copy** and paste the prompt to your OpenClaw AI agent.
-4. The agent updates your `openclaw.json` via the `config.patch` gateway tool: it backs up first, merges only (no existing providers or settings are touched), registers the models in the allowlist, and restarts.
+4. The agent updates your `openclaw.json` via the `config.patch` gateway tool: it backs up first, merges only (no existing providers or settings are touched), registers the models for agents, and restarts.
 
 The generated prompt contains the provider's Base URL, name, API format, your saved model IDs, and your real proxy API key. Where a **native OpenClaw provider ID** exists (e.g., `google`, `nvidia`, `zai`, `ollama`, `opencode`, `kilocode`), the prompt uses it so OpenClaw's built-in provider features (model discovery, prompt caching) are preserved. It also includes `X-Title` / `X-Provider` headers so ClawRouter can identify the client in logs.
 
@@ -47,7 +47,7 @@ The generated prompt contains the provider's Base URL, name, API format, your sa
 }
 ```
 
-3. Register each model in the allowlist under `agents.defaults.models`, using the exact `"PROVIDER_NAME/MODEL_ID"` key format:
+3. Register each model under `agents.defaults.models`, using the exact `"PROVIDER_NAME/MODEL_ID"` key format:
 
 ```json
 "agents": {
@@ -60,7 +60,7 @@ The generated prompt contains the provider's Base URL, name, API format, your sa
 }
 ```
 
-Without this step, the models will **not** appear in `/model` or be usable by any agent.
+These entries register the models for agents (they can later hold `alias` or per-model `params` such as `temperature` or `maxTokens`). OpenClaw's explicit allowlist is `agents.defaults.modelPolicy.allow` -- leave it unset (allow all) unless you want restrictions.
 
 4. Save the file.
 
@@ -73,6 +73,30 @@ Without this step, the models will **not** appear in `/model` or be usable by an
 | `api` | Must match the provider's API format (see table below) |
 | `headers` | `X-Title` / `X-Provider` -- lets ClawRouter identify the client in the Logs page |
 | `models` | List of models with `id` and `name`. Get model IDs from the provider's **Models** tab > **Fetch Models** |
+
+### Per-Model Parameters
+
+Each entry in the provider's `models` array accepts optional metadata -- fill the values from the provider's official model docs (never guess):
+
+```json
+{
+  "id": "qwen3.5-plus",
+  "name": "qwen3.5-plus",
+  "contextWindow": 1000000,
+  "maxTokens": 65536,
+  "reasoning": true,
+  "compat": { "supportedReasoningEfforts": ["low", "medium", "xhigh"] }
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `contextWindow` | The model's native context window -- used for context budgeting |
+| `maxTokens` | Per-model output cap (default 8192) |
+| `reasoning` | Whether the model supports reasoning/thinking |
+| `compat.supportedReasoningEfforts` | The effort levels this model accepts (e.g. `["low","medium","xhigh"]`) -- these differ per model (`low/medium/high` vs `low/medium/xhigh` vs `low/high/max`), so check the provider's docs |
+
+ClawRouter translates reasoning/thinking parameters into the provider's native dialect automatically. OpenClaw docs are machine-readable: <https://docs.openclaw.ai/llms.txt> (every page also serves markdown at `<page>.md`).
 
 ### Base URL Format by API Format
 
@@ -113,7 +137,7 @@ Without this step, the models will **not** appear in `/model` or be usable by an
 **Connection refused / models not loading**
 - Ensure ClawRouter is running: `clawrouter status`.
 - Verify the port in `baseUrl` matches your ClawRouter port (default: 3030).
-- Check that the models are registered in the `agents.defaults.models` allowlist (see Method 2, step 3).
+- Check that the models are registered under `agents.defaults.models` (see Method 2, step 3).
 
 **"Model not found" errors**
 - The model ID is wrong or outdated. Use **Fetch Models** in the provider's Models tab for the current list and update your OpenClaw config.

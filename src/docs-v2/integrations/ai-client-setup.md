@@ -16,8 +16,9 @@ Step-by-step instructions -- exact config files, copy-paste snippets, and troubl
 | **OpenCode** | Client Setup > **OpenCode** |
 | **Claude Code** | Client Setup > **Claude Code** |
 | **Codex CLI** | Client Setup > **Codex CLI** |
-| **Cline** | Client Setup > **Cline** |
-| **Aider, Kilo CLI, and any other client** | Client Setup > **Other / Custom Clients** |
+| **Qwen Code** | Client Setup > **Qwen Code** |
+| **DeepSeek Harness** | Client Setup > **DeepSeek Harness** |
+| **Any other client** (Cline, Aider, Kilo CLI, ...) | Client Setup > **Other / Custom Clients** |
 
 ---
 
@@ -42,11 +43,11 @@ Every provider page has a **"Prompt for AI"** button (on the Base URL banner) th
 | Tab | Target Client |
 |-----|---------------|
 | **OpenClaw** (default) | `openclaw.json` via `config.patch`, using native provider IDs where available |
-| **OpenCode** | `opencode.json` custom provider (`@ai-sdk/openai-compatible` or `@ai-sdk/anthropic`) |
+| **OpenCode** | `opencode.json` custom provider (`@ai-sdk/openai-compatible`, `@ai-sdk/openai`, or `@ai-sdk/anthropic`) |
 | **Claude Code** | `~/.claude/settings.json` env block |
-| **Codex CLI** | `~/.codex/config.toml` model provider |
-| **Cline** | OpenAI Compatible settings fields |
-| **Aider** | Environment variables + `openai/` model prefix |
+| **Codex CLI** | `~/.codex/config.toml` model provider (Responses API) |
+| **Qwen Code** | Env vars or `~/.qwen/settings.json` `modelProviders` |
+| **DeepSeek Harness** | `~/.dsh/settings.yaml` `llm-pi-ai` provider |
 | **Custom / Other** | Generic endpoint reference, env export blocks, and a curl example |
 
 1. Open the provider's detail page.
@@ -56,7 +57,8 @@ Every provider page has a **"Prompt for AI"** button (on the Base URL banner) th
 **How templates are generated:**
 - Model lists come from the provider's **actual saved models** (Models tab). If none are saved, the preset's recommended models are used.
 - The `apiKey` is your real **proxy API key** (from **Settings** > **Proxy API Key**), embedded automatically -- no manual copying needed.
-- All tabs work with **every provider**. When the client's native API format differs from the provider's, the tab shows an **amber note** that ClawRouter translates automatically.
+- Every prompt includes a **Model Parameters** section: the client's exact config keys for context-window / max-output / reasoning (verified against current client docs), known reasoning/thinking facts for the provider (e.g. Qwen's `enable_thinking` + `thinking_budget`, or `reasoning_effort` `low/medium/xhigh` on qwen3.8-max), and a link to the provider's official model docs so the agent fills in exact per-model values instead of guessing.
+- All tabs work with **every provider**. When the client's native API format differs from the provider's, the tab shows an **amber note** that ClawRouter translates automatically. Reasoning/thinking parameters are translated into the provider's native dialect too.
 
 ---
 
@@ -69,8 +71,8 @@ Prefer editing config files yourself? Each dedicated client guide has the exact 
 | OpenClaw | `/v1` (or `/v1beta` for Google) -- as shown on the provider's banner |
 | OpenCode | `/v1` required |
 | Codex CLI | `/v1` required |
-| Cline | `/v1` required |
-| Aider | `/v1` required |
+| Qwen Code | `/v1` required |
+| DeepSeek Harness | `/v1` required |
 | Claude Code | **No** `/v1` -- Claude Code appends `/v1/messages` itself |
 
 The base URL always starts with `http://localhost:3030/proxy/{provider-id}` (adjust host/port if you changed them).

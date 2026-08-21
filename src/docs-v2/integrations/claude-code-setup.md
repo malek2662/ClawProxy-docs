@@ -50,6 +50,24 @@ Claude Code reads its connection settings from environment variables. Add them t
 
 ---
 
+## Optional: Model Parameters & Gateway Discovery
+
+Add these to the same `env` block when useful (merge, don't replace):
+
+| Variable | Description |
+|----------|-------------|
+| `CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY` | Set to `"1"` -- Claude Code populates its `/model` picker from the gateway's `/v1/models` (ClawRouter proxies it upstream), so you can switch models without editing the config |
+| `CLAUDE_CODE_MAX_CONTEXT_TOKENS` | The model's real context window -- Claude Code may not know it for custom/gateway model IDs. Look up the exact value in the provider's model docs |
+| `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | Output cap -- Claude Code assumes 32000 for unrecognized model IDs; set the model's real max output |
+| `CLAUDE_CODE_EFFORT_LEVEL` | Reasoning effort: `low` / `medium` / `high` / `xhigh` / `max` (in-session: `/effort`) |
+| `MAX_THINKING_TOKENS` | Fixed extended-thinking budget in tokens; `0` disables thinking on third-party providers |
+
+Reasoning effort value sets differ per model (one takes `low/medium/high`, another `low/medium/xhigh`, another `low/high/max`) -- always verify in the provider's official model docs. ClawRouter translates thinking/reasoning parameters into the provider's native dialect automatically.
+
+Full reference: <https://code.claude.com/docs/en/env-vars> (machine-readable index: <https://code.claude.com/docs/llms.txt>; every docs page also serves markdown at `<page>.md`).
+
+---
+
 ## Choosing the Provider & Model
 
 - **Which upstream provider answers** is decided by `ANTHROPIC_BASE_URL` -- each ClawRouter provider has its own `/proxy/{provider-id}` endpoint. Point the variable at a different provider ID to switch providers.

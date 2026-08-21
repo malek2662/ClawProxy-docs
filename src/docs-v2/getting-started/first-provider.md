@@ -84,4 +84,4 @@ After creating your first provider:
 - **Add API keys** -- see the Managing API Keys guide for single, bulk, and connection-testing operations
 - **Enable Model Fallback** -- automatically switch models when one is unavailable
 - **Set up Provider Fallback Chain** -- route to a backup provider when the primary fails (Fallback tab)
-- **Configure your AI client** -- dedicated per-client guides live in the **Client Setup** section (OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Other/Custom), or use the "Prompt for AI" dialog (7 client tabs)
+- **Configure your AI client** -- dedicated per-client guides live in the **Client Setup** section (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, Other/Custom), or use the "Prompt for AI" dialog (7 client tabs)

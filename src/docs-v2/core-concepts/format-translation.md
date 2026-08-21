@@ -72,7 +72,7 @@ Example: a `google-generative-ai` primary can fall back to an `openai-completion
 
 ## "Prompt for AI" -- Every Tab, Every Provider
 
-All 7 tabs of the **"Prompt for AI"** dialog (OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Aider, Custom / Other) now work with **every provider**. When the client's native format differs from the provider's format, the tab shows an **amber note** explaining that ClawRouter translates automatically -- instead of the old "not available" explanation.
+All 7 tabs of the **"Prompt for AI"** dialog (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, Custom / Other) now work with **every provider**. When the client's native format differs from the provider's format, the tab shows an **amber note** explaining that ClawRouter translates automatically -- instead of the old "not available" explanation.
 
 ### Claude Code Identity Preamble
 

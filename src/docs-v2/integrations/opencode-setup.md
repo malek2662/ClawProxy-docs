@@ -58,7 +58,7 @@ OpenCode uses the [Vercel AI SDK](https://sdk.vercel.ai/) under the hood. You po
 
 | Field | Description |
 |-------|-------------|
-| `npm` | SDK package: `@ai-sdk/openai-compatible` for most providers; `@ai-sdk/anthropic` for `anthropic-messages` providers (Anthropic, Kimi for Coding, MiniMax Coding) |
+| `npm` | SDK package: `@ai-sdk/openai-compatible` for most providers; `@ai-sdk/openai` for `openai-responses` providers (e.g., Perplexity Agent); `@ai-sdk/anthropic` for `anthropic-messages` providers (Anthropic, Kimi for Coding, MiniMax Coding) |
 | `name` | Display name shown in the OpenCode model picker |
 | `options.baseURL` | The provider's ClawRouter Base URL -- **must end at `/v1` exactly**; OpenCode appends the endpoint path itself |
 | `options.apiKey` | The proxy API key from **Settings** > **Proxy API Key**. ClawRouter validates it, then injects your real managed key upstream |
@@ -67,6 +67,32 @@ OpenCode uses the [Vercel AI SDK](https://sdk.vercel.ai/) under the hood. You po
 > **Google Gemini providers:** their Base URL ends with `/v1beta` instead of `/v1` -- copy the exact Base URL from the provider's banner in the dashboard.
 
 > **Kilo CLI:** Kilo CLI shares OpenCode's configuration format -- the same provider block applies.
+
+---
+
+## Model Parameters (Context, Output, Reasoning)
+
+OpenCode supports per-model metadata you should fill in from the provider's official model docs (never guess the values):
+
+```json
+"models": {
+  "qwen3.5-plus": {
+    "name": "qwen3.5-plus",
+    "limit": { "context": 1000000, "output": 65536 },
+    "options": { "reasoningEffort": "medium" }
+  }
+}
+```
+
+| Key | Description |
+|-----|-------------|
+| `limit.context` / `limit.output` | The model's real context window / max output tokens -- OpenCode uses them for context management and truncation |
+| `options` | Free-form AI-SDK provider options passed through per model. Reasoning lives here: OpenAI-style models take `"options": { "reasoningEffort": "low|medium|high|..." }`; Anthropic-style take `"options": { "thinking": { "type": "enabled", "budgetTokens": 16000 } }` |
+| `variants` | Named effort presets (e.g. low/high) cycled with the `variant_cycle` keybind -- each variant sets the same `options` keys |
+
+**Reasoning effort value sets are NOT portable across models** -- one model accepts `low/medium/high`, another `low/medium/xhigh`, another `low/high/max`. Always check the provider's model docs. ClawRouter translates reasoning/thinking parameters into the provider's native dialect automatically, so you always configure them in OpenCode's own dialect.
+
+References: <https://opencode.ai/docs/providers/> and <https://opencode.ai/docs/models/> (machine-readable config schema: <https://opencode.ai/config.json>).
 
 ---
 

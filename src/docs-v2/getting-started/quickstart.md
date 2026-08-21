@@ -132,12 +132,12 @@ Click any notification to navigate to the affected provider -- straight to the r
 
 ## Step 5: Configuring Your AI Client
 
-Once your provider is running in ClawRouter, configure your AI client to use the auto-generated **Base URL**. Dedicated step-by-step guides live in the **Client Setup** section: OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, and Other / Custom clients.
+Once your provider is running in ClawRouter, configure your AI client to use the auto-generated **Base URL**. Dedicated step-by-step guides live in the **Client Setup** section: OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, and Other / Custom clients.
 
 ### The "Prompt for AI" Feature (Recommended)
 
 1. On the provider's detail page, click the **"Prompt for AI"** button on the Base URL banner.
-2. A tabbed dialog opens: **OpenClaw** (default), **OpenCode**, **Claude Code**, **Codex CLI**, **Cline**, **Aider**, **Custom / Other**.
+2. A tabbed dialog opens: **OpenClaw** (default), **OpenCode**, **Claude Code**, **Codex CLI**, **Qwen Code**, **DeepSeek Harness**, **Custom / Other**.
 3. Select your client's tab. The generated prompt includes the **Base URL**, **Provider Name**, your actual saved **Model IDs**, and your **proxy API key**.
 4. Copy the prompt and paste it to your AI agent -- or follow the instructions yourself.
 
