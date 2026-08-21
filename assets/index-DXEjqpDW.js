@@ -301,7 +301,7 @@ Example: a \`google-generative-ai\` primary can fall back to an \`openai-complet
 
 ## "Prompt for AI" -- Every Tab, Every Provider
 
-All 7 tabs of the **"Prompt for AI"** dialog (OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Aider, Custom / Other) now work with **every provider**. When the client's native format differs from the provider's format, the tab shows an **amber note** explaining that ClawRouter translates automatically -- instead of the old "not available" explanation.
+All 7 tabs of the **"Prompt for AI"** dialog (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, Custom / Other) now work with **every provider**. When the client's native format differs from the provider's format, the tab shows an **amber note** explaining that ClawRouter translates automatically -- instead of the old "not available" explanation.
 
 ### Claude Code Identity Preamble
 
@@ -429,14 +429,14 @@ Every provider page has a **"Prompt for AI"** button (on the Base URL banner) th
 | Tab | Target Client |
 |-----|---------------|
 | **OpenClaw** (default) | \`openclaw.json\` via \`config.patch\`, using native provider IDs where available |
-| **OpenCode** | \`opencode.json\` custom provider (\`@ai-sdk/openai-compatible\` or \`@ai-sdk/anthropic\`) |
+| **OpenCode** | \`opencode.json\` custom provider (\`@ai-sdk/openai-compatible\`, \`@ai-sdk/openai\`, or \`@ai-sdk/anthropic\`) |
 | **Claude Code** | \`~/.claude/settings.json\` env block |
-| **Codex CLI** | \`~/.codex/config.toml\` model provider |
-| **Cline** | OpenAI Compatible settings fields |
-| **Aider** | Environment variables + \`openai/\` model prefix |
+| **Codex CLI** | \`~/.codex/config.toml\` model provider (Responses API) |
+| **Qwen Code** | Env vars or \`~/.qwen/settings.json\` \`modelProviders\` |
+| **DeepSeek Harness** | \`~/.dsh/settings.yaml\` \`llm-pi-ai\` provider |
 | **Custom / Other** | Generic endpoint reference + curl example |
 
-Templates are generated dynamically from the provider's actual saved models (preset models as fallback), with the correct Base URL format per client, and embed your real proxy API key automatically. All 7 tabs work with every provider -- when the client's native format differs from the provider's, the tab shows an amber note that ClawRouter translates automatically. See the **Client Setup** section for per-client guides.
+Templates are generated dynamically from the provider's actual saved models (preset models as fallback), with the correct Base URL format per client, per-client model-parameter guidance (context window, reasoning effort keys, and a link to the provider's model docs), and embed your real proxy API key automatically. All 7 tabs work with every provider -- when the client's native format differs from the provider's, the tab shows an amber note that ClawRouter translates automatically. See the **Client Setup** section for per-client guides.
 `,LN=`# Key Rotation
 
 ClawRouter allows you to add **multiple API keys to the same provider**. When one key hits a rate limit or fails, the next key is used instantly and transparently.
@@ -887,7 +887,7 @@ After creating your first provider:
 - **Add API keys** -- see the Managing API Keys guide for single, bulk, and connection-testing operations
 - **Enable Model Fallback** -- automatically switch models when one is unavailable
 - **Set up Provider Fallback Chain** -- route to a backup provider when the primary fails (Fallback tab)
-- **Configure your AI client** -- dedicated per-client guides live in the **Client Setup** section (OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Other/Custom), or use the "Prompt for AI" dialog (7 client tabs)
+- **Configure your AI client** -- dedicated per-client guides live in the **Client Setup** section (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, Other/Custom), or use the "Prompt for AI" dialog (7 client tabs)
 `,VN=`# Installation & Activation
 
 ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.
@@ -1128,12 +1128,12 @@ Click any notification to navigate to the affected provider -- straight to the r
 
 ## Step 5: Configuring Your AI Client
 
-Once your provider is running in ClawRouter, configure your AI client to use the auto-generated **Base URL**. Dedicated step-by-step guides live in the **Client Setup** section: OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, and Other / Custom clients.
+Once your provider is running in ClawRouter, configure your AI client to use the auto-generated **Base URL**. Dedicated step-by-step guides live in the **Client Setup** section: OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, and Other / Custom clients.
 
 ### The "Prompt for AI" Feature (Recommended)
 
 1. On the provider's detail page, click the **"Prompt for AI"** button on the Base URL banner.
-2. A tabbed dialog opens: **OpenClaw** (default), **OpenCode**, **Claude Code**, **Codex CLI**, **Cline**, **Aider**, **Custom / Other**.
+2. A tabbed dialog opens: **OpenClaw** (default), **OpenCode**, **Claude Code**, **Codex CLI**, **Qwen Code**, **DeepSeek Harness**, **Custom / Other**.
 3. Select your client's tab. The generated prompt includes the **Base URL**, **Provider Name**, your actual saved **Model IDs**, and your **proxy API key**.
 4. Copy the prompt and paste it to your AI agent -- or follow the instructions yourself.
 
@@ -1257,7 +1257,7 @@ Step-by-step guide for setting up provider fallback chains and building a comple
 ### Step D: Configure Your AI Client
 
 1. On the **Groq** provider page, click **"Prompt for AI"** on the Base URL banner.
-2. Pick your client's tab (OpenClaw, OpenCode, Claude Code, Codex CLI, Cline, Aider, or Custom).
+2. Pick your client's tab (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, or Custom).
 3. Copy the generated prompt and paste it to your AI agent.
 
 ### What Happens on Failure
@@ -1892,8 +1892,9 @@ Step-by-step instructions -- exact config files, copy-paste snippets, and troubl
 | **OpenCode** | Client Setup > **OpenCode** |
 | **Claude Code** | Client Setup > **Claude Code** |
 | **Codex CLI** | Client Setup > **Codex CLI** |
-| **Cline** | Client Setup > **Cline** |
-| **Aider, Kilo CLI, and any other client** | Client Setup > **Other / Custom Clients** |
+| **Qwen Code** | Client Setup > **Qwen Code** |
+| **DeepSeek Harness** | Client Setup > **DeepSeek Harness** |
+| **Any other client** (Cline, Aider, Kilo CLI, ...) | Client Setup > **Other / Custom Clients** |
 
 ---
 
@@ -1918,11 +1919,11 @@ Every provider page has a **"Prompt for AI"** button (on the Base URL banner) th
 | Tab | Target Client |
 |-----|---------------|
 | **OpenClaw** (default) | \`openclaw.json\` via \`config.patch\`, using native provider IDs where available |
-| **OpenCode** | \`opencode.json\` custom provider (\`@ai-sdk/openai-compatible\` or \`@ai-sdk/anthropic\`) |
+| **OpenCode** | \`opencode.json\` custom provider (\`@ai-sdk/openai-compatible\`, \`@ai-sdk/openai\`, or \`@ai-sdk/anthropic\`) |
 | **Claude Code** | \`~/.claude/settings.json\` env block |
-| **Codex CLI** | \`~/.codex/config.toml\` model provider |
-| **Cline** | OpenAI Compatible settings fields |
-| **Aider** | Environment variables + \`openai/\` model prefix |
+| **Codex CLI** | \`~/.codex/config.toml\` model provider (Responses API) |
+| **Qwen Code** | Env vars or \`~/.qwen/settings.json\` \`modelProviders\` |
+| **DeepSeek Harness** | \`~/.dsh/settings.yaml\` \`llm-pi-ai\` provider |
 | **Custom / Other** | Generic endpoint reference, env export blocks, and a curl example |
 
 1. Open the provider's detail page.
@@ -1932,7 +1933,8 @@ Every provider page has a **"Prompt for AI"** button (on the Base URL banner) th
 **How templates are generated:**
 - Model lists come from the provider's **actual saved models** (Models tab). If none are saved, the preset's recommended models are used.
 - The \`apiKey\` is your real **proxy API key** (from **Settings** > **Proxy API Key**), embedded automatically -- no manual copying needed.
-- All tabs work with **every provider**. When the client's native API format differs from the provider's, the tab shows an **amber note** that ClawRouter translates automatically.
+- Every prompt includes a **Model Parameters** section: the client's exact config keys for context-window / max-output / reasoning (verified against current client docs), known reasoning/thinking facts for the provider (e.g. Qwen's \`enable_thinking\` + \`thinking_budget\`, or \`reasoning_effort\` \`low/medium/xhigh\` on qwen3.8-max), and a link to the provider's official model docs so the agent fills in exact per-model values instead of guessing.
+- All tabs work with **every provider**. When the client's native API format differs from the provider's, the tab shows an **amber note** that ClawRouter translates automatically. Reasoning/thinking parameters are translated into the provider's native dialect too.
 
 ---
 
@@ -1945,8 +1947,8 @@ Prefer editing config files yourself? Each dedicated client guide has the exact 
 | OpenClaw | \`/v1\` (or \`/v1beta\` for Google) -- as shown on the provider's banner |
 | OpenCode | \`/v1\` required |
 | Codex CLI | \`/v1\` required |
-| Cline | \`/v1\` required |
-| Aider | \`/v1\` required |
+| Qwen Code | \`/v1\` required |
+| DeepSeek Harness | \`/v1\` required |
 | Claude Code | **No** \`/v1\` -- Claude Code appends \`/v1/messages\` itself |
 
 The base URL always starts with \`http://localhost:3030/proxy/{provider-id}\` (adjust host/port if you changed them).
@@ -2002,6 +2004,24 @@ Claude Code reads its connection settings from environment variables. Add them t
 
 ---
 
+## Optional: Model Parameters & Gateway Discovery
+
+Add these to the same \`env\` block when useful (merge, don't replace):
+
+| Variable | Description |
+|----------|-------------|
+| \`CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY\` | Set to \`"1"\` -- Claude Code populates its \`/model\` picker from the gateway's \`/v1/models\` (ClawRouter proxies it upstream), so you can switch models without editing the config |
+| \`CLAUDE_CODE_MAX_CONTEXT_TOKENS\` | The model's real context window -- Claude Code may not know it for custom/gateway model IDs. Look up the exact value in the provider's model docs |
+| \`CLAUDE_CODE_MAX_OUTPUT_TOKENS\` | Output cap -- Claude Code assumes 32000 for unrecognized model IDs; set the model's real max output |
+| \`CLAUDE_CODE_EFFORT_LEVEL\` | Reasoning effort: \`low\` / \`medium\` / \`high\` / \`xhigh\` / \`max\` (in-session: \`/effort\`) |
+| \`MAX_THINKING_TOKENS\` | Fixed extended-thinking budget in tokens; \`0\` disables thinking on third-party providers |
+
+Reasoning effort value sets differ per model (one takes \`low/medium/high\`, another \`low/medium/xhigh\`, another \`low/high/max\`) -- always verify in the provider's official model docs. ClawRouter translates thinking/reasoning parameters into the provider's native dialect automatically.
+
+Full reference: <https://code.claude.com/docs/en/env-vars> (machine-readable index: <https://code.claude.com/docs/llms.txt>; every docs page also serves markdown at \`<page>.md\`).
+
+---
+
 ## Choosing the Provider & Model
 
 - **Which upstream provider answers** is decided by \`ANTHROPIC_BASE_URL\` -- each ClawRouter provider has its own \`/proxy/{provider-id}\` endpoint. Point the variable at a different provider ID to switch providers.
@@ -2043,86 +2063,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/messages \\
 
 **Changes not taking effect**
 - Claude Code reads \`settings.json\` at startup -- restart it after every edit.
-`,ZN=`# Cline Setup
-
-Cline is an AI coding assistant that runs as a VS Code extension. It has a built-in "OpenAI Compatible" provider option -- point it at ClawRouter and every request benefits from key rotation, fallback chains, and logging.
-
-> **Version 1.0.17**
-
----
-
-## Prerequisites
-
-1. **ClawRouter running** -- \`clawrouter status\` (default: \`http://localhost:3030\`).
-2. **A provider created** in the ClawRouter dashboard, with API keys added.
-3. **The proxy API key** -- copy it from **Settings** > **Proxy API Key** in the dashboard.
-
----
-
-## Method 1: "Prompt for AI" (Recommended)
-
-1. Open the provider's detail page in the ClawRouter dashboard.
-2. Click **"Prompt for AI"** on the Base URL banner and select the **Cline** tab.
-3. Click **Copy** -- the prompt lists the exact four values below with your provider's Base URL, your saved model IDs, and your real proxy API key.
-
----
-
-## Method 2: Manual Configuration
-
-Open **Cline Settings** (gear icon in the Cline sidebar) and set:
-
-| Field | Value |
-|-------|-------|
-| **API Provider** | \`OpenAI Compatible\` |
-| **Base URL** | \`http://localhost:3030/proxy/my-provider-id/v1\` |
-| **API Key** | \`cr_your_proxy_key\` (the proxy API key from **Settings** > **Proxy API Key**) |
-| **Model ID** | A model ID from the provider's **Models** tab > **Fetch Models** |
-
-Notes:
-
-- The **Base URL must end at \`/v1\`** exactly -- Cline appends \`/chat/completions\` itself.
-- If the model list is not auto-detected, enter the **Model ID** manually exactly as shown in the ClawRouter Models tab.
-- **Google Gemini providers:** their Base URL ends with \`/v1beta\` instead of \`/v1\` -- copy the exact Base URL from the provider's banner in the dashboard.
-
----
-
-## Choosing the Provider & Model
-
-- **Which upstream provider answers** is decided by the Base URL -- each ClawRouter provider has its own \`/proxy/{provider-id}\` endpoint. Create multiple Cline API configurations (or edit the Base URL) to switch providers.
-- **Which model answers** is decided by the Model ID field. ClawRouter forwards it upstream as-is; with Model Fallback enabled, a failing model is automatically substituted.
-- **Works with every provider:** Cline speaks the OpenAI Chat Completions format; when the provider uses a different API format, ClawRouter translates automatically.
-
----
-
-## Verify the Connection
-
-1. Save the settings and start a new Cline task with a short instruction (e.g., "Say hello").
-2. Open the ClawRouter **Logs** page -- the request should appear with a successful response.
-
-You can also verify the endpoint directly with curl:
-
-\`\`\`bash
-curl -X POST http://localhost:3030/proxy/my-provider-id/v1/chat/completions \\
-  -H "Content-Type: application/json" \\
-  -H "Authorization: Bearer cr_your_proxy_key" \\
-  -d '{ "model": "model-id", "messages": [{"role": "user", "content": "Hello"}] }'
-\`\`\`
-
----
-
-## Troubleshooting
-
-**HTTP 401 "Invalid or missing API key"**
-- The API Key field is empty, wrong, or the proxy key was regenerated. Copy the current key from **Settings** > **Proxy API Key**. This 401 comes from ClawRouter itself, before any upstream request.
-
-**Connection refused**
-- Ensure ClawRouter is running: \`clawrouter status\`.
-- Verify the Base URL port matches your ClawRouter port (default: 3030) and that it ends at \`/v1\` (or \`/v1beta\` for Google providers).
-
-**"Model not found" errors**
-- The Model ID must match exactly what the upstream provider expects. Use **Fetch Models** in the provider's Models tab for the current list -- providers change model IDs without notice.
-- Enable **Model Fallback** with backup models so a stale ID fails over automatically.
-`,QN=`# Codex CLI Setup
+`,ZN=`# Codex CLI Setup
 
 Codex CLI is OpenAI's terminal coding agent, configured through \`~/.codex/config.toml\`. This guide registers ClawRouter as a custom model provider so Codex routes through it.
 
@@ -2144,7 +2085,7 @@ Codex CLI is OpenAI's terminal coding agent, configured through \`~/.codex/confi
 2. Click **"Prompt for AI"** on the Base URL banner and select the **Codex CLI** tab.
 3. Click **Copy** and paste the prompt to your AI agent -- or follow the generated instructions yourself.
 
-The generated prompt contains the exact \`config.toml\` block below with the correct \`wire_api\` for your provider, your saved model IDs, and your real proxy API key.
+The generated prompt contains the exact \`config.toml\` block below with your saved model IDs and your real proxy API key.
 
 ---
 
@@ -2156,12 +2097,14 @@ The generated prompt contains the exact \`config.toml\` block below with the cor
 \`\`\`toml
 model = "model-id"
 model_provider = "clawrouter-my-provider"
+model_reasoning_effort = "high"        # optional: minimal|low|medium|high|xhigh — verify per model
+# model_context_window = 200000        # optional: the model's real context window
 
 [model_providers.clawrouter-my-provider]
 name = "ClawRouter My Provider"
 base_url = "http://localhost:3030/proxy/my-provider-id/v1"
 env_key = "CLAWROUTER_API_KEY"
-wire_api = "chat"
+wire_api = "responses"
 \`\`\`
 
 3. Set the environment variable Codex reads the key from:
@@ -2178,14 +2121,16 @@ export CLAWROUTER_API_KEY="cr_your_proxy_key"
 |-------|-------------|
 | \`model\` | The model ID Codex uses by default. Get model IDs from the provider's **Models** tab > **Fetch Models** |
 | \`model_provider\` | The key of your \`[model_providers.*]\` table |
+| \`model_reasoning_effort\` | Optional reasoning effort: \`minimal\` / \`low\` / \`medium\` / \`high\` / \`xhigh\` -- accepted values are model-dependent; check the provider's model docs. ClawRouter translates the setting into the provider's native dialect |
+| \`model_context_window\` | Optional: the model's real context window in tokens, from the provider's docs |
 | \`name\` | Display name for the provider |
 | \`base_url\` | The provider's ClawRouter Base URL -- **must include the \`/v1\` suffix** exactly as shown |
 | \`env_key\` | Name of the environment variable Codex reads the API key from (set it to your **proxy API key**) |
-| \`wire_api\` | \`"responses"\` for \`openai-responses\` providers (e.g., Perplexity Agent); \`"chat"\` for everything else -- ClawRouter translates Chat Completions into the provider's API format automatically |
+| \`wire_api\` | Always \`"responses"\` -- the only value current Codex builds support. ClawRouter speaks the Responses API on every provider and translates into the provider's native format automatically |
 
-> **User-level config only:** these keys work in \`~/.codex/config.toml\`. Project-level \`.codex/config.toml\` ignores provider definitions.
+> **User-level config only:** these keys work in \`~/.codex/config.toml\`. Project-level \`.codex/config.toml\` ignores provider definitions. The provider IDs \`openai\`, \`ollama\`, and \`lmstudio\` are reserved.
 
-> **Note on \`wire_api\`:** current Codex builds may only support \`"responses"\`. If your provider is not an \`openai-responses\` provider and your Codex version rejects \`"chat"\`, point Codex at an \`openai-responses\` provider in ClawRouter instead.
+> **\`wire_api = "chat"\` was removed:** Codex deprecated \`"chat"\` in Dec 2025 and removed it in Feb 2026 -- a config containing it now fails at startup. Always use \`"responses"\`; this works with every ClawRouter provider regardless of its own API format, because ClawRouter translates the Responses API automatically.
 
 ---
 
@@ -2228,6 +2173,98 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/chat/completions \\
 **"Model not found" errors**
 - The model ID must exist on the upstream provider. Use **Fetch Models** in the provider's Models tab for the current list.
 - Enable **Model Fallback** with backup models so a stale ID fails over automatically.
+`,QN=`# DeepSeek Harness Setup
+
+DeepSeek Harness (\`dsh\`, npm \`@deepseek-ai/dsh\`) is DeepSeek's open-source agent harness -- the tools/files/sandbox/control-loop layer around a model, built on plugins. It speaks OpenAI-compatible APIs through its \`llm-pi-ai\` provider plugin -- point it at ClawRouter so every request benefits from key rotation, fallback chains, and logging.
+
+> **Version 1.0.17**
+
+---
+
+## Prerequisites
+
+1. **ClawRouter running** -- \`clawrouter status\` (default: \`http://localhost:3030\`).
+2. **A provider created** in the ClawRouter dashboard, with API keys added.
+3. **The proxy API key** -- copy it from **Settings** > **Proxy API Key** in the dashboard.
+
+---
+
+## Method 1: "Prompt for AI" (Recommended)
+
+1. Open the provider's detail page in the ClawRouter dashboard.
+2. Click **"Prompt for AI"** on the Base URL banner and select the **DeepSeek Harness** tab.
+3. Click **Copy** and paste the prompt to your AI agent -- or follow the generated instructions yourself.
+
+The generated prompt contains the \`settings.yaml\` block below, pre-filled with the correct Base URL, your saved model IDs, and your real proxy API key.
+
+---
+
+## Method 2: Manual Configuration
+
+1. Edit \`~/.dsh/settings.yaml\` (create it if missing) and merge in a provider under \`llm-pi-ai\` -- keep all existing providers untouched:
+
+\`\`\`yaml
+llm-pi-ai:
+  providers:
+    clawrouter-my-provider:
+      api: openai-completions
+      baseURL: "http://localhost:3030/proxy/my-provider-id/v1"
+      apiKeyEnv: CLAWROUTER_API_KEY
+      models:
+        - id: model-id-1
+        - id: model-id-2
+\`\`\`
+
+2. Provide the key (either):
+   \`\`\`bash
+   export CLAWROUTER_API_KEY="cr_your_proxy_key"
+   \`\`\`
+   -- or enter it in the Web UI (\`npx @deepseek-ai/dsh web\` > **Settings** > **Models**); keys are stored redacted in \`~/.dsh/.credentials.yaml\`.
+
+3. Select the new provider/model in the Web UI or TUI model picker.
+
+| Field | Description |
+|-------|-------------|
+| \`api\` | \`openai-completions\` -- ClawRouter speaks it on every provider and translates into the provider's native format automatically |
+| \`baseURL\` | The provider's ClawRouter Base URL -- **must end at \`/v1\`** exactly |
+| \`apiKeyEnv\` | Name of the environment variable holding the **proxy API key** (not the upstream key) |
+| \`models\` | List of model IDs. Get them from the provider's **Models** tab > **Fetch Models** |
+
+> **Provider IDs are permanent** in Harness (sessions and credentials key off them). Never rename a provider -- add a new one and delete the old instead.
+
+---
+
+## Model Parameters & Compatibility
+
+- Gateway-compat fixes are available per provider and per model under \`compat\` (e.g. \`supportsDeveloperRole: false\`, \`maxTokensField: max_tokens\`, \`thinkingFormat\`) -- leave unset unless a model misbehaves.
+- Reasoning effort is configured on the route/model config (\`reasoningEffort\`: \`off\` / \`low\` / \`high\` / \`max\` on the built-in DeepSeek route). For \`llm-pi-ai\` providers, reasoning parameters pass through in the provider's own dialect -- ClawRouter translates them automatically.
+- Reasoning effort value sets differ per model (\`low/medium/high\` vs \`low/medium/xhigh\` vs \`low/high/max\`) -- always verify in the provider's official model docs.
+- Model discovery uses the OpenAI-compatible \`GET /models\` on the \`baseURL\` (ClawRouter proxies it upstream); model IDs can also be typed by hand.
+
+References: <https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/master/docs/user/guide/providers.md> (full config catalog: <https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/master/docs/config-catalog.md>).
+
+---
+
+## Verify the Connection
+
+1. Start the Web UI (\`npx @deepseek-ai/dsh web\`) or the TUI and select your new provider/model.
+2. Send a short prompt and check the ClawRouter **Logs** page for the successful request.
+
+---
+
+## Troubleshooting
+
+**HTTP 401 "Invalid or missing API key"**
+- \`CLAWROUTER_API_KEY\` is unset, wrong, or the proxy key was regenerated. Copy the current key from **Settings** > **Proxy API Key**. This 401 comes from ClawRouter itself, before any upstream request.
+
+**\`MISSING_CREDENTIAL\` / \`UNKNOWN_MODEL\`**
+- The env var named by \`apiKeyEnv\` is not set, or the model ID is not listed under the provider's \`models\` in \`settings.yaml\`.
+
+**Connection refused**
+- Ensure ClawRouter is running: \`clawrouter status\`. Verify the port (default: 3030) and that the base URL ends at \`/v1\`.
+
+**"Model not found" errors**
+- The model ID must exist on the upstream provider. Use **Fetch Models** in the provider's Models tab for the current list.
 `,$N=`# OpenClaw Setup
 
 OpenClaw is an AI agent client configured through a JSON file (\`openclaw.json\`). This guide connects it to ClawRouter so every request benefits from key rotation, fallback chains, and logging.
@@ -2251,7 +2288,7 @@ The ClawRouter dashboard generates a ready-to-paste prompt that lets OpenClaw's 
 1. Open the provider's detail page in the ClawRouter dashboard.
 2. Click the **"Prompt for AI"** button on the **Base URL** banner -- the **OpenClaw** tab is selected by default.
 3. Click **Copy** and paste the prompt to your OpenClaw AI agent.
-4. The agent updates your \`openclaw.json\` via the \`config.patch\` gateway tool: it backs up first, merges only (no existing providers or settings are touched), registers the models in the allowlist, and restarts.
+4. The agent updates your \`openclaw.json\` via the \`config.patch\` gateway tool: it backs up first, merges only (no existing providers or settings are touched), registers the models for agents, and restarts.
 
 The generated prompt contains the provider's Base URL, name, API format, your saved model IDs, and your real proxy API key. Where a **native OpenClaw provider ID** exists (e.g., \`google\`, \`nvidia\`, \`zai\`, \`ollama\`, \`opencode\`, \`kilocode\`), the prompt uses it so OpenClaw's built-in provider features (model discovery, prompt caching) are preserved. It also includes \`X-Title\` / \`X-Provider\` headers so ClawRouter can identify the client in logs.
 
@@ -2277,7 +2314,7 @@ The generated prompt contains the provider's Base URL, name, API format, your sa
 }
 \`\`\`
 
-3. Register each model in the allowlist under \`agents.defaults.models\`, using the exact \`"PROVIDER_NAME/MODEL_ID"\` key format:
+3. Register each model under \`agents.defaults.models\`, using the exact \`"PROVIDER_NAME/MODEL_ID"\` key format:
 
 \`\`\`json
 "agents": {
@@ -2290,7 +2327,7 @@ The generated prompt contains the provider's Base URL, name, API format, your sa
 }
 \`\`\`
 
-Without this step, the models will **not** appear in \`/model\` or be usable by any agent.
+These entries register the models for agents (they can later hold \`alias\` or per-model \`params\` such as \`temperature\` or \`maxTokens\`). OpenClaw's explicit allowlist is \`agents.defaults.modelPolicy.allow\` -- leave it unset (allow all) unless you want restrictions.
 
 4. Save the file.
 
@@ -2303,6 +2340,30 @@ Without this step, the models will **not** appear in \`/model\` or be usable by 
 | \`api\` | Must match the provider's API format (see table below) |
 | \`headers\` | \`X-Title\` / \`X-Provider\` -- lets ClawRouter identify the client in the Logs page |
 | \`models\` | List of models with \`id\` and \`name\`. Get model IDs from the provider's **Models** tab > **Fetch Models** |
+
+### Per-Model Parameters
+
+Each entry in the provider's \`models\` array accepts optional metadata -- fill the values from the provider's official model docs (never guess):
+
+\`\`\`json
+{
+  "id": "qwen3.5-plus",
+  "name": "qwen3.5-plus",
+  "contextWindow": 1000000,
+  "maxTokens": 65536,
+  "reasoning": true,
+  "compat": { "supportedReasoningEfforts": ["low", "medium", "xhigh"] }
+}
+\`\`\`
+
+| Field | Description |
+|-------|-------------|
+| \`contextWindow\` | The model's native context window -- used for context budgeting |
+| \`maxTokens\` | Per-model output cap (default 8192) |
+| \`reasoning\` | Whether the model supports reasoning/thinking |
+| \`compat.supportedReasoningEfforts\` | The effort levels this model accepts (e.g. \`["low","medium","xhigh"]\`) -- these differ per model (\`low/medium/high\` vs \`low/medium/xhigh\` vs \`low/high/max\`), so check the provider's docs |
+
+ClawRouter translates reasoning/thinking parameters into the provider's native dialect automatically. OpenClaw docs are machine-readable: <https://docs.openclaw.ai/llms.txt> (every page also serves markdown at \`<page>.md\`).
 
 ### Base URL Format by API Format
 
@@ -2343,7 +2404,7 @@ Without this step, the models will **not** appear in \`/model\` or be usable by 
 **Connection refused / models not loading**
 - Ensure ClawRouter is running: \`clawrouter status\`.
 - Verify the port in \`baseUrl\` matches your ClawRouter port (default: 3030).
-- Check that the models are registered in the \`agents.defaults.models\` allowlist (see Method 2, step 3).
+- Check that the models are registered under \`agents.defaults.models\` (see Method 2, step 3).
 
 **"Model not found" errors**
 - The model ID is wrong or outdated. Use **Fetch Models** in the provider's Models tab for the current list and update your OpenClaw config.
@@ -2423,7 +2484,7 @@ OpenCode uses the [Vercel AI SDK](https://sdk.vercel.ai/) under the hood. You po
 
 | Field | Description |
 |-------|-------------|
-| \`npm\` | SDK package: \`@ai-sdk/openai-compatible\` for most providers; \`@ai-sdk/anthropic\` for \`anthropic-messages\` providers (Anthropic, Kimi for Coding, MiniMax Coding) |
+| \`npm\` | SDK package: \`@ai-sdk/openai-compatible\` for most providers; \`@ai-sdk/openai\` for \`openai-responses\` providers (e.g., Perplexity Agent); \`@ai-sdk/anthropic\` for \`anthropic-messages\` providers (Anthropic, Kimi for Coding, MiniMax Coding) |
 | \`name\` | Display name shown in the OpenCode model picker |
 | \`options.baseURL\` | The provider's ClawRouter Base URL -- **must end at \`/v1\` exactly**; OpenCode appends the endpoint path itself |
 | \`options.apiKey\` | The proxy API key from **Settings** > **Proxy API Key**. ClawRouter validates it, then injects your real managed key upstream |
@@ -2432,6 +2493,32 @@ OpenCode uses the [Vercel AI SDK](https://sdk.vercel.ai/) under the hood. You po
 > **Google Gemini providers:** their Base URL ends with \`/v1beta\` instead of \`/v1\` -- copy the exact Base URL from the provider's banner in the dashboard.
 
 > **Kilo CLI:** Kilo CLI shares OpenCode's configuration format -- the same provider block applies.
+
+---
+
+## Model Parameters (Context, Output, Reasoning)
+
+OpenCode supports per-model metadata you should fill in from the provider's official model docs (never guess the values):
+
+\`\`\`json
+"models": {
+  "qwen3.5-plus": {
+    "name": "qwen3.5-plus",
+    "limit": { "context": 1000000, "output": 65536 },
+    "options": { "reasoningEffort": "medium" }
+  }
+}
+\`\`\`
+
+| Key | Description |
+|-----|-------------|
+| \`limit.context\` / \`limit.output\` | The model's real context window / max output tokens -- OpenCode uses them for context management and truncation |
+| \`options\` | Free-form AI-SDK provider options passed through per model. Reasoning lives here: OpenAI-style models take \`"options": { "reasoningEffort": "low|medium|high|..." }\`; Anthropic-style take \`"options": { "thinking": { "type": "enabled", "budgetTokens": 16000 } }\` |
+| \`variants\` | Named effort presets (e.g. low/high) cycled with the \`variant_cycle\` keybind -- each variant sets the same \`options\` keys |
+
+**Reasoning effort value sets are NOT portable across models** -- one model accepts \`low/medium/high\`, another \`low/medium/xhigh\`, another \`low/high/max\`. Always check the provider's model docs. ClawRouter translates reasoning/thinking parameters into the provider's native dialect automatically, so you always configure them in OpenCode's own dialect.
+
+References: <https://opencode.ai/docs/providers/> and <https://opencode.ai/docs/models/> (machine-readable config schema: <https://opencode.ai/config.json>).
 
 ---
 
@@ -2584,7 +2671,122 @@ A successful JSON response means the provider, keys, and proxy auth are all work
 
 **Wrong Base URL suffix**
 - OpenAI-style clients need the base URL to end at \`/v1\`; Anthropic-style clients need the bare endpoint with **no** \`/v1\`; Google-style clients need \`/v1beta\`. When in doubt, copy the exact value from the **Custom / Other** tab of the "Prompt for AI" dialog.
-`,nP=`# Bypass Providers
+`,nP=`# Qwen Code Setup
+
+Qwen Code is Alibaba's terminal coding agent (a Gemini CLI fork). It speaks OpenAI-compatible, Anthropic, Gemini, and Qwen protocols -- point its OpenAI-compatible mode at ClawRouter so every request benefits from key rotation, fallback chains, and logging.
+
+> **Version 1.0.17**
+
+---
+
+## Prerequisites
+
+1. **ClawRouter running** -- \`clawrouter status\` (default: \`http://localhost:3030\`).
+2. **A provider created** in the ClawRouter dashboard, with API keys added.
+3. **The proxy API key** -- copy it from **Settings** > **Proxy API Key** in the dashboard.
+
+---
+
+## Method 1: "Prompt for AI" (Recommended)
+
+1. Open the provider's detail page in the ClawRouter dashboard.
+2. Click **"Prompt for AI"** on the Base URL banner and select the **Qwen Code** tab.
+3. Click **Copy** and paste the prompt to your AI agent -- or follow the generated instructions yourself.
+
+The generated prompt contains the env-var block and the \`settings.json\` block below, pre-filled with the correct Base URL, your saved model IDs, and your real proxy API key.
+
+---
+
+## Method 2: Manual Configuration
+
+### Option A -- Environment variables (simplest)
+
+\`\`\`bash
+export OPENAI_API_KEY="cr_your_proxy_key"
+export OPENAI_BASE_URL="http://localhost:3030/proxy/my-provider-id/v1"
+export OPENAI_MODEL="model-id"
+\`\`\`
+
+(Add the exports to your shell profile to make them permanent.)
+
+### Option B -- Settings file \`~/.qwen/settings.json\`
+
+Merge these keys (preserve everything else):
+
+\`\`\`json
+{
+  "modelProviders": {
+    "openai": [
+      { "id": "model-id", "name": "model-id", "baseUrl": "http://localhost:3030/proxy/my-provider-id/v1", "envKey": "CLAWROUTER_API_KEY" }
+    ]
+  },
+  "env": { "CLAWROUTER_API_KEY": "cr_your_proxy_key" },
+  "security": { "auth": { "selectedType": "openai" } },
+  "model": { "name": "model-id" }
+}
+\`\`\`
+
+| Field | Description |
+|-------|-------------|
+| \`baseUrl\` / \`OPENAI_BASE_URL\` | The provider's ClawRouter Base URL -- **must end at \`/v1\`** exactly |
+| \`envKey\` / \`OPENAI_API_KEY\` | The proxy API key from **Settings** > **Proxy API Key**. ClawRouter validates it, then injects your real managed key upstream |
+| \`model.name\` / \`OPENAI_MODEL\` | The model ID to use. Get model IDs from the provider's **Models** tab > **Fetch Models** |
+
+Credential priority: CLI flags > shell exports > \`.env\` file > \`settings.json\` env block. If the settings file does not take effect, use Option A or run \`/auth\` inside Qwen Code.
+
+> **Works with every provider:** ClawRouter translates the OpenAI Chat Completions API into the provider's native format automatically.
+
+---
+
+## Model Parameters (Context, Reasoning)
+
+Per-model parameters live in the model entry's \`generationConfig\` (Option B):
+
+\`\`\`json
+{
+  "id": "qwen3.5-plus",
+  "name": "qwen3.5-plus",
+  "baseUrl": "http://localhost:3030/proxy/my-provider-id/v1",
+  "envKey": "CLAWROUTER_API_KEY",
+  "generationConfig": {
+    "contextWindowSize": 1000000,
+    "extra_body": { "enable_thinking": true },
+    "samplingParams": { "max_tokens": 65536 }
+  }
+}
+\`\`\`
+
+- \`contextWindowSize\` -- the model's real context window; \`samplingParams.max_tokens\` -- output cap. Fill both from the provider's official model docs.
+- \`extra_body\` -- extra request params for OpenAI-compatible APIs (e.g. Qwen's \`enable_thinking\` + \`thinking_budget\`).
+- Reasoning effort is global: \`"model": { "reasoningEffort": "low|medium|high|xhigh|max" }\` or the \`/effort\` command -- the value is mapped to the provider's supported levels.
+
+Reasoning effort value sets differ per model (\`low/medium/high\` vs \`low/medium/xhigh\` vs \`low/high/max\`) -- always verify in the provider's docs. ClawRouter translates reasoning/thinking parameters into the provider's native dialect automatically.
+
+References: <https://qwenlm.github.io/qwen-code-docs/en/users/configuration/model-providers/> and <https://qwenlm.github.io/qwen-code-docs/en/users/configuration/auth/>.
+
+---
+
+## Verify the Connection
+
+1. Start Qwen Code and run \`/model\` -- or send a short prompt.
+2. Open the ClawRouter **Logs** page -- the request should appear with a successful response.
+
+---
+
+## Troubleshooting
+
+**HTTP 401 "Invalid or missing API key"**
+- The key is missing, wrong, or was regenerated. Copy the current key from **Settings** > **Proxy API Key**. This 401 comes from ClawRouter itself, before any upstream request.
+
+**Settings not applied**
+- Remember the credential priority (flags > exports > .env > settings.json) -- a stale shell export wins over \`settings.json\`. Restart Qwen Code after editing.
+
+**Connection refused**
+- Ensure ClawRouter is running: \`clawrouter status\`. Verify the port (default: 3030) and that the base URL ends at \`/v1\`.
+
+**"Model not found" errors**
+- The model ID must exist on the upstream provider. Use **Fetch Models** in the provider's Models tab for the current list.
+`,rP=`# Bypass Providers
 
 Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add, no signup required.
 
@@ -2730,7 +2932,7 @@ For both hosted bypass providers:
 
 - **Free**: The model is accessible without a paid subscription.
 - **Paid**: The model requires an active subscription or credits on the provider's platform. Using a paid model without a subscription will result in a "PAID_MODEL_AUTH_REQUIRED" error, which ClawRouter classifies as MODEL_ERROR (not AUTH_ERROR).
-`,rP=`# ElevenLabs (Audio)
+`,iP=`# ElevenLabs (Audio)
 
 Speech-to-Text (Scribe) and Text-to-Speech through ClawRouter. ElevenLabs is a **passthrough audio provider** -- requests are forwarded byte-identical, with your managed API key injected automatically.
 
@@ -2818,7 +3020,7 @@ The **Test** button uses a zero-cost \`GET /v1/user\` probe -- no characters are
 - **No Quota tab / usage probe.** ElevenLabs has no supported usage endpoint.
 - **No token or cost extraction.** Audio responses carry no token usage, so these requests show no token counts or estimated cost in the logs. Binary audio bodies are never stored in logs -- a placeholder is recorded instead.
 - **Realtime STT/TTS is not proxied.** ElevenLabs realtime endpoints run over client-direct WebSocket (\`wss://api.elevenlabs.io/...\`) -- connect to ElevenLabs directly for those. (Client-side vs server-side streaming are commit strategies over the same realtime endpoint; both bypass the proxy.)
-`,iP=`# Free Tier Providers
+`,aP=`# Free Tier Providers
 
 These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required. Each preset includes a **Get API Key** link directly in the Add Provider form.
 
@@ -3251,7 +3453,7 @@ Coding-focused models.
 ### Models
 
 \`poolside/laguna-s-2.1\`, \`poolside/laguna-xs-2.1\`
-`,aP=`# Paid Providers
+`,oP=`# Paid Providers
 
 Configure paid API providers securely in ClawRouter. All keys are stored locally -- never sent externally.
 
@@ -3729,7 +3931,7 @@ OpenCode's paid tier -- same platform as the free OpenCode Zen preset, but with 
 | **API Key Mode** | \`Managed\` |
 
 Seeded models: \`glm-5.2\`, \`kimi-k2.7-code\`, \`deepseek-v4-pro\`, \`minimax-m3\`, \`qwen3.7-max\`
-`,oP=`# Provider Directory
+`,sP=`# Provider Directory
 
 A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
 
@@ -3863,7 +4065,7 @@ For providers not in the preset list, use the **Custom** option with a blank for
 
 - ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 - **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
-`,sP='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.17**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n| PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |\n\n---\n\n## Dashboard Authentication\n\nAll `/api/*` endpoints (except `/api/health` and `/api/auth/*`) require a session token from login -- send it as `Authorization: Bearer <token>`.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/auth/login` | Verify the dashboard password (`{ password }`). Returns `{ token }` (12-hour session) |\n| POST | `/api/auth/logout` | Invalidate the current session token |\n| GET | `/api/auth/session` | Validate the current session token |\n| POST | `/api/auth/change-password` | Change the dashboard password (`{ currentPassword, newPassword }`). Invalidates all sessions |\n\n---\n\n## Connection Testing\n\nEvery test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.\n\nKey-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| POST | `/api/providers/:id/keys/bulk-delete` | Bulk delete keys (`{ key_ids }`, provider-scoped, max 500 per call). Returns `{ deleted }` |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Model Circuits & Usage\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |\n| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \\| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |\n| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \\| null, invalid? }] }` |\n\nBoth usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI\'s HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',cP=`# CLI Commands
+`,cP='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.17**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n| PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |\n\n---\n\n## Dashboard Authentication\n\nAll `/api/*` endpoints (except `/api/health` and `/api/auth/*`) require a session token from login -- send it as `Authorization: Bearer <token>`.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/auth/login` | Verify the dashboard password (`{ password }`). Returns `{ token }` (12-hour session) |\n| POST | `/api/auth/logout` | Invalidate the current session token |\n| GET | `/api/auth/session` | Validate the current session token |\n| POST | `/api/auth/change-password` | Change the dashboard password (`{ currentPassword, newPassword }`). Invalidates all sessions |\n\n---\n\n## Connection Testing\n\nEvery test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.\n\nKey-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| POST | `/api/providers/:id/keys/bulk-delete` | Bulk delete keys (`{ key_ids }`, provider-scoped, max 500 per call). Returns `{ deleted }` |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Model Circuits & Usage\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |\n| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \\| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |\n| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \\| null, invalid? }] }` |\n\nBoth usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI\'s HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',lP=`# CLI Commands
 
 ClawRouter includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
 
@@ -3974,7 +4176,7 @@ If the native service manager isn't available, ClawRouter falls back to a built-
 ---
 
 > **Tip:** Run \`clawrouter logs\` regularly to ensure your Provider Fallback Chain, Model Fallback, Smart Key Rotation, and Circuit Breaker are all working as expected.
-`,lP=`# Environment Variables
+`,uP=`# Environment Variables
 
 All environment variables that ClawRouter recognizes, with their defaults and descriptions.
 
@@ -4008,7 +4210,7 @@ All environment variables that ClawRouter recognizes, with their defaults and de
 - The \`--port\` CLI flag takes precedence over the \`PORT\` environment variable.
 - Log retention and auto-cleanup settings can also be changed at runtime from the **Settings** page in the dashboard, without needing a restart.
 - All data is stored locally in the SQLite database. No data is sent externally except to the AI providers you configure and a periodic license check.
-`,uP=`# Settings Reference
+`,dP=`# Settings Reference
 
 Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
@@ -4252,7 +4454,7 @@ Configured in the provider's **Fallback** tab or the global **Fallback** page (s
 | **Key error history** | Last 50 errors per key |
 | **Notification buffer** | Last 100 notifications |
 | **Log retention** | 7 days (configurable via Settings page or LOG_RETENTION_DAYS env) |
-`,dP=`# Support & Contact
+`,fP=`# Support & Contact
 
 **ClawRouter** is developed and maintained by **Malek-Rsh**.
 
@@ -4287,7 +4489,7 @@ If you need help with activation:
 3. Your installation will be activated promptly.
 
 > The Installation ID is machine-specific. If you move to a new machine, you will need a new activation.
-`,fP=`# Frequently Asked Questions
+`,pP=`# Frequently Asked Questions
 
 Answers to common questions about ClawRouter configuration and usage.
 
@@ -4426,7 +4628,7 @@ On large setups with many providers and extensive logs, initial loading can take
 
 ### How do I completely reset my configuration?
 Delete the local database file and restart ClawRouter. This removes all providers, keys, and logs. You may need to contact the developer to re-activate.
-`,pP=`# Troubleshooting
+`,mP=`# Troubleshooting
 
 Diagnose and resolve common issues with ClawRouter.
 
@@ -4767,9 +4969,9 @@ If all else fails and you need to start fresh:
 3. You will need to reconfigure all providers and keys. Contact the developer if re-activation is needed.
 
 > **Warning:** This removes all providers, keys, and logs.
-`,mP={sections:[{title:`Getting Started`,items:[{key:`quickstart`,title:`Quickstart Guide`,path:`getting-started/quickstart.md`},{key:`installation`,title:`Installation & Activation`,path:`getting-started/installation-activation.md`},{key:`firstProvider`,title:`Your First Provider`,path:`getting-started/first-provider.md`}]},{title:`Core Concepts`,items:[{key:`howItWorks`,title:`How ClawRouter Works`,path:`core-concepts/how-clawrouter-works.md`},{key:`keyRotation`,title:`Key Rotation`,path:`core-concepts/key-rotation.md`},{key:`modelFallback`,title:`Model Fallback`,path:`core-concepts/model-fallback.md`},{key:`providerFallback`,title:`Provider Fallback Chain`,path:`core-concepts/provider-fallback-chain.md`},{key:`formatTranslation`,title:`API Format Translation`,path:`core-concepts/format-translation.md`},{key:`circuitBreaker`,title:`Circuit Breaker`,path:`core-concepts/circuit-breaker.md`},{key:`errorHandling`,title:`Error Classification & Retry`,path:`core-concepts/error-handling.md`}]},{title:`How-To Guides`,items:[{key:`managingKeys`,title:`Managing API Keys`,path:`guides/managing-api-keys.md`},{key:`configuringModels`,title:`Configuring Models`,path:`guides/configuring-models.md`},{key:`configuringFallback`,title:`Configuring Fallback`,path:`guides/configuring-fallback.md`},{key:`monitoring`,title:`Monitoring & Notifications`,path:`guides/monitoring-notifications.md`},{key:`providerManagement`,title:`Provider Management`,path:`guides/provider-management.md`},{key:`globalSettings`,title:`Global Settings`,path:`guides/global-settings.md`}]},{title:`Providers`,items:[{key:`providerDirectory`,title:`Provider Directory`,path:`providers/provider-directory.md`},{key:`elevenlabsAudio`,title:`ElevenLabs (Audio)`,path:`providers/elevenlabs-audio.md`},{key:`bypassProviders`,title:`Bypass Providers`,path:`providers/bypass-providers.md`},{key:`freeTierProviders`,title:`Free Tier Providers`,path:`providers/free-tier-providers.md`},{key:`paidProviders`,title:`Paid Providers`,path:`providers/paid-providers.md`}]},{title:`Client Setup`,items:[{key:`aiClientSetup`,title:`Client Setup Overview`,path:`integrations/ai-client-setup.md`},{key:`openclawSetup`,title:`OpenClaw`,path:`integrations/openclaw-setup.md`},{key:`opencodeSetup`,title:`OpenCode`,path:`integrations/opencode-setup.md`},{key:`claudeCodeSetup`,title:`Claude Code`,path:`integrations/claude-code-setup.md`},{key:`codexCliSetup`,title:`Codex CLI`,path:`integrations/codex-cli-setup.md`},{key:`clineSetup`,title:`Cline`,path:`integrations/cline-setup.md`},{key:`otherClients`,title:`Other / Custom Clients`,path:`integrations/other-clients.md`}]},{title:`Reference`,items:[{key:`cliCommands`,title:`CLI Commands`,path:`reference/cli-commands.md`},{key:`settingsReference`,title:`Settings Reference`,path:`reference/settings-reference.md`},{key:`apiReference`,title:`API Reference`,path:`reference/api-reference.md`},{key:`envVars`,title:`Environment Variables`,path:`reference/environment-variables.md`}]},{title:`Help`,items:[{key:`troubleshooting`,title:`Troubleshooting`,path:`troubleshooting/troubleshooting.md`},{key:`faq`,title:`FAQ`,path:`troubleshooting/faq.md`},{key:`support`,title:`Support & Contact`,path:`support.md`}]}]},hP=Object.assign({"../docs-v2/core-concepts/circuit-breaker.md":NN,"../docs-v2/core-concepts/error-handling.md":PN,"../docs-v2/core-concepts/format-translation.md":FN,"../docs-v2/core-concepts/how-clawrouter-works.md":IN,"../docs-v2/core-concepts/key-rotation.md":LN,"../docs-v2/core-concepts/model-fallback.md":RN,"../docs-v2/core-concepts/provider-fallback-chain.md":zN,"../docs-v2/getting-started/first-provider.md":BN,"../docs-v2/getting-started/installation-activation.md":VN,"../docs-v2/getting-started/quickstart.md":HN,"../docs-v2/guides/configuring-fallback.md":UN,"../docs-v2/guides/configuring-models.md":WN,"../docs-v2/guides/global-settings.md":GN,"../docs-v2/guides/managing-api-keys.md":KN,"../docs-v2/guides/monitoring-notifications.md":qN,"../docs-v2/guides/provider-management.md":JN,"../docs-v2/integrations/ai-client-setup.md":YN,"../docs-v2/integrations/claude-code-setup.md":XN,"../docs-v2/integrations/cline-setup.md":ZN,"../docs-v2/integrations/codex-cli-setup.md":QN,"../docs-v2/integrations/openclaw-setup.md":$N,"../docs-v2/integrations/opencode-setup.md":eP,"../docs-v2/integrations/other-clients.md":tP,"../docs-v2/providers/bypass-providers.md":nP,"../docs-v2/providers/elevenlabs-audio.md":rP,"../docs-v2/providers/free-tier-providers.md":iP,"../docs-v2/providers/paid-providers.md":aP,"../docs-v2/providers/provider-directory.md":oP,"../docs-v2/reference/api-reference.md":sP,"../docs-v2/reference/cli-commands.md":cP,"../docs-v2/reference/environment-variables.md":lP,"../docs-v2/reference/settings-reference.md":uP,"../docs-v2/support.md":dP,"../docs-v2/troubleshooting/faq.md":fP,"../docs-v2/troubleshooting/troubleshooting.md":pP}),gP=e=>e.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{E0020}-\u{E007F}\u{FE0F}\u{200D}\u{1F400}-\u{1F4FF}]/gu,``).trim();function _P(e){let t=new Sx,n=e.split(`
-`),r=[],i=null;return n.forEach(e=>{let n=e.match(/^##\s+(.+)$/);if(n){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim();if(e.toLowerCase()===`table of contents`)return;i={id:t.slug(e),title:gP(e),items:[]},r.push(i)}else{let n=e.match(/^###\s+(.+)$/);if(n&&i){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim(),r=t.slug(e),a=gP(e);i.items.push({id:r,title:a})}}}),r}function vP(e){return hP[`../docs-v2/${e}`]||(console.warn(`[docs] Missing markdown file for path: ${e}`),``)}function yP(e){return e.replace(/```[\s\S]*?```/g,``).replace(/`[^`]+`/g,``).replace(/!?\[([^\]]*)\]\([^)]*\)/g,`$1`).replace(/^\s{0,3}#{1,6}\s+/gm,``).replace(/[*_~]{1,3}/g,``).replace(/^\s*[-*+]\s+/gm,``).replace(/^\s*\d+\.\s+/gm,``).replace(/^\s*>\s?/gm,``).replace(/\|/g,` `).replace(/<\/?[^>]+(>|$)/g,``).replace(/\n{2,}/g,`
-`).trim()}var bP={},xP=mP.sections.map(e=>({label:e.title,keys:e.items.map(e=>{let t=vP(e.path);return bP[e.key]={title:e.title,content:t,toc:_P(t)},e.key})})),SP=(()=>{let e=[],t=new Sx;for(let n of mP.sections)for(let r of n.items){let i=bP[r.key];if(!i||!i.content)continue;t.reset();let a=i.content.split(`
-`),o=null,s=null,c=[],l=()=>{if(c.length===0)return;let t=yP(c.join(`
-`));t.length<3||e.push({key:r.key,docTitle:r.title,sectionTitle:n.title,headingId:s,headingTitle:o,text:t})};for(let e of a){let n=e.match(/^##\s+(.+)$/),r=!n&&e.match(/^###\s+(.+)$/);if(n||r){l(),c=[];let e=(n||r)[1].replace(/<\/?[^>]+(>|$)/g,``).trim();o=gP(e),s=t.slug(e)}else c.push(e)}l()}return e})();function CP({children:e,...t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(!1);return(0,S.useEffect)(()=>{let e=n.current;if(!e)return;let t=()=>i(e.scrollWidth>e.clientWidth+1);t();let r=new ResizeObserver(t);return r.observe(e),()=>r.disconnect()},[e]),(0,M.jsxs)(`div`,{children:[(0,M.jsx)(`div`,{className:`table-scroll-wrapper`,ref:n,children:(0,M.jsx)(`table`,{...t,children:e})}),r&&(0,M.jsxs)(`div`,{className:`table-scroll-hint`,children:[(0,M.jsxs)(`svg`,{width:`14`,height:`14`,viewBox:`0 0 24 24`,fill:`none`,stroke:`currentColor`,strokeWidth:`2`,strokeLinecap:`round`,strokeLinejoin:`round`,children:[(0,M.jsx)(`path`,{d:`M5 12h14`}),(0,M.jsx)(`path`,{d:`m12 5 7 7-7 7`})]}),`Swipe to see more`]})]})}function wP({language:e,children:t}){let[n,r]=(0,S.useState)(!1),i=(0,S.useCallback)(()=>{navigator.clipboard.writeText(String(t).replace(/\n$/,``)).then(()=>{r(!0),setTimeout(()=>r(!1),2e3)}).catch(()=>{})},[t]);return(0,M.jsxs)(`div`,{className:`code-block`,children:[(0,M.jsxs)(`div`,{className:`code-block-bar`,children:[(0,M.jsxs)(`span`,{className:`code-lang`,children:[(0,M.jsx)(`i`,{className:`code-lang-dot`,"aria-hidden":`true`}),e||`text`]}),(0,M.jsx)(`button`,{type:`button`,onClick:i,className:`code-copy${n?` copied`:``}`,"aria-label":`Copy code block`,children:n?(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(ar,{size:13,"aria-hidden":`true`}),` Copied`]}):(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(or,{size:13,"aria-hidden":`true`}),` Copy`]})})]}),(0,M.jsx)(jN,{language:e||`text`,style:MN,customStyle:{margin:0,border:`none`,borderRadius:0,fontSize:`0.85rem`,padding:`16px 18px`,background:`transparent`,lineHeight:1.7},codeTagProps:{style:{fontFamily:`var(--font-mono)`}},children:String(t).replace(/\n$/,``)})]})}function TP({onNavigate:e}){let[t,n]=(0,S.useState)(``),[r,i]=(0,S.useState)([]),[a,o]=(0,S.useState)(0),[s,c]=(0,S.useState)(!1),l=(0,S.useRef)(null),u=(0,S.useRef)(null),d=(0,S.useRef)(null),f=(0,S.useCallback)(e=>{if(d.current&&clearTimeout(d.current),e.length<2){i([]),c(!1);return}d.current=setTimeout(()=>{let t=e.toLowerCase(),n=[];for(let r of SP){if(n.length>=30)break;let i=r.headingTitle&&r.headingTitle.toLowerCase().includes(t),a=r.text.toLowerCase().includes(t);if(i||a){let a=``,o=r.text.toLowerCase().indexOf(t);if(o>=0){let t=Math.max(0,o-40),n=Math.min(r.text.length,o+e.length+80);a=(t>0?`...`:``)+r.text.slice(t,n)+(n<r.text.length?`...`:``)}else r.text.length>0&&(a=r.text.slice(0,120)+(r.text.length>120?`...`:``));n.push({...r,snippet:a,headingMatch:i})}}n.sort((e,t)=>(t.headingMatch?1:0)-(e.headingMatch?1:0)),i(n),o(0),c(!0)},150)},[]),p=e=>{let t=e.target.value;n(t),f(t)},m=()=>{n(``),i([]),c(!1),l.current?.focus()},h=(0,S.useCallback)(t=>{e(t.key,t.headingId),c(!1),n(``),i([])},[e]),g=e=>{if(!s||r.length===0){e.key===`Escape`&&(m(),l.current?.blur());return}e.key===`ArrowDown`?(e.preventDefault(),o(e=>Math.min(e+1,r.length-1))):e.key===`ArrowUp`?(e.preventDefault(),o(e=>Math.max(e-1,0))):e.key===`Enter`?(e.preventDefault(),h(r[a])):e.key===`Escape`&&c(!1)};(0,S.useEffect)(()=>{if(!u.current)return;let e=u.current.querySelector(`.docs-search-result-item.active`);e&&e.scrollIntoView({block:`nearest`})},[a]),(0,S.useEffect)(()=>{let e=e=>{(e.metaKey||e.ctrlKey)&&e.key===`k`&&(e.preventDefault(),l.current?.focus())};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[]),(0,S.useEffect)(()=>{if(!s)return;let e=e=>{let t=l.current?.closest(`.docs-search-wrapper`);t&&!t.contains(e.target)&&c(!1)};return document.addEventListener(`mousedown`,e),()=>document.removeEventListener(`mousedown`,e)},[s]);let _=(e,t)=>!t||t.length<2?e:e.split(RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g,`\\$&`)})`,`gi`)).map((e,n)=>e.toLowerCase()===t.toLowerCase()?(0,M.jsx)(`mark`,{className:`docs-search-highlight`,children:e},n):e);return(0,M.jsxs)(`div`,{className:`docs-search-wrapper`,children:[(0,M.jsxs)(`div`,{className:`docs-search-input-box`,children:[(0,M.jsx)(`span`,{className:`docs-search-icon`,children:(0,M.jsx)(xr,{size:15,"aria-hidden":`true`})}),(0,M.jsx)(`input`,{ref:l,type:`text`,className:`docs-search-input`,placeholder:`Search docs...`,value:t,onChange:p,onKeyDown:g,onFocus:()=>{r.length>0&&c(!0)}}),t?(0,M.jsx)(`button`,{className:`docs-search-clear`,onClick:m,"aria-label":`Clear search`,children:(0,M.jsx)(Dr,{size:14,"aria-hidden":`true`})}):(0,M.jsxs)(`span`,{className:`docs-search-kbd`,children:[(0,M.jsx)(`kbd`,{children:navigator.platform?.includes(`Mac`)?`⌘`:`Ctrl`}),(0,M.jsx)(`kbd`,{children:`K`})]})]}),s&&(0,M.jsx)(`div`,{className:`docs-search-results`,ref:u,children:r.length>0?(0,M.jsxs)(M.Fragment,{children:[(0,M.jsxs)(`div`,{className:`docs-search-results-header`,children:[r.length,` result`,r.length===1?``:`s`]}),r.map((e,n)=>(0,M.jsxs)(`div`,{className:`docs-search-result-item${n===a?` active`:``}`,onClick:()=>h(e),onMouseEnter:()=>o(n),children:[(0,M.jsxs)(`span`,{className:`docs-search-result-doc`,children:[e.sectionTitle,` › `,e.docTitle]}),e.headingTitle&&(0,M.jsx)(`span`,{className:`docs-search-result-heading`,children:_(e.headingTitle,t)}),e.snippet&&(0,M.jsx)(`span`,{className:`docs-search-result-snippet`,children:_(e.snippet,t)})]},`${e.key}-${e.headingId}-${n}`))]}):(0,M.jsxs)(`div`,{className:`docs-search-empty`,children:[(0,M.jsx)(xr,{size:24,"aria-hidden":`true`}),`No results for “`,t,`”`]})})]})}function EP({activeTab:e,onSelect:t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(null);return(0,S.useLayoutEffect)(()=>{let e=()=>{let e=n.current;if(!e)return;let t=e.querySelector(`.docs-nav-item.active`);i(t?{top:t.offsetTop,height:t.offsetHeight,visible:!0}:e=>e?{...e,visible:!1}:null)};return e(),window.addEventListener(`resize`,e),document.fonts?.ready&&document.fonts.ready.then(e).catch(()=>{}),()=>window.removeEventListener(`resize`,e)},[e]),(0,M.jsxs)(`div`,{className:`docs-nav`,ref:n,children:[r&&(0,M.jsx)(`span`,{className:`docs-nav-glider`,style:{transform:`translateY(${r.top}px)`,height:`${r.height}px`,opacity:r.visible?1:0},"aria-hidden":`true`}),xP.map(n=>(0,M.jsxs)(`div`,{className:`docs-nav-section`,children:[(0,M.jsx)(`h3`,{className:`docs-nav-label`,children:n.label}),(0,M.jsx)(`div`,{className:`docs-nav-items`,children:n.keys.map(n=>(0,M.jsx)(`button`,{type:`button`,onClick:()=>t(n),className:`docs-nav-item${e===n?` active`:``}`,children:bP[n].title},n))})]},n.label))]})}function DP(){let[e,t]=(0,S.useState)(`quickstart`),[n,r]=(0,S.useState)(``),[i,a]=(0,S.useState)(!1),o=rt();(0,S.useEffect)(()=>(document.body.style.overflow=i?`hidden`:`unset`,()=>{document.body.style.overflow=`unset`}),[i]);let s=(0,S.useCallback)((e,n)=>{t(e),a(!1),n?setTimeout(()=>{let e=document.getElementById(n);if(e){let t=e.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:t,behavior:`smooth`}),r(n)}},200):(window.scrollTo({top:0,behavior:`smooth`}),r(``))},[]),c=(0,S.useCallback)(e=>{t(e),a(!1),window.scrollTo({top:0,behavior:`smooth`}),r(``)},[]),l=e=>{let t=document.getElementById(e);if(t){let n=t.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:n,behavior:`smooth`}),r(e)}},[u,d]=(0,S.useState)(o);if(u!==o){d(o);let e=new URLSearchParams(o.search).get(`tab`);e&&bP[e]&&t(e),r(``)}return(0,S.useEffect)(()=>{let e=new URLSearchParams(o.search),t=e.get(`tab`),n=e.get(`anchor`);if(t&&bP[t]&&n){let e=setTimeout(()=>{let e=document.getElementById(n);if(e){let t=e.getBoundingClientRect().top+window.scrollY-90;window.scrollTo({top:t,behavior:`smooth`}),r(n)}},200);return()=>clearTimeout(e)}window.scrollTo(0,0)},[o]),(0,S.useEffect)(()=>{let e=()=>{let e=document.querySelector(`.md-content`);if(!e)return;let t=Array.from(e.querySelectorAll(`h2, h3`));if(t.length===0)return;let n=``;for(let e of t)if(e.getBoundingClientRect().top<=120)n=e.id;else break;n&&r(n)};return window.addEventListener(`scroll`,e,{passive:!0}),()=>window.removeEventListener(`scroll`,e)},[e]),(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`button`,{type:`button`,className:`docs-mobile-menu-btn`,onClick:()=>a(!0),"aria-label":`Open navigation`,children:(0,M.jsx)(hr,{size:18,"aria-hidden":`true`})}),i&&(0,M.jsx)(`div`,{className:`docs-drawer-backdrop`,onClick:()=>a(!1),children:(0,M.jsxs)(`aside`,{className:`docs-drawer`,onClick:e=>e.stopPropagation(),children:[(0,M.jsxs)(`div`,{className:`docs-drawer-header`,children:[(0,M.jsx)(`span`,{style:{fontWeight:600,color:`var(--text-main)`,fontSize:`1rem`},children:`Documentation`}),(0,M.jsx)(`button`,{type:`button`,onClick:()=>a(!1),"aria-label":`Close navigation`,style:{background:`none`,border:`none`,color:`var(--text-muted)`,cursor:`pointer`,padding:`4px`,display:`flex`},children:(0,M.jsx)(Dr,{size:20,"aria-hidden":`true`})})]}),(0,M.jsx)(TP,{onNavigate:s}),(0,M.jsx)(EP,{activeTab:e,onSelect:c})]})}),(0,M.jsx)(`div`,{className:`animate-fade-in docs-layout`,children:(0,M.jsxs)(`div`,{className:`docs-layout-inner`,children:[(0,M.jsxs)(`aside`,{className:`docs-side-left`,children:[(0,M.jsx)(TP,{onNavigate:s}),(0,M.jsx)(EP,{activeTab:e,onSelect:c})]}),(0,M.jsx)(`main`,{className:`docs-main`,children:(0,M.jsx)(`div`,{className:`md-content md-tab-anim`,children:(0,M.jsx)(pv,{remarkPlugins:[yx],rehypePlugins:[Ax,BE],components:{code:({inline:e,className:t,children:n,...r})=>{let i=/language-(\w+)/.exec(t||``);return!e&&i?(0,M.jsx)(wP,{language:i[1],children:n}):!e&&!i&&String(n).includes(`
-`)?(0,M.jsx)(wP,{language:`text`,children:n}):(0,M.jsx)(`code`,{className:t,...r,children:n})},pre:({children:e})=>(0,M.jsx)(M.Fragment,{children:e}),table:({children:e,...t})=>(0,M.jsx)(CP,{...t,children:e}),a:({href:e,children:t,...n})=>{if(e?.startsWith(`#`)){let r=e.slice(1);return(0,M.jsx)(`a`,{href:e,onClick:e=>{e.preventDefault(),l(r)},...n,children:t})}return(0,M.jsx)(`a`,{href:e,target:e?.startsWith(`http`)?`_blank`:`_self`,rel:`noopener noreferrer`,...n,children:t})}},children:bP[e].content})},e)}),(0,M.jsx)(`aside`,{className:`docs-side-right`,children:bP[e].toc&&bP[e].toc.length>0&&(0,M.jsxs)(`div`,{className:`toc-wrap`,children:[(0,M.jsxs)(`div`,{className:`toc-label`,children:[(0,M.jsx)(fr,{size:14,"aria-hidden":`true`}),`On this page`]}),(0,M.jsx)(`div`,{className:`toc-items`,children:bP[e].toc.map(e=>(0,M.jsxs)(S.Fragment,{children:[(0,M.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link${n===e.id?` active`:``}`,children:e.title}),e.items&&e.items.length>0&&e.items.map(e=>(0,M.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link toc-link-sub${n===e.id?` active`:``}`,children:e.title},e.id))]},e.id))})]})})]})})]})}function OP(){return(0,M.jsx)(Cn,{children:(0,M.jsx)(It,{children:(0,M.jsxs)(Pt,{path:`/`,element:(0,M.jsx)(Mr,{}),children:[(0,M.jsx)(Pt,{index:!0,element:(0,M.jsx)(Nd,{})}),(0,M.jsx)(Pt,{path:`docs`,element:(0,M.jsx)(DP,{})}),(0,M.jsx)(Pt,{path:`*`,element:(0,M.jsx)(Nd,{})})]})})})}kr.createRoot(document.getElementById(`root`)).render((0,M.jsx)(S.StrictMode,{children:(0,M.jsx)(OP,{})}));
+`,hP={sections:[{title:`Getting Started`,items:[{key:`quickstart`,title:`Quickstart Guide`,path:`getting-started/quickstart.md`},{key:`installation`,title:`Installation & Activation`,path:`getting-started/installation-activation.md`},{key:`firstProvider`,title:`Your First Provider`,path:`getting-started/first-provider.md`}]},{title:`Core Concepts`,items:[{key:`howItWorks`,title:`How ClawRouter Works`,path:`core-concepts/how-clawrouter-works.md`},{key:`keyRotation`,title:`Key Rotation`,path:`core-concepts/key-rotation.md`},{key:`modelFallback`,title:`Model Fallback`,path:`core-concepts/model-fallback.md`},{key:`providerFallback`,title:`Provider Fallback Chain`,path:`core-concepts/provider-fallback-chain.md`},{key:`formatTranslation`,title:`API Format Translation`,path:`core-concepts/format-translation.md`},{key:`circuitBreaker`,title:`Circuit Breaker`,path:`core-concepts/circuit-breaker.md`},{key:`errorHandling`,title:`Error Classification & Retry`,path:`core-concepts/error-handling.md`}]},{title:`How-To Guides`,items:[{key:`managingKeys`,title:`Managing API Keys`,path:`guides/managing-api-keys.md`},{key:`configuringModels`,title:`Configuring Models`,path:`guides/configuring-models.md`},{key:`configuringFallback`,title:`Configuring Fallback`,path:`guides/configuring-fallback.md`},{key:`monitoring`,title:`Monitoring & Notifications`,path:`guides/monitoring-notifications.md`},{key:`providerManagement`,title:`Provider Management`,path:`guides/provider-management.md`},{key:`globalSettings`,title:`Global Settings`,path:`guides/global-settings.md`}]},{title:`Providers`,items:[{key:`providerDirectory`,title:`Provider Directory`,path:`providers/provider-directory.md`},{key:`elevenlabsAudio`,title:`ElevenLabs (Audio)`,path:`providers/elevenlabs-audio.md`},{key:`bypassProviders`,title:`Bypass Providers`,path:`providers/bypass-providers.md`},{key:`freeTierProviders`,title:`Free Tier Providers`,path:`providers/free-tier-providers.md`},{key:`paidProviders`,title:`Paid Providers`,path:`providers/paid-providers.md`}]},{title:`Client Setup`,items:[{key:`aiClientSetup`,title:`Client Setup Overview`,path:`integrations/ai-client-setup.md`},{key:`openclawSetup`,title:`OpenClaw`,path:`integrations/openclaw-setup.md`},{key:`opencodeSetup`,title:`OpenCode`,path:`integrations/opencode-setup.md`},{key:`claudeCodeSetup`,title:`Claude Code`,path:`integrations/claude-code-setup.md`},{key:`codexCliSetup`,title:`Codex CLI`,path:`integrations/codex-cli-setup.md`},{key:`qwenCodeSetup`,title:`Qwen Code`,path:`integrations/qwen-code-setup.md`},{key:`deepseekHarnessSetup`,title:`DeepSeek Harness`,path:`integrations/deepseek-harness-setup.md`},{key:`otherClients`,title:`Other / Custom Clients`,path:`integrations/other-clients.md`}]},{title:`Reference`,items:[{key:`cliCommands`,title:`CLI Commands`,path:`reference/cli-commands.md`},{key:`settingsReference`,title:`Settings Reference`,path:`reference/settings-reference.md`},{key:`apiReference`,title:`API Reference`,path:`reference/api-reference.md`},{key:`envVars`,title:`Environment Variables`,path:`reference/environment-variables.md`}]},{title:`Help`,items:[{key:`troubleshooting`,title:`Troubleshooting`,path:`troubleshooting/troubleshooting.md`},{key:`faq`,title:`FAQ`,path:`troubleshooting/faq.md`},{key:`support`,title:`Support & Contact`,path:`support.md`}]}]},gP=Object.assign({"../docs-v2/core-concepts/circuit-breaker.md":NN,"../docs-v2/core-concepts/error-handling.md":PN,"../docs-v2/core-concepts/format-translation.md":FN,"../docs-v2/core-concepts/how-clawrouter-works.md":IN,"../docs-v2/core-concepts/key-rotation.md":LN,"../docs-v2/core-concepts/model-fallback.md":RN,"../docs-v2/core-concepts/provider-fallback-chain.md":zN,"../docs-v2/getting-started/first-provider.md":BN,"../docs-v2/getting-started/installation-activation.md":VN,"../docs-v2/getting-started/quickstart.md":HN,"../docs-v2/guides/configuring-fallback.md":UN,"../docs-v2/guides/configuring-models.md":WN,"../docs-v2/guides/global-settings.md":GN,"../docs-v2/guides/managing-api-keys.md":KN,"../docs-v2/guides/monitoring-notifications.md":qN,"../docs-v2/guides/provider-management.md":JN,"../docs-v2/integrations/ai-client-setup.md":YN,"../docs-v2/integrations/claude-code-setup.md":XN,"../docs-v2/integrations/codex-cli-setup.md":ZN,"../docs-v2/integrations/deepseek-harness-setup.md":QN,"../docs-v2/integrations/openclaw-setup.md":$N,"../docs-v2/integrations/opencode-setup.md":eP,"../docs-v2/integrations/other-clients.md":tP,"../docs-v2/integrations/qwen-code-setup.md":nP,"../docs-v2/providers/bypass-providers.md":rP,"../docs-v2/providers/elevenlabs-audio.md":iP,"../docs-v2/providers/free-tier-providers.md":aP,"../docs-v2/providers/paid-providers.md":oP,"../docs-v2/providers/provider-directory.md":sP,"../docs-v2/reference/api-reference.md":cP,"../docs-v2/reference/cli-commands.md":lP,"../docs-v2/reference/environment-variables.md":uP,"../docs-v2/reference/settings-reference.md":dP,"../docs-v2/support.md":fP,"../docs-v2/troubleshooting/faq.md":pP,"../docs-v2/troubleshooting/troubleshooting.md":mP}),_P=e=>e.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{E0020}-\u{E007F}\u{FE0F}\u{200D}\u{1F400}-\u{1F4FF}]/gu,``).trim();function vP(e){let t=new Sx,n=e.split(`
+`),r=[],i=null;return n.forEach(e=>{let n=e.match(/^##\s+(.+)$/);if(n){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim();if(e.toLowerCase()===`table of contents`)return;i={id:t.slug(e),title:_P(e),items:[]},r.push(i)}else{let n=e.match(/^###\s+(.+)$/);if(n&&i){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim(),r=t.slug(e),a=_P(e);i.items.push({id:r,title:a})}}}),r}function yP(e){return gP[`../docs-v2/${e}`]||(console.warn(`[docs] Missing markdown file for path: ${e}`),``)}function bP(e){return e.replace(/```[\s\S]*?```/g,``).replace(/`[^`]+`/g,``).replace(/!?\[([^\]]*)\]\([^)]*\)/g,`$1`).replace(/^\s{0,3}#{1,6}\s+/gm,``).replace(/[*_~]{1,3}/g,``).replace(/^\s*[-*+]\s+/gm,``).replace(/^\s*\d+\.\s+/gm,``).replace(/^\s*>\s?/gm,``).replace(/\|/g,` `).replace(/<\/?[^>]+(>|$)/g,``).replace(/\n{2,}/g,`
+`).trim()}var xP={},SP=hP.sections.map(e=>({label:e.title,keys:e.items.map(e=>{let t=yP(e.path);return xP[e.key]={title:e.title,content:t,toc:vP(t)},e.key})})),CP=(()=>{let e=[],t=new Sx;for(let n of hP.sections)for(let r of n.items){let i=xP[r.key];if(!i||!i.content)continue;t.reset();let a=i.content.split(`
+`),o=null,s=null,c=[],l=()=>{if(c.length===0)return;let t=bP(c.join(`
+`));t.length<3||e.push({key:r.key,docTitle:r.title,sectionTitle:n.title,headingId:s,headingTitle:o,text:t})};for(let e of a){let n=e.match(/^##\s+(.+)$/),r=!n&&e.match(/^###\s+(.+)$/);if(n||r){l(),c=[];let e=(n||r)[1].replace(/<\/?[^>]+(>|$)/g,``).trim();o=_P(e),s=t.slug(e)}else c.push(e)}l()}return e})();function wP({children:e,...t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(!1);return(0,S.useEffect)(()=>{let e=n.current;if(!e)return;let t=()=>i(e.scrollWidth>e.clientWidth+1);t();let r=new ResizeObserver(t);return r.observe(e),()=>r.disconnect()},[e]),(0,M.jsxs)(`div`,{children:[(0,M.jsx)(`div`,{className:`table-scroll-wrapper`,ref:n,children:(0,M.jsx)(`table`,{...t,children:e})}),r&&(0,M.jsxs)(`div`,{className:`table-scroll-hint`,children:[(0,M.jsxs)(`svg`,{width:`14`,height:`14`,viewBox:`0 0 24 24`,fill:`none`,stroke:`currentColor`,strokeWidth:`2`,strokeLinecap:`round`,strokeLinejoin:`round`,children:[(0,M.jsx)(`path`,{d:`M5 12h14`}),(0,M.jsx)(`path`,{d:`m12 5 7 7-7 7`})]}),`Swipe to see more`]})]})}function TP({language:e,children:t}){let[n,r]=(0,S.useState)(!1),i=(0,S.useCallback)(()=>{navigator.clipboard.writeText(String(t).replace(/\n$/,``)).then(()=>{r(!0),setTimeout(()=>r(!1),2e3)}).catch(()=>{})},[t]);return(0,M.jsxs)(`div`,{className:`code-block`,children:[(0,M.jsxs)(`div`,{className:`code-block-bar`,children:[(0,M.jsxs)(`span`,{className:`code-lang`,children:[(0,M.jsx)(`i`,{className:`code-lang-dot`,"aria-hidden":`true`}),e||`text`]}),(0,M.jsx)(`button`,{type:`button`,onClick:i,className:`code-copy${n?` copied`:``}`,"aria-label":`Copy code block`,children:n?(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(ar,{size:13,"aria-hidden":`true`}),` Copied`]}):(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(or,{size:13,"aria-hidden":`true`}),` Copy`]})})]}),(0,M.jsx)(jN,{language:e||`text`,style:MN,customStyle:{margin:0,border:`none`,borderRadius:0,fontSize:`0.85rem`,padding:`16px 18px`,background:`transparent`,lineHeight:1.7},codeTagProps:{style:{fontFamily:`var(--font-mono)`}},children:String(t).replace(/\n$/,``)})]})}function EP({onNavigate:e}){let[t,n]=(0,S.useState)(``),[r,i]=(0,S.useState)([]),[a,o]=(0,S.useState)(0),[s,c]=(0,S.useState)(!1),l=(0,S.useRef)(null),u=(0,S.useRef)(null),d=(0,S.useRef)(null),f=(0,S.useCallback)(e=>{if(d.current&&clearTimeout(d.current),e.length<2){i([]),c(!1);return}d.current=setTimeout(()=>{let t=e.toLowerCase(),n=[];for(let r of CP){if(n.length>=30)break;let i=r.headingTitle&&r.headingTitle.toLowerCase().includes(t),a=r.text.toLowerCase().includes(t);if(i||a){let a=``,o=r.text.toLowerCase().indexOf(t);if(o>=0){let t=Math.max(0,o-40),n=Math.min(r.text.length,o+e.length+80);a=(t>0?`...`:``)+r.text.slice(t,n)+(n<r.text.length?`...`:``)}else r.text.length>0&&(a=r.text.slice(0,120)+(r.text.length>120?`...`:``));n.push({...r,snippet:a,headingMatch:i})}}n.sort((e,t)=>(t.headingMatch?1:0)-(e.headingMatch?1:0)),i(n),o(0),c(!0)},150)},[]),p=e=>{let t=e.target.value;n(t),f(t)},m=()=>{n(``),i([]),c(!1),l.current?.focus()},h=(0,S.useCallback)(t=>{e(t.key,t.headingId),c(!1),n(``),i([])},[e]),g=e=>{if(!s||r.length===0){e.key===`Escape`&&(m(),l.current?.blur());return}e.key===`ArrowDown`?(e.preventDefault(),o(e=>Math.min(e+1,r.length-1))):e.key===`ArrowUp`?(e.preventDefault(),o(e=>Math.max(e-1,0))):e.key===`Enter`?(e.preventDefault(),h(r[a])):e.key===`Escape`&&c(!1)};(0,S.useEffect)(()=>{if(!u.current)return;let e=u.current.querySelector(`.docs-search-result-item.active`);e&&e.scrollIntoView({block:`nearest`})},[a]),(0,S.useEffect)(()=>{let e=e=>{(e.metaKey||e.ctrlKey)&&e.key===`k`&&(e.preventDefault(),l.current?.focus())};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[]),(0,S.useEffect)(()=>{if(!s)return;let e=e=>{let t=l.current?.closest(`.docs-search-wrapper`);t&&!t.contains(e.target)&&c(!1)};return document.addEventListener(`mousedown`,e),()=>document.removeEventListener(`mousedown`,e)},[s]);let _=(e,t)=>!t||t.length<2?e:e.split(RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g,`\\$&`)})`,`gi`)).map((e,n)=>e.toLowerCase()===t.toLowerCase()?(0,M.jsx)(`mark`,{className:`docs-search-highlight`,children:e},n):e);return(0,M.jsxs)(`div`,{className:`docs-search-wrapper`,children:[(0,M.jsxs)(`div`,{className:`docs-search-input-box`,children:[(0,M.jsx)(`span`,{className:`docs-search-icon`,children:(0,M.jsx)(xr,{size:15,"aria-hidden":`true`})}),(0,M.jsx)(`input`,{ref:l,type:`text`,className:`docs-search-input`,placeholder:`Search docs...`,value:t,onChange:p,onKeyDown:g,onFocus:()=>{r.length>0&&c(!0)}}),t?(0,M.jsx)(`button`,{className:`docs-search-clear`,onClick:m,"aria-label":`Clear search`,children:(0,M.jsx)(Dr,{size:14,"aria-hidden":`true`})}):(0,M.jsxs)(`span`,{className:`docs-search-kbd`,children:[(0,M.jsx)(`kbd`,{children:navigator.platform?.includes(`Mac`)?`⌘`:`Ctrl`}),(0,M.jsx)(`kbd`,{children:`K`})]})]}),s&&(0,M.jsx)(`div`,{className:`docs-search-results`,ref:u,children:r.length>0?(0,M.jsxs)(M.Fragment,{children:[(0,M.jsxs)(`div`,{className:`docs-search-results-header`,children:[r.length,` result`,r.length===1?``:`s`]}),r.map((e,n)=>(0,M.jsxs)(`div`,{className:`docs-search-result-item${n===a?` active`:``}`,onClick:()=>h(e),onMouseEnter:()=>o(n),children:[(0,M.jsxs)(`span`,{className:`docs-search-result-doc`,children:[e.sectionTitle,` › `,e.docTitle]}),e.headingTitle&&(0,M.jsx)(`span`,{className:`docs-search-result-heading`,children:_(e.headingTitle,t)}),e.snippet&&(0,M.jsx)(`span`,{className:`docs-search-result-snippet`,children:_(e.snippet,t)})]},`${e.key}-${e.headingId}-${n}`))]}):(0,M.jsxs)(`div`,{className:`docs-search-empty`,children:[(0,M.jsx)(xr,{size:24,"aria-hidden":`true`}),`No results for “`,t,`”`]})})]})}function DP({activeTab:e,onSelect:t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(null);return(0,S.useLayoutEffect)(()=>{let e=()=>{let e=n.current;if(!e)return;let t=e.querySelector(`.docs-nav-item.active`);i(t?{top:t.offsetTop,height:t.offsetHeight,visible:!0}:e=>e?{...e,visible:!1}:null)};return e(),window.addEventListener(`resize`,e),document.fonts?.ready&&document.fonts.ready.then(e).catch(()=>{}),()=>window.removeEventListener(`resize`,e)},[e]),(0,M.jsxs)(`div`,{className:`docs-nav`,ref:n,children:[r&&(0,M.jsx)(`span`,{className:`docs-nav-glider`,style:{transform:`translateY(${r.top}px)`,height:`${r.height}px`,opacity:r.visible?1:0},"aria-hidden":`true`}),SP.map(n=>(0,M.jsxs)(`div`,{className:`docs-nav-section`,children:[(0,M.jsx)(`h3`,{className:`docs-nav-label`,children:n.label}),(0,M.jsx)(`div`,{className:`docs-nav-items`,children:n.keys.map(n=>(0,M.jsx)(`button`,{type:`button`,onClick:()=>t(n),className:`docs-nav-item${e===n?` active`:``}`,children:xP[n].title},n))})]},n.label))]})}function OP(){let[e,t]=(0,S.useState)(`quickstart`),[n,r]=(0,S.useState)(``),[i,a]=(0,S.useState)(!1),o=rt();(0,S.useEffect)(()=>(document.body.style.overflow=i?`hidden`:`unset`,()=>{document.body.style.overflow=`unset`}),[i]);let s=(0,S.useCallback)((e,n)=>{t(e),a(!1),n?setTimeout(()=>{let e=document.getElementById(n);if(e){let t=e.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:t,behavior:`smooth`}),r(n)}},200):(window.scrollTo({top:0,behavior:`smooth`}),r(``))},[]),c=(0,S.useCallback)(e=>{t(e),a(!1),window.scrollTo({top:0,behavior:`smooth`}),r(``)},[]),l=e=>{let t=document.getElementById(e);if(t){let n=t.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:n,behavior:`smooth`}),r(e)}},[u,d]=(0,S.useState)(o);if(u!==o){d(o);let e=new URLSearchParams(o.search).get(`tab`);e&&xP[e]&&t(e),r(``)}return(0,S.useEffect)(()=>{let e=new URLSearchParams(o.search),t=e.get(`tab`),n=e.get(`anchor`);if(t&&xP[t]&&n){let e=setTimeout(()=>{let e=document.getElementById(n);if(e){let t=e.getBoundingClientRect().top+window.scrollY-90;window.scrollTo({top:t,behavior:`smooth`}),r(n)}},200);return()=>clearTimeout(e)}window.scrollTo(0,0)},[o]),(0,S.useEffect)(()=>{let e=()=>{let e=document.querySelector(`.md-content`);if(!e)return;let t=Array.from(e.querySelectorAll(`h2, h3`));if(t.length===0)return;let n=``;for(let e of t)if(e.getBoundingClientRect().top<=120)n=e.id;else break;n&&r(n)};return window.addEventListener(`scroll`,e,{passive:!0}),()=>window.removeEventListener(`scroll`,e)},[e]),(0,M.jsxs)(M.Fragment,{children:[(0,M.jsx)(`button`,{type:`button`,className:`docs-mobile-menu-btn`,onClick:()=>a(!0),"aria-label":`Open navigation`,children:(0,M.jsx)(hr,{size:18,"aria-hidden":`true`})}),i&&(0,M.jsx)(`div`,{className:`docs-drawer-backdrop`,onClick:()=>a(!1),children:(0,M.jsxs)(`aside`,{className:`docs-drawer`,onClick:e=>e.stopPropagation(),children:[(0,M.jsxs)(`div`,{className:`docs-drawer-header`,children:[(0,M.jsx)(`span`,{style:{fontWeight:600,color:`var(--text-main)`,fontSize:`1rem`},children:`Documentation`}),(0,M.jsx)(`button`,{type:`button`,onClick:()=>a(!1),"aria-label":`Close navigation`,style:{background:`none`,border:`none`,color:`var(--text-muted)`,cursor:`pointer`,padding:`4px`,display:`flex`},children:(0,M.jsx)(Dr,{size:20,"aria-hidden":`true`})})]}),(0,M.jsx)(EP,{onNavigate:s}),(0,M.jsx)(DP,{activeTab:e,onSelect:c})]})}),(0,M.jsx)(`div`,{className:`animate-fade-in docs-layout`,children:(0,M.jsxs)(`div`,{className:`docs-layout-inner`,children:[(0,M.jsxs)(`aside`,{className:`docs-side-left`,children:[(0,M.jsx)(EP,{onNavigate:s}),(0,M.jsx)(DP,{activeTab:e,onSelect:c})]}),(0,M.jsx)(`main`,{className:`docs-main`,children:(0,M.jsx)(`div`,{className:`md-content md-tab-anim`,children:(0,M.jsx)(pv,{remarkPlugins:[yx],rehypePlugins:[Ax,BE],components:{code:({inline:e,className:t,children:n,...r})=>{let i=/language-(\w+)/.exec(t||``);return!e&&i?(0,M.jsx)(TP,{language:i[1],children:n}):!e&&!i&&String(n).includes(`
+`)?(0,M.jsx)(TP,{language:`text`,children:n}):(0,M.jsx)(`code`,{className:t,...r,children:n})},pre:({children:e})=>(0,M.jsx)(M.Fragment,{children:e}),table:({children:e,...t})=>(0,M.jsx)(wP,{...t,children:e}),a:({href:e,children:t,...n})=>{if(e?.startsWith(`#`)){let r=e.slice(1);return(0,M.jsx)(`a`,{href:e,onClick:e=>{e.preventDefault(),l(r)},...n,children:t})}return(0,M.jsx)(`a`,{href:e,target:e?.startsWith(`http`)?`_blank`:`_self`,rel:`noopener noreferrer`,...n,children:t})}},children:xP[e].content})},e)}),(0,M.jsx)(`aside`,{className:`docs-side-right`,children:xP[e].toc&&xP[e].toc.length>0&&(0,M.jsxs)(`div`,{className:`toc-wrap`,children:[(0,M.jsxs)(`div`,{className:`toc-label`,children:[(0,M.jsx)(fr,{size:14,"aria-hidden":`true`}),`On this page`]}),(0,M.jsx)(`div`,{className:`toc-items`,children:xP[e].toc.map(e=>(0,M.jsxs)(S.Fragment,{children:[(0,M.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link${n===e.id?` active`:``}`,children:e.title}),e.items&&e.items.length>0&&e.items.map(e=>(0,M.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link toc-link-sub${n===e.id?` active`:``}`,children:e.title},e.id))]},e.id))})]})})]})})]})}function kP(){return(0,M.jsx)(Cn,{children:(0,M.jsx)(It,{children:(0,M.jsxs)(Pt,{path:`/`,element:(0,M.jsx)(Mr,{}),children:[(0,M.jsx)(Pt,{index:!0,element:(0,M.jsx)(Nd,{})}),(0,M.jsx)(Pt,{path:`docs`,element:(0,M.jsx)(OP,{})}),(0,M.jsx)(Pt,{path:`*`,element:(0,M.jsx)(Nd,{})})]})})})}kr.createRoot(document.getElementById(`root`)).render((0,M.jsx)(S.StrictMode,{children:(0,M.jsx)(kP,{})}));
