@@ -337,10 +337,15 @@ function DocsNav({ activeTab, onSelect }) {
 }
 
 export default function DocsPage() {
-    const [activeTab, setActiveTab] = useState('quickstart');
+    const location = useLocation();
+    // Initialize tab from the URL on mount so deep links (/docs?tab=X) work
+    // on first render — the prevLoc pattern below only catches later changes.
+    const [activeTab, setActiveTab] = useState(() => {
+        const tab = new URLSearchParams(location.search).get('tab');
+        return tab && docs[tab] ? tab : 'quickstart';
+    });
     const [activeHeading, setActiveHeading] = useState('');
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const location = useLocation();
 
     // Lock body scroll when drawer is open
     useEffect(() => {

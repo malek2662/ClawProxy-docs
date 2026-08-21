@@ -481,7 +481,7 @@ img {
   background-image:
     linear-gradient(to right, rgba(80, 223, 144, 0.04) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(80, 223, 144, 0.04) 1px, transparent 1px);
-  background-size: 80px 80px;
+  background-size: 56px 56px;
   mask-image: radial-gradient(ellipse 70% 62% at 30% 30%, #000 28%, transparent 80%);
   -webkit-mask-image: radial-gradient(ellipse 70% 62% at 30% 30%, #000 28%, transparent 80%);
   pointer-events: none;
@@ -2022,7 +2022,7 @@ img {
   background-image:
     linear-gradient(to right, rgba(80, 223, 144, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(80, 223, 144, 0.05) 1px, transparent 1px);
-  background-size: 36px 36px;
+  background-size: 26px 26px;
   mask-image: radial-gradient(ellipse 62% 58% at 50% 52%, #000 22%, transparent 78%);
   -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 52%, #000 22%, transparent 78%);
   pointer-events: none;
@@ -2235,79 +2235,6 @@ img {
   font-size: 0.72rem;
   color: var(--primary);
   letter-spacing: 0.02em;
-}
-
-/* ============================================================
-   CTA section
-   ============================================================ */
-.cta-section {
-  padding: 96px 0;
-}
-
-.cta-box {
-  position: relative;
-  max-width: 820px;
-  margin: 0 auto;
-  text-align: center;
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  box-shadow: 0 0 0 1px var(--primary-border);
-}
-
-/* Rotating conic streak — premium animated border */
-.cta-orbit {
-  position: absolute;
-  inset: -45%;
-  background: conic-gradient(from 0deg, transparent 0deg, transparent 288deg, rgba(80, 223, 144, 0.65) 332deg, rgba(155, 240, 192, 0.9) 348deg, transparent 360deg);
-  animation: cta-orbit 7s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes cta-orbit {
-  to { transform: rotate(360deg); }
-}
-
-.cta-inner {
-  position: relative;
-  margin: 1px;
-  background: var(--bg-card);
-  border-radius: calc(var(--r-lg) - 1px);
-  padding: 64px 48px;
-  overflow: hidden;
-}
-
-.cta-inner::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(to right, rgba(80, 223, 144, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(80, 223, 144, 0.05) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 70% 80% at 50% 0%, #000 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 80% at 50% 0%, #000 20%, transparent 75%);
-  pointer-events: none;
-}
-
-.cta-inner > * {
-  position: relative;
-}
-
-.cta-inner h2 {
-  font-size: clamp(1.8rem, 3.4vw, 2.4rem);
-  letter-spacing: -0.02em;
-  margin-bottom: 16px;
-}
-
-.cta-inner p {
-  color: var(--text-muted);
-  font-size: 1.08rem;
-  margin-bottom: 32px;
-}
-
-.cta-inner .btn-primary {
-  padding: 11px 24px;
-  font-size: 1rem;
 }
 
 /* ============================================================
@@ -3215,14 +3142,15 @@ img {
   background: var(--bg-inset);
   cursor: zoom-in;
   opacity: 0;
-  transform: scale(0.988);
-  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+  transform: translateY(16px) scale(0.985);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  will-change: opacity, transform;
   pointer-events: none;
 }
 
 .cc-shot.on {
   opacity: 1;
-  transform: scale(1);
+  transform: translateY(0) scale(1);
   pointer-events: auto;
 }
 
@@ -3763,17 +3691,6 @@ img {
 }
 
 /* ============================================================
-   CTA dual actions
-   ============================================================ */
-.cta-actions {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-/* ============================================================
    New sections — responsive
    ============================================================ */
 @media (max-width: 1024px) {
@@ -4071,10 +3988,6 @@ body > div:has(> .polar-loader-spinner) {
     font-size: 2rem;
   }
 
-  .cta-inner {
-    padding: 48px 24px;
-  }
-
   .cap-grid {
     grid-template-columns: 1fr;
   }
@@ -4254,7 +4167,6 @@ body > div:has(> .polar-loader-spinner) {
     animation: none;
   }
 
-  .cta-orbit,
   .hero-glow {
     animation: none;
   }

@@ -15,8 +15,6 @@ import Faq from '../components/Faq';
 import { useGlowCards } from '../hooks/useGlowCards';
 import { useTilt } from '../hooks/useTilt';
 
-const POLAR_URL = 'https://buy.polar.sh/polar_cl_8wTBwKsDWMEVH5yLL4uQo2GMOPhE6V0cOytzu41fw3t';
-
 const STATS = [
     { num: '50', suffix: '', label: 'Provider presets built in' },
     { num: '4', suffix: '', label: 'API formats translated' },
@@ -371,29 +369,6 @@ export default function LandingPage() {
 
             {/* ============ FAQ ============ */}
             <Faq />
-
-            {/* ============ CTA ============ */}
-            <section className="cta-section" data-anim>
-                <div className="container">
-                    <Reveal className="cta-box reveal-scale">
-                        <div className="cta-orbit" aria-hidden="true" />
-                        <div className="cta-inner">
-                            <h2>Ready to Take Control?</h2>
-                            <p>
-                                One $20 license, lifetime access, set up in minutes. Own your AI stack — routing, keys, failover and monitoring included.
-                            </p>
-                            <div className="cta-actions">
-                                <a href={POLAR_URL} data-polar-checkout data-polar-checkout-theme="dark" className="btn-primary">
-                                    Get Lifetime Access — $20
-                                </a>
-                                <Link to="/docs?tab=quickstart" className="btn-secondary">
-                                    View Quickstart Guide <ArrowRight size={15} aria-hidden="true" />
-                                </Link>
-                            </div>
-                        </div>
-                    </Reveal>
-                </div>
-            </section>
 
             {/* ============ Lightbox ============ */}
             {selectedImage && createPortal(
