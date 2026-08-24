@@ -2794,7 +2794,7 @@ Bypass providers access AI models without requiring an API key. ClawRouter handl
 
 > **No Setup Tricks Needed:** Keyless presets ship with API Key Mode \`None\` pre-selected. Just pick the preset and click **Create Provider** -- do **not** add any API keys. The keys table is replaced by an informational card, and the add-key endpoint rejects keys for these providers.
 
-> **About \`apiKey\`:** In the OpenClaw configurations below, \`cr_your_proxy_key\` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog inserts it automatically.
+> **Client configuration:** Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the **Client Setup** section -- or open the provider's **Prompt for AI** dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.
 
 ---
 
@@ -2821,33 +2821,24 @@ Free high-performance coding and reasoning models, no signup.
 
 | Model ID | Description | Context |
 |----------|-------------|---------|
-| \`gpt-5-nano\` | Ultra-fast preview variant of OpenAI's reasoning models | 400k |
-| \`minimax-m2.5-free\` | SOTA model for productivity and coding (SWE-Bench 80.2%) | 204k |
-| \`big-pickle\` | High-speed stealth model based on GLM, optimized for development | 200k |
-| \`trinity-large-preview-free\` | Arcee AI's 400B MoE model, excels at complex prompts | 128k |
+| \`nemotron-3-ultra-free\` | NVIDIA Nemotron 3 Ultra (free) | 1M |
+| \`nemotron-3.5-lightning-free\` | NVIDIA Nemotron 3.5 Lightning (free) | 262k |
+| \`x-preview-f-free\` | "Ox Alpha" stealth preview (free, unlimited) | 1M |
+| \`muse-spark-1.2-contributor-free\` | Muse Spark 1.2 (contributor free) | 1M |
+| \`laguna-s-2.1-free\` | Poolside Laguna S 2.1 (free) | 256k |
+| \`deepseek-v4-flash-free\` | DeepSeek V4 Flash (free) | 200k |
+| \`mimo-v2.5-free\` | Xiaomi MiMo V2.5 (free) | 200k |
+| \`big-pickle\` | High-speed stealth model optimized for development | 200k |
+| \`hy3-free\` | Tencent Hy3 (free) | 190k |
 
-### OpenClaw Configuration
-
-\`\`\`json
-"opencode": {
-  "baseUrl": "http://localhost:3030/proxy/opencode-zen/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "gpt-5-nano", "name": "gpt-5-nano" },
-    { "id": "minimax-m2.5-free", "name": "minimax-m2.5-free" },
-    { "id": "big-pickle", "name": "big-pickle" },
-    { "id": "trinity-large-preview-free", "name": "trinity-large-preview-free" }
-  ]
-}
-\`\`\`
+> **Free models rotate.** Zen's free set is limited-time and changes frequently -- this is a snapshot (August 2026), and \`deepseek-v4-flash-free\` / \`laguna-s-2.1-free\` are already marked deprecated upstream and may fail at generation. The dashboard's **Models tab > Fetch Models** always shows today's free/paid set. Official list: [opencode.ai/docs/zen](https://opencode.ai/docs/zen/).
 
 ### Dashboard Setup Steps
 
 1. Go to **Providers** > **Add Provider** > **Quick Setup** > select **OpenCode Zen**.
 2. Click **Create Provider** -- API Key Mode is already set to \`None\`.
 3. Do **not** add any API keys.
-4. Copy the generated **Base URL** and use it in your OpenClaw config.
+4. Copy the generated **Base URL** and use it in your AI client.
 5. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
 
 ---
@@ -2869,33 +2860,28 @@ Free models on the Kilo AI gateway, no key needed.
 
 | Model ID | Description | Context |
 |----------|-------------|---------|
-| \`minimax/minimax-m2.5:free\` | SOTA model for productivity and coding (SWE-Bench 80.2%) | 204k |
-| \`stepfun/step-3.5-flash:free\` | Speed-efficient MoE reasoning model for long contexts | 256k |
-| \`kilo-auto/free\` | Dynamic router -- auto-routes to available free models | 204k |
+| \`kilo-auto/free\` | Dynamic router -- auto-routes to available free models | 256k |
+| \`meituan/longcat-2.0-free\` | Meituan LongCat 2.0 | 1M |
+| \`nvidia/nemotron-3-ultra-550b-a55b:free\` | NVIDIA Nemotron 3 Ultra 550B | 1M |
+| \`nvidia/nemotron-3.5-lightning:free\` | NVIDIA Nemotron 3.5 Lightning | 1M |
+| \`dots-studio/dots-3-note-preview:free\` | Dots Studio Dots3-Note Preview | 512k |
+| \`stepfun/step-3.7-flash:free\` | StepFun Step 3.7 Flash | 256k |
+| \`tencent/hy3:free\` | Tencent Hy3 | 256k |
+| \`poolside/laguna-s-2.1:free\` | Poolside Laguna S 2.1 | 256k |
+| \`poolside/laguna-xs-2.1:free\` | Poolside Laguna XS 2.1 | 256k |
+| \`cohere/north-mini-code:free\` | Cohere North Mini Code | 256k |
+| \`nvidia/nemotron-3-super-120b-a12b:free\` | NVIDIA Nemotron 3 Super 120B | 256k |
+| \`liquid/lfm-2.5-2.6b:free\` | LiquidAI LFM2.5-2.6B | 65k |
 | \`openrouter/free\` | Auto-routes to random free models on OpenRouter | 200k |
 
-### OpenClaw Configuration
-
-\`\`\`json
-"kilocode": {
-  "baseUrl": "http://localhost:3030/proxy/kilo-ai-free/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "minimax/minimax-m2.5:free", "name": "minimax/minimax-m2.5:free" },
-    { "id": "stepfun/step-3.5-flash:free", "name": "stepfun/step-3.5-flash:free" },
-    { "id": "kilo-auto/free", "name": "kilo-auto/free" },
-    { "id": "openrouter/free", "name": "openrouter/free" }
-  ]
-}
-\`\`\`
+> **Free models rotate.** This is a snapshot (August 2026) of the gateway's free set. **Models tab > Fetch Models** shows the live list with Free/Paid badges and per-model metadata (context, max output, modalities). Live catalog: [api.kilo.ai/api/gateway/models](https://api.kilo.ai/api/gateway/models).
 
 ### Dashboard Setup Steps
 
 1. Go to **Providers** > **Add Provider** > **Quick Setup** > select **Kilo AI (Free)**.
 2. Click **Create Provider** -- API Key Mode is already set to \`None\`.
 3. Do **not** add any API keys.
-4. Copy the generated **Base URL** and use it in your OpenClaw config.
+4. Copy the generated **Base URL** and use it in your AI client.
 5. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
 
 ---
@@ -2952,7 +2938,7 @@ Speech-to-Text (Scribe) and Text-to-Speech through ClawRouter. ElevenLabs is a *
 | **API Key Mode** | \`Managed\` |
 | **Get API Key** | [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys) |
 
-**Seeded models:** \`scribe_v2\`, \`scribe_v1\` (Speech-to-Text) and \`eleven_v3\`, \`eleven_multilingual_v2\`, \`eleven_flash_v2_5\`, \`eleven_turbo_v2_5\` (Text-to-Speech). Use **Fetch Models** on the Models tab to pull the live TTS model list -- the Scribe STT models are always included.
+**Seeded models:** \`scribe_v2\`, \`scribe_v1\` (Speech-to-Text) and \`eleven_v3\`, \`eleven_multilingual_v2\`, \`eleven_flash_v2_5\`, \`eleven_turbo_v2_5\` (Text-to-Speech). Use **Fetch Models** on the Models tab to pull the live TTS model list -- the Scribe STT models are always included. See **Available Models** below.
 
 ### Authentication
 
@@ -3008,6 +2994,28 @@ Returns the JSON transcript from the Scribe model.
 
 ---
 
+## Available Models
+
+**Speech-to-Text (Scribe):** use via \`POST /v1/speech-to-text\` (\`model_id\` field). Scribe models are not listed by the \`/v1/models\` endpoint, so ClawRouter always keeps them in the seeded list.
+
+| Model ID | Notes |
+|----------|-------|
+| \`scribe_v2\` | Latest Scribe STT |
+| \`scribe_v1\` | Previous Scribe STT |
+
+**Text-to-Speech:** pass as \`model_id\` in the TTS request body.
+
+| Model ID | Notes |
+|----------|-------|
+| \`eleven_v3\` | Latest flagship TTS |
+| \`eleven_multilingual_v2\` | Multilingual, high quality |
+| \`eleven_flash_v2_5\` | Low latency |
+| \`eleven_turbo_v2_5\` | Balanced latency / quality |
+
+> *Model lists change over time -- snapshot from August 2026. **Models tab > Fetch Models** pulls the live TTS list (\`GET /v1/models\`).* Official catalog: [elevenlabs.io/docs/models](https://elevenlabs.io/docs/models)
+
+---
+
 ## Connection Testing
 
 The **Test** button uses a zero-cost \`GET /v1/user\` probe -- no characters are billed. A definitively invalid key (401/403, or hard billing) is auto-disabled, exactly as on chat providers.
@@ -3026,7 +3034,7 @@ These providers offer a genuine free tier or quota. You need a free API key from
 
 > **Version 1.0.17**
 
-> **About \`apiKey\`:** In every OpenClaw configuration below, \`cr_your_proxy_key\` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog on each provider page inserts it automatically.
+> **Client configuration:** Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the **Client Setup** section -- or open the provider's **Prompt for AI** dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.
 
 ---
 
@@ -3045,34 +3053,15 @@ Access frontier open-weight models hosted on Ollama's cloud. No local hardware o
 
 | Model ID | Notes |
 |----------|-------|
-| \`glm-5:cloud\` | Strongest / Reasoning |
-| \`minimax-m2.5:cloud\` | Productivity / Coding |
-| \`qwen3.5:397b-cloud\` | Newest Multimodal |
-| \`glm-4.7:cloud\` | High Performance |
-| \`gemini-3-flash-preview:cloud\` | Frontier Speed |
-| \`deepseek-v3.2:cloud\` | Efficiency / Reasoning |
-| \`kimi-k2.5:cloud\` | Newest Multimodal |
+| \`glm-5.2:cloud\` | GLM Flagship |
+| \`glm-5.1:cloud\` | GLM Previous Gen |
+| \`kimi-k2.6:cloud\` | Kimi K2.6 |
+| \`minimax-m3:cloud\` | MiniMax M3 |
+| \`minimax-m2.7:cloud\` | MiniMax M2.7 |
+| \`deepseek-v4-flash:cloud\` | DeepSeek V4 Flash |
+| \`qwen3.5:397b-cloud\` | Qwen 3.5 397B MoE |
 
-Check for more: https://ollama.com/search?c=cloud&o=newest
-
-### OpenClaw Configuration
-
-\`\`\`json
-"ollama": {
-  "baseUrl": "http://localhost:3030/proxy/ollama-cloud/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "glm-5:cloud", "name": "glm-5:cloud" },
-    { "id": "minimax-m2.5:cloud", "name": "minimax-m2.5:cloud" },
-    { "id": "qwen3.5:397b-cloud", "name": "qwen3.5:397b-cloud" },
-    { "id": "glm-4.7:cloud", "name": "glm-4.7:cloud" },
-    { "id": "gemini-3-flash-preview:cloud", "name": "gemini-3-flash-preview:cloud" },
-    { "id": "deepseek-v3.2:cloud", "name": "deepseek-v3.2:cloud" },
-    { "id": "kimi-k2.5:cloud", "name": "kimi-k2.5:cloud" }
-  ]
-}
-\`\`\`
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [ollama.com/search?c=cloud](https://ollama.com/search?c=cloud&o=newest)
 
 ### Dashboard Setup
 
@@ -3099,30 +3088,17 @@ The most generous free tier with high rate limits. Requires a free API key from 
 
 | Model ID | Notes |
 |----------|-------|
-| \`gemini-3.1-pro-preview\` | Flagship |
-| \`gemini-3.1-flash-lite-preview\` | Newest Lite |
-| \`gemini-3-flash-preview\` | High Speed |
-| \`gemini-2.5-pro\` | Previous gen Pro |
-| \`gemini-2.5-flash\` | Previous gen Flash |
-| \`gemini-2.5-flash-lite\` | Previous gen Lite |
+| \`gemini-3.7-flash\` | Newest Flash |
+| \`gemini-3.6-flash\` | Flash |
+| \`gemini-3.5-flash\` | Flash |
+| \`gemini-3.5-flash-lite\` | Flash Lite |
+| \`gemini-3.1-pro\` | Pro |
+| \`gemini-3-flash\` | Previous Gen Flash |
+| \`gemini-2.5-pro\` | 2.5 Pro |
+| \`gemini-2.5-flash\` | 2.5 Flash |
+| \`gemini-2.5-flash-lite\` | 2.5 Flash Lite |
 
-### OpenClaw Configuration
-
-\`\`\`json
-"google": {
-  "baseUrl": "http://localhost:3030/proxy/google-gemini/v1beta",
-  "apiKey": "cr_your_proxy_key",
-  "api": "google-generative-ai",
-  "models": [
-    { "id": "gemini-3.1-pro-preview", "name": "gemini-3.1-pro-preview" },
-    { "id": "gemini-3.1-flash-lite-preview", "name": "gemini-3.1-flash-lite-preview" },
-    { "id": "gemini-3-flash-preview", "name": "gemini-3-flash-preview" },
-    { "id": "gemini-2.5-pro", "name": "gemini-2.5-pro" },
-    { "id": "gemini-2.5-flash", "name": "gemini-2.5-flash" },
-    { "id": "gemini-2.5-flash-lite", "name": "gemini-2.5-flash-lite" }
-  ]
-}
-\`\`\`
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list (includes per-model token limits and thinking support).* Official catalog: [ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
 
 > **Note:** Google Gemini uses \`v1beta\` in the Base URL, not \`v1\`.
 
@@ -3149,26 +3125,14 @@ Extreme speed inference for open models. Free tier is rate-limited but completel
 
 | Model ID | Notes |
 |----------|-------|
-| \`openai/gpt-oss-120b\` | New Flagship |
+| \`openai/gpt-oss-120b\` | OpenAI Open-Weight Flagship |
+| \`openai/gpt-oss-20b\` | OpenAI Open-Weight Small |
 | \`llama-3.3-70b-versatile\` | Versatile |
-| \`meta-llama/llama-4-maverick-17b-128e-instruct\` | Maverick MoE |
-| \`qwen/qwen3-32b\` | Qwen 3 |
+| \`llama-3.1-8b-instant\` | Fast |
+| \`qwen/qwen3.6-27b\` | Qwen 3.6 |
+| \`groq/compound\` | Groq Compound System |
 
-### OpenClaw Configuration
-
-\`\`\`json
-"groq": {
-  "baseUrl": "http://localhost:3030/proxy/groq/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b" },
-    { "id": "llama-3.3-70b-versatile", "name": "llama-3.3-70b-versatile" },
-    { "id": "meta-llama/llama-4-maverick-17b-128e-instruct", "name": "meta-llama/llama-4-maverick-17b-128e-instruct" },
-    { "id": "qwen/qwen3-32b", "name": "qwen/qwen3-32b" }
-  ]
-}
-\`\`\`
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [console.groq.com/docs/models](https://console.groq.com/docs/models)
 
 ### Dashboard Setup
 
@@ -3193,38 +3157,18 @@ Aggregator with many free models. Requires a free OpenRouter API key.
 
 | Model ID |
 |----------|
-| \`stepfun/step-3.5-flash:free\` |
-| \`arcee-ai/trinity-large-preview:free\` |
-| \`z-ai/glm-4.5-air:free\` |
-| \`qwen/qwen3-coder:free\` |
-| \`openai/gpt-oss-120b:free\` |
-| \`google/gemma-3-27b-it:free\` |
-| \`meta-llama/llama-3.3-70b-instruct:free\` |
-| \`mistralai/mistral-small-3.1-24b-instruct:free\` |
-| \`nousresearch/hermes-3-llama-3.1-405b:free\` |
+| \`z-ai/glm-5.2:free\` |
+| \`nvidia/nemotron-3-ultra-550b-a55b:free\` |
+| \`nvidia/nemotron-3-super-120b-a12b:free\` |
+| \`nvidia/nemotron-3.5-lightning:free\` |
+| \`google/gemma-4-31b-it:free\` |
+| \`google/gemma-4-26b-a4b-it:free\` |
+| \`openai/gpt-oss-20b:free\` |
+| \`cohere/north-mini-code:free\` |
+| \`poolside/laguna-s-2.1:free\` |
+| \`liquid/lfm-2.5-2.6b:free\` |
 
-Check for more: https://openrouter.ai/models
-
-### OpenClaw Configuration
-
-\`\`\`json
-"openrouter": {
-  "baseUrl": "http://localhost:3030/proxy/openrouter/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "stepfun/step-3.5-flash:free", "name": "stepfun/step-3.5-flash:free" },
-    { "id": "arcee-ai/trinity-large-preview:free", "name": "arcee-ai/trinity-large-preview:free" },
-    { "id": "z-ai/glm-4.5-air:free", "name": "z-ai/glm-4.5-air:free" },
-    { "id": "qwen/qwen3-coder:free", "name": "qwen/qwen3-coder:free" },
-    { "id": "openai/gpt-oss-120b:free", "name": "openai/gpt-oss-120b:free" },
-    { "id": "google/gemma-3-27b-it:free", "name": "google/gemma-3-27b-it:free" },
-    { "id": "meta-llama/llama-3.3-70b-instruct:free", "name": "meta-llama/llama-3.3-70b-instruct:free" },
-    { "id": "mistralai/mistral-small-3.1-24b-instruct:free", "name": "mistralai/mistral-small-3.1-24b-instruct:free" },
-    { "id": "nousresearch/hermes-3-llama-3.1-405b:free", "name": "nousresearch/hermes-3-llama-3.1-405b:free" }
-  ]
-}
-\`\`\`
+> *The \`:free\` roster rotates constantly -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [openrouter.ai/models](https://openrouter.ai/models)
 
 ### Dashboard Setup
 
@@ -3258,27 +3202,7 @@ High-performance hosted models. Free tier available via developer program.
 | \`deepseek-ai/deepseek-v3.2\` | Efficient |
 | \`deepseek-ai/deepseek-r1\` | Reasoning |
 
-Check for more: https://build.nvidia.com/models
-
-### OpenClaw Configuration
-
-\`\`\`json
-"nvidia": {
-  "baseUrl": "http://localhost:3030/proxy/nvidia-nim/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "z-ai/glm5", "name": "z-ai/glm5" },
-    { "id": "z-ai/glm4.7", "name": "z-ai/glm4.7" },
-    { "id": "moonshotai/kimi-k2.5", "name": "moonshotai/kimi-k2.5" },
-    { "id": "moonshotai/kimi-k2-thinking", "name": "moonshotai/kimi-k2-thinking" },
-    { "id": "minimaxai/minimax-m2.5", "name": "minimaxai/minimax-m2.5" },
-    { "id": "qwen/qwen3.5-397b-a17b", "name": "qwen/qwen3.5-397b-a17b" },
-    { "id": "deepseek-ai/deepseek-v3.2", "name": "deepseek-ai/deepseek-v3.2" },
-    { "id": "deepseek-ai/deepseek-r1", "name": "deepseek-ai/deepseek-r1" }
-  ]
-}
-\`\`\`
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [build.nvidia.com/models](https://build.nvidia.com/models)
 
 ### Dashboard Setup
 
@@ -3295,32 +3219,22 @@ Excellent for RAG and multilingual tasks. Free for development/research.
 | Setting | Value |
 |---------|-------|
 | **Template** | Quick Setup > **Cohere** |
-| **Upstream URL** | \`https://api.cohere.com/v1\` |
+| **Upstream URL** | \`https://api.cohere.com/compatibility/v1\` |
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
+
+> **Two Cohere APIs:** the preset targets Cohere's **OpenAI-compatibility API** (\`/compatibility/v1\`), which is fully OpenAI-shaped for both chat and \`/models\`. The native API (\`/v1\`) has no \`/v1/chat/completions\` endpoint and is not supported.
 
 ### Models
 
 | Model ID | Notes |
 |----------|-------|
+| \`command-a-03-2025\` | Newest |
 | \`command-r-plus-08-2024\` | Flagship |
 | \`command-r-08-2024\` | Standard |
-| \`command-a-03-2025\` | Newest |
+| \`command-r7b-12-2024\` | Small / Fast |
 
-### OpenClaw Configuration
-
-\`\`\`json
-"cohere": {
-  "baseUrl": "http://localhost:3030/proxy/cohere/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "command-r-plus-08-2024", "name": "command-r-plus-08-2024" },
-    { "id": "command-r-08-2024", "name": "command-r-08-2024" },
-    { "id": "command-a-03-2025", "name": "command-a-03-2025" }
-  ]
-}
-\`\`\`
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.cohere.com/docs/models](https://docs.cohere.com/docs/models)
 
 ---
 
@@ -3339,20 +3253,7 @@ Ultra-fast inference on open models.
 
 \`llama-3.3-70b\`, \`gpt-oss-120b\`, \`zai-glm-4.7\`, \`qwen-3-235b-a22b-instruct-2507\`, \`qwen-3-32b\`
 
-### OpenClaw Configuration
-
-\`\`\`json
-"cerebras": {
-  "baseUrl": "http://localhost:3030/proxy/cerebras/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "llama-3.3-70b", "name": "llama-3.3-70b" },
-    { "id": "gpt-oss-120b", "name": "gpt-oss-120b" },
-    { "id": "zai-glm-4.7", "name": "zai-glm-4.7" }
-  ]
-}
-\`\`\`
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [inference-docs.cerebras.ai](https://inference-docs.cerebras.ai)
 
 ---
 
@@ -3372,6 +3273,8 @@ Models hosted on Cloudflare's global network. Free tier available.
 ### Models
 
 \`@cf/meta/llama-3.3-70b-instruct-fp8-fast\`, \`@cf/moonshotai/kimi-k2.6\`
+
+> *Model lists change over time -- snapshot from August 2026.* Official catalog: [developers.cloudflare.com/workers-ai/models](https://developers.cloudflare.com/workers-ai/models/)
 
 ### Dashboard Setup
 
@@ -3397,6 +3300,8 @@ ByteDance coding models (international endpoint). Free tier available during pro
 
 \`seed-2-0-pro-260328\`, \`seed-2-0-code-preview-260328\`, \`seed-2-0-mini-260215\`, \`kimi-k2-thinking-251104\`, \`glm-4-7-251222\`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [docs.byteplus.com/en/docs/ModelArk](https://docs.byteplus.com/en/docs/ModelArk)
+
 ### Dashboard Setup
 
 1. Quick Setup > **BytePlus ModelArk** > Create Provider.
@@ -3420,6 +3325,8 @@ Community free-tier gateway.
 
 \`anthropic/claude-3.7-sonnet\`, \`moonshot/kimi-k2.6\`, \`google/gemini-2.5-flash\`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ---
 
 ## Bazaarlink
@@ -3437,6 +3344,8 @@ Aggregated free & paid models.
 
 \`auto:free\`, \`claude-sonnet-4.6\`, \`gpt-5.4\`, \`kimi-k2.6\`, \`glm-5\`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ---
 
 ## Poolside
@@ -3453,6 +3362,8 @@ Coding-focused models.
 ### Models
 
 \`poolside/laguna-s-2.1\`, \`poolside/laguna-xs-2.1\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 `,aP=`# Paid Providers
 
 Configure paid API providers securely in ClawRouter. All keys are stored locally -- never sent externally.
@@ -3461,7 +3372,7 @@ Configure paid API providers securely in ClawRouter. All keys are stored locally
 
 > **Important:** ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 
-> **About \`apiKey\`:** In the OpenClaw configuration below, \`cr_your_proxy_key\` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog inserts it automatically.
+> **Client configuration:** Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the **Client Setup** section -- or open the provider's **Prompt for AI** dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.
 
 ---
 
@@ -3491,21 +3402,9 @@ Native search-augmented models: \`sonar\`, \`sonar-pro\`, \`sonar-reasoning-pro\
 
 Third-party frontier models with optional web search via the OpenAI Responses API format: \`perplexity/sonar\`, \`openai/gpt-5.4\`, \`anthropic/claude-sonnet-4-6\`, \`google/gemini-3.1-pro-preview\`
 
-### OpenClaw Configuration
+> **Live Model List:** Perplexity has a real \`/v1/models\` endpoint -- **Fetch Models** retrieves the current catalog (45+ models, including Agent-API gateway ids like \`anthropic/...\`, \`openai/...\`, \`perplexity/glm-5.x\`, \`perplexity/kimi-k2.7-code\`) with per-model pricing. The seeded lists above are only the starting set.
 
-\`\`\`json
-"perplexity": {
-  "baseUrl": "http://localhost:3030/proxy/perplexity/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "sonar", "name": "Sonar" },
-    { "id": "sonar-pro", "name": "Sonar Pro" },
-    { "id": "sonar-reasoning-pro", "name": "Sonar Reasoning Pro" },
-    { "id": "sonar-deep-research", "name": "Sonar Deep Research" }
-  ]
-}
-\`\`\`
+> *Model lists change over time -- snapshot from August 2026.* Official catalog: [docs.perplexity.ai/docs/sonar/models](https://docs.perplexity.ai/docs/sonar/models)
 
 ---
 
@@ -3518,7 +3417,9 @@ Third-party frontier models with optional web search via the OpenAI Responses AP
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`gpt-5.2\`, \`gpt-5.1\`, \`gpt-5\`, \`gpt-5-mini\`, \`gpt-4o\`, \`gpt-4o-mini\`, \`o4-mini\`, \`o3\`
+Seeded models: \`gpt-5.6-sol\`, \`gpt-5.6-terra\`, \`gpt-5.6-luna\`, \`gpt-5.5\`, \`gpt-5.4\`, \`gpt-5.4-mini\`, \`gpt-5.2\`, \`gpt-5.1\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [platform.openai.com/docs/models](https://platform.openai.com/docs/models)
 
 ### Dashboard Setup
 
@@ -3537,9 +3438,13 @@ Seeded models: \`gpt-5.2\`, \`gpt-5.1\`, \`gpt-5\`, \`gpt-5-mini\`, \`gpt-4o\`, 
 | **API Format** | \`anthropic-messages\` |
 | **API Key Mode** | \`Managed\` |
 
+Seeded models: \`claude-fable-5\`, \`claude-opus-5\`, \`claude-sonnet-5\`, \`claude-haiku-4-5-20251001\`
+
 > **Note:** Anthropic uses the \`anthropic-messages\` API format, not \`openai-completions\`. ClawRouter auto-fills the required \`anthropic-version: 2023-06-01\` header when your client doesn't send it.
 
 > **Live Model List:** Anthropic has a real \`/v1/models\` endpoint -- **Fetch Models** retrieves the current catalog (paginated). A hardcoded list is used only as a fallback.
+
+> *Model lists change over time -- snapshot from August 2026.* Official catalog: [platform.claude.com/docs/en/about-claude/models/overview](https://platform.claude.com/docs/en/about-claude/models/overview)
 
 ### Dashboard Setup
 
@@ -3558,7 +3463,9 @@ Seeded models: \`gpt-5.2\`, \`gpt-5.1\`, \`gpt-5\`, \`gpt-5-mini\`, \`gpt-4o\`, 
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`deepseek-chat\`, \`deepseek-reasoner\`, \`deepseek-v4-pro\`, \`deepseek-v4-flash\`
+Seeded models: \`deepseek-v4-pro\`, \`deepseek-v4-flash\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [api-docs.deepseek.com/quick_start/pricing](https://api-docs.deepseek.com/quick_start/pricing)
 
 ---
 
@@ -3571,7 +3478,9 @@ Seeded models: \`deepseek-chat\`, \`deepseek-reasoner\`, \`deepseek-v4-pro\`, \`
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`grok-4\`, \`grok-4-fast-reasoning\`, \`grok-code-fast-1\`, \`grok-3\`
+Seeded models: \`grok-4.6\`, \`grok-4.5\`, \`grok-4.3\`, \`grok-code-fast-1\`, \`grok-build-0.1\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.x.ai/docs/models](https://docs.x.ai/docs/models)
 
 ---
 
@@ -3585,6 +3494,8 @@ Seeded models: \`grok-4\`, \`grok-4-fast-reasoning\`, \`grok-code-fast-1\`, \`gr
 | **API Key Mode** | \`Managed\` |
 
 Seeded models: \`mistral-large-latest\`, \`codestral-latest\`, \`mistral-medium-latest\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.mistral.ai/getting-started/models/models_overview](https://docs.mistral.ai/getting-started/models/models_overview/)
 
 ---
 
@@ -3610,7 +3521,7 @@ Z.AI offers three separate presets:
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`glm-5.2\`, \`glm-5.1\`, \`glm-5\`, \`glm-4.7\`
+Seeded models: \`glm-5.3\`, \`glm-5-turbo\`, \`glm-5v-turbo\`, \`glm-5.2\`, \`glm-5.1\`, \`glm-4.7\`
 
 ### Z.AI Coding (China)
 
@@ -3621,7 +3532,9 @@ Seeded models: \`glm-5.2\`, \`glm-5.1\`, \`glm-5\`, \`glm-4.7\`
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`glm-5.2\`, \`glm-5.1\`, \`glm-5\`, \`glm-4.7\`, \`glm-4.6\`, \`glm-4.5-air\`
+Seeded models: \`glm-5.3\`, \`glm-5-turbo\`, \`glm-5v-turbo\`, \`glm-5.2\`, \`glm-5.1\`, \`glm-5\`, \`glm-4.7\`
+
+> *Model lists change over time -- snapshot from August 2026. The coding-plan gateway has no public model-list endpoint, so **Fetch Models** uses the curated list above; the general Z.AI API preset fetches live.* Official docs: [docs.z.ai](https://docs.z.ai)
 
 ### Business Error Codes
 
@@ -3662,7 +3575,9 @@ Moonshot's Kimi models via a Claude-compatible endpoint.
 | **API Format** | \`anthropic-messages\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`kimi-for-coding\`, \`kimi-k2.7-code\`, \`kimi-k2.6\`, \`kimi-k2.5\`, \`kimi-latest\`
+Seeded models: \`kimi-for-coding\`, \`k3\`, \`k3-256k\`
+
+> *Model lists change over time -- snapshot from August 2026.* Official docs: [platform.kimi.ai/docs](https://platform.kimi.ai/docs)
 
 > **Claude Code ready:** Because this provider speaks the Anthropic Messages format, you can point Claude Code at it -- use the **Claude Code** tab in the provider's **Prompt for AI** dialog.
 
@@ -3701,11 +3616,15 @@ MiniMax M-series via Claude-compatible endpoints. Two regional presets:
 
 Seeded models: \`MiniMax-M3\`, \`MiniMax-M2.7\`, \`MiniMax-M2.5\`, \`MiniMax-M2.1\`
 
+> **Live Model List:** MiniMax has a real \`/v1/models\` endpoint (on both the international and China hosts) -- **Fetch Models** retrieves the current catalog, including the \`-highspeed\` variants (\`MiniMax-M2.7-highspeed\`, \`MiniMax-M2.5-highspeed\`, \`MiniMax-M2.1-highspeed\`). The seeded list above is used only as a fetch-failure fallback.
+
+> *Model lists change over time -- snapshot from August 2026.* Official docs: [platform.minimax.io/docs](https://platform.minimax.io/docs/api-reference/text-chat-openai)
+
 ---
 
 ## Alibaba
 
-Three presets covering the coding plans and the general Model Studio API:
+Four presets covering the coding plans and the general Model Studio API:
 
 ### Alibaba Coding Plan (CN)
 
@@ -3716,7 +3635,7 @@ Three presets covering the coding plans and the general Model Studio API:
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-next\`, \`qwen3-coder-plus\`, \`kimi-k2.5\`, \`glm-5\`, \`MiniMax-M2.5\`
+Seeded models: \`qwen3.7-plus\`, \`qwen3.6-plus\`, \`qwen3.5-plus\`, \`qwen3-max-2026-01-23\`, \`qwen3-coder-next\`, \`qwen3-coder-plus\`, \`glm-5\`, \`glm-4.7\`, \`kimi-k2.5\`, \`MiniMax-M2.5\`
 
 ### Alibaba Coding Plan (Intl)
 
@@ -3727,7 +3646,18 @@ Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-next\`, \`qwen3-coder-plus\`, \`k
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-next\`, \`kimi-k2.5\`, \`glm-5\`, \`MiniMax-M2.5\`
+Seeded models: \`qwen3.7-plus\`, \`qwen3.6-plus\`, \`qwen3.5-plus\`, \`qwen3-max-2026-01-23\`, \`qwen3-coder-next\`, \`qwen3-coder-plus\`, \`glm-5\`, \`glm-4.7\`, \`kimi-k2.5\`, \`MiniMax-M2.5\`
+
+### Alibaba Model Studio (CN)
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **Alibaba Model Studio (CN)** |
+| **Upstream URL** | \`https://dashscope.aliyuncs.com/compatible-mode/v1\` |
+| **API Format** | \`openai-completions\` |
+| **API Key Mode** | \`Managed\` |
+
+Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-plus\`, \`qwen3-coder-next\`, \`qwen-plus\`, \`qwen-turbo\`
 
 ### Alibaba Model Studio (Intl)
 
@@ -3738,7 +3668,11 @@ Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-next\`, \`kimi-k2.5\`, \`glm-5\`,
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
-Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-next\`, \`kimi-k2.5\`, \`glm-5\`
+Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-plus\`, \`qwen3-coder-next\`, \`qwen-plus\`, \`qwen-turbo\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list (all four endpoints answer \`/models\`).* Official docs: [help.aliyun.com/en/model-studio](https://help.aliyun.com/en/model-studio/qwen-api-via-openai-chat-completions)
+
+> **Coding Plan vs Model Studio keys are NOT interchangeable:** Coding-Plan keys come from a subscription and only work on the \`coding{,-intl}\` endpoints; Model Studio keys are pay-as-you-go and only work on the \`dashscope{,-intl}\` endpoints. Mixing them is the usual cause of \`invalid_api_key\`.
 
 ---
 
@@ -3755,6 +3689,8 @@ Seeded models: \`qwen3.5-plus\`, \`qwen3-coder-next\`, \`kimi-k2.5\`, \`glm-5\`
 
 Seeded models: \`deepseek-v4-pro\`, \`deepseek-v4-flash\`, \`glm-5.2\`, \`kimi-k2.6\`, \`qwen3.5-397b-a17b\`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Tencent Hunyuan
 
 | Setting | Value |
@@ -3765,6 +3701,8 @@ Seeded models: \`deepseek-v4-pro\`, \`deepseek-v4-flash\`, \`glm-5.2\`, \`kimi-k
 | **API Key Mode** | \`Managed\` |
 
 Seeded models: \`hunyuan-turbos-latest\`, \`hunyuan-t1-latest\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Volcengine Ark
 
@@ -3777,6 +3715,8 @@ Seeded models: \`hunyuan-turbos-latest\`, \`hunyuan-t1-latest\`
 
 Seeded models: \`Doubao-Seed-2.0-Code\`, \`Doubao-Seed-Code\`, \`DeepSeek-V4-Flash\`, \`GLM-5.1\`, \`Kimi-K2.6\`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [volcengine.com/docs/82379](https://www.volcengine.com/docs/82379)
+
 ### Xiaomi MiMo
 
 | Setting | Value |
@@ -3787,6 +3727,8 @@ Seeded models: \`Doubao-Seed-2.0-Code\`, \`Doubao-Seed-Code\`, \`DeepSeek-V4-Fla
 | **API Key Mode** | \`Managed\` |
 
 Seeded models: \`mimo-v2.5-pro\`, \`mimo-v2.5\`, \`mimo-v2-omni\`, \`mimo-v2-flash\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Xiaomi MiMo Token Plan
 
@@ -3800,6 +3742,8 @@ For MiMo subscription keys (\`tp-\` prefix).
 | **API Key Mode** | \`Managed\` |
 
 Seeded models: \`mimo-v2.5-pro\`, \`mimo-v2.5\`, \`mimo-v2-pro\`, \`mimo-v2-omni\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ---
 
@@ -3816,6 +3760,8 @@ Seeded models: \`mimo-v2.5-pro\`, \`mimo-v2.5\`, \`mimo-v2-pro\`, \`mimo-v2-omni
 
 Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Qwen/Qwen3.5-397B-A17B\`, \`zai-org/GLM-5.1\`, \`moonshotai/Kimi-K2.6\`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [docs.siliconflow.cn](https://docs.siliconflow.cn)
+
 ### Together AI
 
 | Setting | Value |
@@ -3824,6 +3770,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **Upstream URL** | \`https://api.together.xyz/v1\` |
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
+
+Seeded models: \`meta-llama/Llama-3.3-70B-Instruct-Turbo\`, \`deepseek-ai/DeepSeek-R1\`, \`Qwen/Qwen3-235B-A22B\`, \`meta-llama/Llama-4-Maverick-FP8\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.together.ai/docs/serverless-models](https://docs.together.ai/docs/serverless-models)
 
 ### Fireworks AI
 
@@ -3834,6 +3784,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
+Seeded models: \`accounts/fireworks/models/deepseek-v3p1\`, \`accounts/fireworks/models/llama-v3p3-70b-instruct\`, \`accounts/fireworks/models/qwen3-235b-a22b\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [docs.fireworks.ai](https://docs.fireworks.ai)
+
 ### Featherless
 
 | Setting | Value |
@@ -3843,6 +3797,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
+Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`zai-org/GLM-5.2\`, \`moonshotai/Kimi-K2.7-Code\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Hyperbolic
 
 | Setting | Value |
@@ -3851,6 +3809,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **Upstream URL** | \`https://api.hyperbolic.xyz/v1\` |
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
+
+Seeded models: \`Qwen/QwQ-32B\`, \`deepseek-ai/DeepSeek-R1\`, \`deepseek-ai/DeepSeek-V3\`, \`meta-llama/Llama-3.3-70B-Instruct\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Chutes AI
 
@@ -3870,6 +3832,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
+Seeded models: \`meta-llama/Llama-3.3-70B-Instruct\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Venice AI
 
 | Setting | Value |
@@ -3878,6 +3844,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **Upstream URL** | \`https://api.venice.ai/api/v1\` |
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
+
+Seeded models: \`venice-uncensored-1-2\`, \`zai-org-glm-5\`, \`qwen3-235b-a22b-instruct-2507\`, \`llama-3.3-70b\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Vercel AI Gateway
 
@@ -3897,6 +3867,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
 
+Seeded models: \`gpt-5.5\`, \`deepseek-v4-flash\`, \`kimi-k3\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Blackbox AI
 
 | Setting | Value |
@@ -3905,6 +3879,10 @@ Seeded models: \`deepseek-ai/DeepSeek-V4-Pro\`, \`deepseek-ai/DeepSeek-R1\`, \`Q
 | **Upstream URL** | \`https://api.blackbox.ai/v1\` |
 | **API Format** | \`openai-completions\` |
 | **API Key Mode** | \`Managed\` |
+
+Seeded models: \`claude-sonnet-4.6\`, \`gpt-5.4\`, \`deepseek-v4-flash\`, \`grok-4.3\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Morph
 
@@ -3919,6 +3897,8 @@ Fast-apply / coding models.
 
 Seeded models: \`morph-v3-large\`, \`morph-v3-fast\`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### OpenCode Go
 
 OpenCode's paid tier -- same platform as the free OpenCode Zen preset, but with a key.
@@ -3931,6 +3911,8 @@ OpenCode's paid tier -- same platform as the free OpenCode Zen preset, but with 
 | **API Key Mode** | \`Managed\` |
 
 Seeded models: \`glm-5.2\`, \`kimi-k2.7-code\`, \`deepseek-v4-pro\`, \`minimax-m3\`, \`qwen3.7-max\`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [opencode.ai/docs/zen](https://opencode.ai/docs/zen/)
 `,oP=`# Provider Directory
 
 A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
@@ -3941,7 +3923,7 @@ A complete list of all built-in provider presets in ClawRouter. Each preset come
 
 ## Built-in Presets
 
-ClawRouter ships **51 built-in provider presets**. Selecting a preset auto-fills every field -- including the correct API Key Mode -- and seeds the preset's recommended models into the provider's Models tab at creation.
+ClawRouter ships **52 built-in provider presets**. Selecting a preset auto-fills every field -- including the correct API Key Mode -- and seeds the preset's recommended models into the provider's Models tab at creation.
 
 ### Keyless Presets (No API Key Required)
 
@@ -3982,7 +3964,7 @@ Genuine free tiers or quotas. You need a free API key from each provider -- the 
 | DeepSeek | openai-completions | \`https://api.deepseek.com\` |
 | xAI (Grok) | openai-completions | \`https://api.x.ai/v1\` |
 | Mistral | openai-completions | \`https://api.mistral.ai/v1\` |
-| Cohere | openai-completions | \`https://api.cohere.com/v1\` |
+| Cohere | openai-completions | \`https://api.cohere.com/compatibility/v1\` |
 | Perplexity | openai-completions | \`https://api.perplexity.ai\` |
 | Perplexity Agent | openai-responses | \`https://api.perplexity.ai/v1\` |
 | Kimi for Coding | anthropic-messages | \`https://api.kimi.com/coding/v1\` |
@@ -3993,6 +3975,7 @@ Genuine free tiers or quotas. You need a free API key from each provider -- the 
 | Z.AI Coding (China) | openai-completions | \`https://open.bigmodel.cn/api/coding/paas/v4\` |
 | Alibaba Coding Plan (CN) | openai-completions | \`https://coding.dashscope.aliyuncs.com/v1\` |
 | Alibaba Coding Plan (Intl) | openai-completions | \`https://coding-intl.dashscope.aliyuncs.com/v1\` |
+| Alibaba Model Studio (CN) | openai-completions | \`https://dashscope.aliyuncs.com/compatible-mode/v1\` |
 | Alibaba Model Studio (Intl) | openai-completions | \`https://dashscope-intl.aliyuncs.com/compatible-mode/v1\` |
 | Baidu Qianfan | openai-completions | \`https://qianfan.baidubce.com/v2\` |
 | Tencent Hunyuan | openai-completions | \`https://api.hunyuan.cloud.tencent.com/v1\` |
@@ -4050,7 +4033,7 @@ The Providers list groups your configured providers into four sections: **Favori
 
 **Quick Setup (Recommended):**
 1. Go to **Providers** > **Add Provider** > **Quick Setup**.
-2. Use the **search box** to filter the 51 presets, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**.
+2. Use the **search box** to filter the 52 presets, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**.
 3. Select a preset -- all settings are pre-filled, including the correct API Key Mode.
 4. Click **Create Provider**. The preset's recommended models are seeded into the Models tab automatically.
 5. Add your API key(s) -- skip this step entirely for keyless presets.
@@ -4969,7 +4952,7 @@ If all else fails and you need to start fresh:
 3. You will need to reconfigure all providers and keys. Contact the developer if re-activation is needed.
 
 > **Warning:** This removes all providers, keys, and logs.
-`,mP={sections:[{title:`Getting Started`,items:[{key:`quickstart`,title:`Quickstart Guide`,path:`getting-started/quickstart.md`},{key:`installation`,title:`Installation & Activation`,path:`getting-started/installation-activation.md`},{key:`firstProvider`,title:`Your First Provider`,path:`getting-started/first-provider.md`}]},{title:`Core Concepts`,items:[{key:`howItWorks`,title:`How ClawRouter Works`,path:`core-concepts/how-clawrouter-works.md`},{key:`keyRotation`,title:`Key Rotation`,path:`core-concepts/key-rotation.md`},{key:`modelFallback`,title:`Model Fallback`,path:`core-concepts/model-fallback.md`},{key:`providerFallback`,title:`Provider Fallback Chain`,path:`core-concepts/provider-fallback-chain.md`},{key:`formatTranslation`,title:`API Format Translation`,path:`core-concepts/format-translation.md`},{key:`circuitBreaker`,title:`Circuit Breaker`,path:`core-concepts/circuit-breaker.md`},{key:`errorHandling`,title:`Error Classification & Retry`,path:`core-concepts/error-handling.md`}]},{title:`How-To Guides`,items:[{key:`managingKeys`,title:`Managing API Keys`,path:`guides/managing-api-keys.md`},{key:`configuringModels`,title:`Configuring Models`,path:`guides/configuring-models.md`},{key:`configuringFallback`,title:`Configuring Fallback`,path:`guides/configuring-fallback.md`},{key:`monitoring`,title:`Monitoring & Notifications`,path:`guides/monitoring-notifications.md`},{key:`providerManagement`,title:`Provider Management`,path:`guides/provider-management.md`},{key:`globalSettings`,title:`Global Settings`,path:`guides/global-settings.md`}]},{title:`Providers`,items:[{key:`providerDirectory`,title:`Provider Directory`,path:`providers/provider-directory.md`},{key:`elevenlabsAudio`,title:`ElevenLabs (Audio)`,path:`providers/elevenlabs-audio.md`},{key:`bypassProviders`,title:`Bypass Providers`,path:`providers/bypass-providers.md`},{key:`freeTierProviders`,title:`Free Tier Providers`,path:`providers/free-tier-providers.md`},{key:`paidProviders`,title:`Paid Providers`,path:`providers/paid-providers.md`}]},{title:`Client Setup`,items:[{key:`aiClientSetup`,title:`Client Setup Overview`,path:`integrations/ai-client-setup.md`},{key:`openclawSetup`,title:`OpenClaw`,path:`integrations/openclaw-setup.md`},{key:`opencodeSetup`,title:`OpenCode`,path:`integrations/opencode-setup.md`},{key:`claudeCodeSetup`,title:`Claude Code`,path:`integrations/claude-code-setup.md`},{key:`codexCliSetup`,title:`Codex CLI`,path:`integrations/codex-cli-setup.md`},{key:`qwenCodeSetup`,title:`Qwen Code`,path:`integrations/qwen-code-setup.md`},{key:`deepseekHarnessSetup`,title:`DeepSeek Harness`,path:`integrations/deepseek-harness-setup.md`},{key:`otherClients`,title:`Other / Custom Clients`,path:`integrations/other-clients.md`}]},{title:`Reference`,items:[{key:`cliCommands`,title:`CLI Commands`,path:`reference/cli-commands.md`},{key:`settingsReference`,title:`Settings Reference`,path:`reference/settings-reference.md`},{key:`apiReference`,title:`API Reference`,path:`reference/api-reference.md`},{key:`envVars`,title:`Environment Variables`,path:`reference/environment-variables.md`}]},{title:`Help`,items:[{key:`troubleshooting`,title:`Troubleshooting`,path:`troubleshooting/troubleshooting.md`},{key:`faq`,title:`FAQ`,path:`troubleshooting/faq.md`},{key:`support`,title:`Support & Contact`,path:`support.md`}]}]},hP=Object.assign({"../docs-v2/core-concepts/circuit-breaker.md":MN,"../docs-v2/core-concepts/error-handling.md":NN,"../docs-v2/core-concepts/format-translation.md":PN,"../docs-v2/core-concepts/how-clawrouter-works.md":FN,"../docs-v2/core-concepts/key-rotation.md":IN,"../docs-v2/core-concepts/model-fallback.md":LN,"../docs-v2/core-concepts/provider-fallback-chain.md":RN,"../docs-v2/getting-started/first-provider.md":zN,"../docs-v2/getting-started/installation-activation.md":BN,"../docs-v2/getting-started/quickstart.md":VN,"../docs-v2/guides/configuring-fallback.md":HN,"../docs-v2/guides/configuring-models.md":UN,"../docs-v2/guides/global-settings.md":WN,"../docs-v2/guides/managing-api-keys.md":GN,"../docs-v2/guides/monitoring-notifications.md":KN,"../docs-v2/guides/provider-management.md":qN,"../docs-v2/integrations/ai-client-setup.md":JN,"../docs-v2/integrations/claude-code-setup.md":YN,"../docs-v2/integrations/codex-cli-setup.md":XN,"../docs-v2/integrations/deepseek-harness-setup.md":ZN,"../docs-v2/integrations/openclaw-setup.md":QN,"../docs-v2/integrations/opencode-setup.md":$N,"../docs-v2/integrations/other-clients.md":eP,"../docs-v2/integrations/qwen-code-setup.md":tP,"../docs-v2/providers/bypass-providers.md":nP,"../docs-v2/providers/elevenlabs-audio.md":rP,"../docs-v2/providers/free-tier-providers.md":iP,"../docs-v2/providers/paid-providers.md":aP,"../docs-v2/providers/provider-directory.md":oP,"../docs-v2/reference/api-reference.md":sP,"../docs-v2/reference/cli-commands.md":cP,"../docs-v2/reference/environment-variables.md":lP,"../docs-v2/reference/settings-reference.md":uP,"../docs-v2/support.md":dP,"../docs-v2/troubleshooting/faq.md":fP,"../docs-v2/troubleshooting/troubleshooting.md":pP}),gP=e=>e.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{E0020}-\u{E007F}\u{FE0F}\u{200D}\u{1F400}-\u{1F4FF}]/gu,``).trim();function _P(e){let t=new xx,n=e.split(`
+`,mP={sections:[{title:`Getting Started`,items:[{key:`quickstart`,title:`Quickstart Guide`,path:`getting-started/quickstart.md`},{key:`installation`,title:`Installation & Activation`,path:`getting-started/installation-activation.md`},{key:`firstProvider`,title:`Your First Provider`,path:`getting-started/first-provider.md`}]},{title:`Core Concepts`,items:[{key:`howItWorks`,title:`How ClawRouter Works`,path:`core-concepts/how-clawrouter-works.md`},{key:`keyRotation`,title:`Key Rotation`,path:`core-concepts/key-rotation.md`},{key:`modelFallback`,title:`Model Fallback`,path:`core-concepts/model-fallback.md`},{key:`providerFallback`,title:`Provider Fallback Chain`,path:`core-concepts/provider-fallback-chain.md`},{key:`formatTranslation`,title:`API Format Translation`,path:`core-concepts/format-translation.md`},{key:`circuitBreaker`,title:`Circuit Breaker`,path:`core-concepts/circuit-breaker.md`},{key:`errorHandling`,title:`Error Classification & Retry`,path:`core-concepts/error-handling.md`}]},{title:`How-To Guides`,items:[{key:`managingKeys`,title:`Managing API Keys`,path:`guides/managing-api-keys.md`},{key:`configuringModels`,title:`Configuring Models`,path:`guides/configuring-models.md`},{key:`configuringFallback`,title:`Configuring Fallback`,path:`guides/configuring-fallback.md`},{key:`monitoring`,title:`Monitoring & Notifications`,path:`guides/monitoring-notifications.md`},{key:`providerManagement`,title:`Provider Management`,path:`guides/provider-management.md`},{key:`globalSettings`,title:`Global Settings`,path:`guides/global-settings.md`}]},{title:`Providers`,items:[{key:`providerDirectory`,title:`Provider Directory`,path:`providers/provider-directory.md`},{key:`bypassProviders`,title:`Bypass Providers`,path:`providers/bypass-providers.md`},{key:`freeTierProviders`,title:`Free Tier Providers`,path:`providers/free-tier-providers.md`},{key:`paidProviders`,title:`Paid Providers`,path:`providers/paid-providers.md`},{key:`elevenlabsAudio`,title:`ElevenLabs (Audio)`,path:`providers/elevenlabs-audio.md`}]},{title:`Client Setup`,items:[{key:`aiClientSetup`,title:`Client Setup Overview`,path:`integrations/ai-client-setup.md`},{key:`openclawSetup`,title:`OpenClaw`,path:`integrations/openclaw-setup.md`},{key:`opencodeSetup`,title:`OpenCode`,path:`integrations/opencode-setup.md`},{key:`claudeCodeSetup`,title:`Claude Code`,path:`integrations/claude-code-setup.md`},{key:`codexCliSetup`,title:`Codex CLI`,path:`integrations/codex-cli-setup.md`},{key:`qwenCodeSetup`,title:`Qwen Code`,path:`integrations/qwen-code-setup.md`},{key:`deepseekHarnessSetup`,title:`DeepSeek Harness`,path:`integrations/deepseek-harness-setup.md`},{key:`otherClients`,title:`Other / Custom Clients`,path:`integrations/other-clients.md`}]},{title:`Reference`,items:[{key:`cliCommands`,title:`CLI Commands`,path:`reference/cli-commands.md`},{key:`settingsReference`,title:`Settings Reference`,path:`reference/settings-reference.md`},{key:`apiReference`,title:`API Reference`,path:`reference/api-reference.md`},{key:`envVars`,title:`Environment Variables`,path:`reference/environment-variables.md`}]},{title:`Help`,items:[{key:`troubleshooting`,title:`Troubleshooting`,path:`troubleshooting/troubleshooting.md`},{key:`faq`,title:`FAQ`,path:`troubleshooting/faq.md`},{key:`support`,title:`Support & Contact`,path:`support.md`}]}]},hP=Object.assign({"../docs-v2/core-concepts/circuit-breaker.md":MN,"../docs-v2/core-concepts/error-handling.md":NN,"../docs-v2/core-concepts/format-translation.md":PN,"../docs-v2/core-concepts/how-clawrouter-works.md":FN,"../docs-v2/core-concepts/key-rotation.md":IN,"../docs-v2/core-concepts/model-fallback.md":LN,"../docs-v2/core-concepts/provider-fallback-chain.md":RN,"../docs-v2/getting-started/first-provider.md":zN,"../docs-v2/getting-started/installation-activation.md":BN,"../docs-v2/getting-started/quickstart.md":VN,"../docs-v2/guides/configuring-fallback.md":HN,"../docs-v2/guides/configuring-models.md":UN,"../docs-v2/guides/global-settings.md":WN,"../docs-v2/guides/managing-api-keys.md":GN,"../docs-v2/guides/monitoring-notifications.md":KN,"../docs-v2/guides/provider-management.md":qN,"../docs-v2/integrations/ai-client-setup.md":JN,"../docs-v2/integrations/claude-code-setup.md":YN,"../docs-v2/integrations/codex-cli-setup.md":XN,"../docs-v2/integrations/deepseek-harness-setup.md":ZN,"../docs-v2/integrations/openclaw-setup.md":QN,"../docs-v2/integrations/opencode-setup.md":$N,"../docs-v2/integrations/other-clients.md":eP,"../docs-v2/integrations/qwen-code-setup.md":tP,"../docs-v2/providers/bypass-providers.md":nP,"../docs-v2/providers/elevenlabs-audio.md":rP,"../docs-v2/providers/free-tier-providers.md":iP,"../docs-v2/providers/paid-providers.md":aP,"../docs-v2/providers/provider-directory.md":oP,"../docs-v2/reference/api-reference.md":sP,"../docs-v2/reference/cli-commands.md":cP,"../docs-v2/reference/environment-variables.md":lP,"../docs-v2/reference/settings-reference.md":uP,"../docs-v2/support.md":dP,"../docs-v2/troubleshooting/faq.md":fP,"../docs-v2/troubleshooting/troubleshooting.md":pP}),gP=e=>e.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{E0020}-\u{E007F}\u{FE0F}\u{200D}\u{1F400}-\u{1F4FF}]/gu,``).trim();function _P(e){let t=new xx,n=e.split(`
 `),r=[],i=null;return n.forEach(e=>{let n=e.match(/^##\s+(.+)$/);if(n){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim();if(e.toLowerCase()===`table of contents`)return;i={id:t.slug(e),title:gP(e),items:[]},r.push(i)}else{let n=e.match(/^###\s+(.+)$/);if(n&&i){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim(),r=t.slug(e),a=gP(e);i.items.push({id:r,title:a})}}}),r}function vP(e){return hP[`../docs-v2/${e}`]||(console.warn(`[docs] Missing markdown file for path: ${e}`),``)}function yP(e){return e.replace(/```[\s\S]*?```/g,``).replace(/`[^`]+`/g,``).replace(/!?\[([^\]]*)\]\([^)]*\)/g,`$1`).replace(/^\s{0,3}#{1,6}\s+/gm,``).replace(/[*_~]{1,3}/g,``).replace(/^\s*[-*+]\s+/gm,``).replace(/^\s*\d+\.\s+/gm,``).replace(/^\s*>\s?/gm,``).replace(/\|/g,` `).replace(/<\/?[^>]+(>|$)/g,``).replace(/\n{2,}/g,`
 `).trim()}var bP={},xP=mP.sections.map(e=>({label:e.title,keys:e.items.map(e=>{let t=vP(e.path);return bP[e.key]={title:e.title,content:t,toc:_P(t)},e.key})})),SP=(()=>{let e=[],t=new xx;for(let n of mP.sections)for(let r of n.items){let i=bP[r.key];if(!i||!i.content)continue;t.reset();let a=i.content.split(`
 `),o=null,s=null,c=[],l=()=>{if(c.length===0)return;let t=yP(c.join(`
