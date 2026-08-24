@@ -6,7 +6,7 @@ Bypass providers access AI models without requiring an API key. ClawRouter handl
 
 > **No Setup Tricks Needed:** Keyless presets ship with API Key Mode `None` pre-selected. Just pick the preset and click **Create Provider** -- do **not** add any API keys. The keys table is replaced by an informational card, and the add-key endpoint rejects keys for these providers.
 
-> **About `apiKey`:** In the OpenClaw configurations below, `cr_your_proxy_key` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog inserts it automatically.
+> **Client configuration:** Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the **Client Setup** section -- or open the provider's **Prompt for AI** dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.
 
 ---
 
@@ -33,33 +33,24 @@ Free high-performance coding and reasoning models, no signup.
 
 | Model ID | Description | Context |
 |----------|-------------|---------|
-| `gpt-5-nano` | Ultra-fast preview variant of OpenAI's reasoning models | 400k |
-| `minimax-m2.5-free` | SOTA model for productivity and coding (SWE-Bench 80.2%) | 204k |
-| `big-pickle` | High-speed stealth model based on GLM, optimized for development | 200k |
-| `trinity-large-preview-free` | Arcee AI's 400B MoE model, excels at complex prompts | 128k |
+| `nemotron-3-ultra-free` | NVIDIA Nemotron 3 Ultra (free) | 1M |
+| `nemotron-3.5-lightning-free` | NVIDIA Nemotron 3.5 Lightning (free) | 262k |
+| `x-preview-f-free` | "Ox Alpha" stealth preview (free, unlimited) | 1M |
+| `muse-spark-1.2-contributor-free` | Muse Spark 1.2 (contributor free) | 1M |
+| `laguna-s-2.1-free` | Poolside Laguna S 2.1 (free) | 256k |
+| `deepseek-v4-flash-free` | DeepSeek V4 Flash (free) | 200k |
+| `mimo-v2.5-free` | Xiaomi MiMo V2.5 (free) | 200k |
+| `big-pickle` | High-speed stealth model optimized for development | 200k |
+| `hy3-free` | Tencent Hy3 (free) | 190k |
 
-### OpenClaw Configuration
-
-```json
-"opencode": {
-  "baseUrl": "http://localhost:3030/proxy/opencode-zen/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "gpt-5-nano", "name": "gpt-5-nano" },
-    { "id": "minimax-m2.5-free", "name": "minimax-m2.5-free" },
-    { "id": "big-pickle", "name": "big-pickle" },
-    { "id": "trinity-large-preview-free", "name": "trinity-large-preview-free" }
-  ]
-}
-```
+> **Free models rotate.** Zen's free set is limited-time and changes frequently -- this is a snapshot (August 2026), and `deepseek-v4-flash-free` / `laguna-s-2.1-free` are already marked deprecated upstream and may fail at generation. The dashboard's **Models tab > Fetch Models** always shows today's free/paid set. Official list: [opencode.ai/docs/zen](https://opencode.ai/docs/zen/).
 
 ### Dashboard Setup Steps
 
 1. Go to **Providers** > **Add Provider** > **Quick Setup** > select **OpenCode Zen**.
 2. Click **Create Provider** -- API Key Mode is already set to `None`.
 3. Do **not** add any API keys.
-4. Copy the generated **Base URL** and use it in your OpenClaw config.
+4. Copy the generated **Base URL** and use it in your AI client.
 5. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
 
 ---
@@ -81,33 +72,28 @@ Free models on the Kilo AI gateway, no key needed.
 
 | Model ID | Description | Context |
 |----------|-------------|---------|
-| `minimax/minimax-m2.5:free` | SOTA model for productivity and coding (SWE-Bench 80.2%) | 204k |
-| `stepfun/step-3.5-flash:free` | Speed-efficient MoE reasoning model for long contexts | 256k |
-| `kilo-auto/free` | Dynamic router -- auto-routes to available free models | 204k |
+| `kilo-auto/free` | Dynamic router -- auto-routes to available free models | 256k |
+| `meituan/longcat-2.0-free` | Meituan LongCat 2.0 | 1M |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | NVIDIA Nemotron 3 Ultra 550B | 1M |
+| `nvidia/nemotron-3.5-lightning:free` | NVIDIA Nemotron 3.5 Lightning | 1M |
+| `dots-studio/dots-3-note-preview:free` | Dots Studio Dots3-Note Preview | 512k |
+| `stepfun/step-3.7-flash:free` | StepFun Step 3.7 Flash | 256k |
+| `tencent/hy3:free` | Tencent Hy3 | 256k |
+| `poolside/laguna-s-2.1:free` | Poolside Laguna S 2.1 | 256k |
+| `poolside/laguna-xs-2.1:free` | Poolside Laguna XS 2.1 | 256k |
+| `cohere/north-mini-code:free` | Cohere North Mini Code | 256k |
+| `nvidia/nemotron-3-super-120b-a12b:free` | NVIDIA Nemotron 3 Super 120B | 256k |
+| `liquid/lfm-2.5-2.6b:free` | LiquidAI LFM2.5-2.6B | 65k |
 | `openrouter/free` | Auto-routes to random free models on OpenRouter | 200k |
 
-### OpenClaw Configuration
-
-```json
-"kilocode": {
-  "baseUrl": "http://localhost:3030/proxy/kilo-ai-free/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "minimax/minimax-m2.5:free", "name": "minimax/minimax-m2.5:free" },
-    { "id": "stepfun/step-3.5-flash:free", "name": "stepfun/step-3.5-flash:free" },
-    { "id": "kilo-auto/free", "name": "kilo-auto/free" },
-    { "id": "openrouter/free", "name": "openrouter/free" }
-  ]
-}
-```
+> **Free models rotate.** This is a snapshot (August 2026) of the gateway's free set. **Models tab > Fetch Models** shows the live list with Free/Paid badges and per-model metadata (context, max output, modalities). Live catalog: [api.kilo.ai/api/gateway/models](https://api.kilo.ai/api/gateway/models).
 
 ### Dashboard Setup Steps
 
 1. Go to **Providers** > **Add Provider** > **Quick Setup** > select **Kilo AI (Free)**.
 2. Click **Create Provider** -- API Key Mode is already set to `None`.
 3. Do **not** add any API keys.
-4. Copy the generated **Base URL** and use it in your OpenClaw config.
+4. Copy the generated **Base URL** and use it in your AI client.
 5. *(Optional)* Go to **Models** tab > **Fetch Models** to see all available models with Free/Paid badges.
 
 ---

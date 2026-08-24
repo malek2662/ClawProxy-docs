@@ -4,7 +4,7 @@ These providers offer a genuine free tier or quota. You need a free API key from
 
 > **Version 1.0.17**
 
-> **About `apiKey`:** In every OpenClaw configuration below, `cr_your_proxy_key` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog on each provider page inserts it automatically.
+> **Client configuration:** Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the **Client Setup** section -- or open the provider's **Prompt for AI** dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.
 
 ---
 
@@ -23,34 +23,15 @@ Access frontier open-weight models hosted on Ollama's cloud. No local hardware o
 
 | Model ID | Notes |
 |----------|-------|
-| `glm-5:cloud` | Strongest / Reasoning |
-| `minimax-m2.5:cloud` | Productivity / Coding |
-| `qwen3.5:397b-cloud` | Newest Multimodal |
-| `glm-4.7:cloud` | High Performance |
-| `gemini-3-flash-preview:cloud` | Frontier Speed |
-| `deepseek-v3.2:cloud` | Efficiency / Reasoning |
-| `kimi-k2.5:cloud` | Newest Multimodal |
+| `glm-5.2:cloud` | GLM Flagship |
+| `glm-5.1:cloud` | GLM Previous Gen |
+| `kimi-k2.6:cloud` | Kimi K2.6 |
+| `minimax-m3:cloud` | MiniMax M3 |
+| `minimax-m2.7:cloud` | MiniMax M2.7 |
+| `deepseek-v4-flash:cloud` | DeepSeek V4 Flash |
+| `qwen3.5:397b-cloud` | Qwen 3.5 397B MoE |
 
-Check for more: https://ollama.com/search?c=cloud&o=newest
-
-### OpenClaw Configuration
-
-```json
-"ollama": {
-  "baseUrl": "http://localhost:3030/proxy/ollama-cloud/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "glm-5:cloud", "name": "glm-5:cloud" },
-    { "id": "minimax-m2.5:cloud", "name": "minimax-m2.5:cloud" },
-    { "id": "qwen3.5:397b-cloud", "name": "qwen3.5:397b-cloud" },
-    { "id": "glm-4.7:cloud", "name": "glm-4.7:cloud" },
-    { "id": "gemini-3-flash-preview:cloud", "name": "gemini-3-flash-preview:cloud" },
-    { "id": "deepseek-v3.2:cloud", "name": "deepseek-v3.2:cloud" },
-    { "id": "kimi-k2.5:cloud", "name": "kimi-k2.5:cloud" }
-  ]
-}
-```
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [ollama.com/search?c=cloud](https://ollama.com/search?c=cloud&o=newest)
 
 ### Dashboard Setup
 
@@ -77,30 +58,17 @@ The most generous free tier with high rate limits. Requires a free API key from 
 
 | Model ID | Notes |
 |----------|-------|
-| `gemini-3.1-pro-preview` | Flagship |
-| `gemini-3.1-flash-lite-preview` | Newest Lite |
-| `gemini-3-flash-preview` | High Speed |
-| `gemini-2.5-pro` | Previous gen Pro |
-| `gemini-2.5-flash` | Previous gen Flash |
-| `gemini-2.5-flash-lite` | Previous gen Lite |
+| `gemini-3.7-flash` | Newest Flash |
+| `gemini-3.6-flash` | Flash |
+| `gemini-3.5-flash` | Flash |
+| `gemini-3.5-flash-lite` | Flash Lite |
+| `gemini-3.1-pro` | Pro |
+| `gemini-3-flash` | Previous Gen Flash |
+| `gemini-2.5-pro` | 2.5 Pro |
+| `gemini-2.5-flash` | 2.5 Flash |
+| `gemini-2.5-flash-lite` | 2.5 Flash Lite |
 
-### OpenClaw Configuration
-
-```json
-"google": {
-  "baseUrl": "http://localhost:3030/proxy/google-gemini/v1beta",
-  "apiKey": "cr_your_proxy_key",
-  "api": "google-generative-ai",
-  "models": [
-    { "id": "gemini-3.1-pro-preview", "name": "gemini-3.1-pro-preview" },
-    { "id": "gemini-3.1-flash-lite-preview", "name": "gemini-3.1-flash-lite-preview" },
-    { "id": "gemini-3-flash-preview", "name": "gemini-3-flash-preview" },
-    { "id": "gemini-2.5-pro", "name": "gemini-2.5-pro" },
-    { "id": "gemini-2.5-flash", "name": "gemini-2.5-flash" },
-    { "id": "gemini-2.5-flash-lite", "name": "gemini-2.5-flash-lite" }
-  ]
-}
-```
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list (includes per-model token limits and thinking support).* Official catalog: [ai.google.dev/gemini-api/docs/models](https://ai.google.dev/gemini-api/docs/models)
 
 > **Note:** Google Gemini uses `v1beta` in the Base URL, not `v1`.
 
@@ -127,26 +95,14 @@ Extreme speed inference for open models. Free tier is rate-limited but completel
 
 | Model ID | Notes |
 |----------|-------|
-| `openai/gpt-oss-120b` | New Flagship |
+| `openai/gpt-oss-120b` | OpenAI Open-Weight Flagship |
+| `openai/gpt-oss-20b` | OpenAI Open-Weight Small |
 | `llama-3.3-70b-versatile` | Versatile |
-| `meta-llama/llama-4-maverick-17b-128e-instruct` | Maverick MoE |
-| `qwen/qwen3-32b` | Qwen 3 |
+| `llama-3.1-8b-instant` | Fast |
+| `qwen/qwen3.6-27b` | Qwen 3.6 |
+| `groq/compound` | Groq Compound System |
 
-### OpenClaw Configuration
-
-```json
-"groq": {
-  "baseUrl": "http://localhost:3030/proxy/groq/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "openai/gpt-oss-120b", "name": "openai/gpt-oss-120b" },
-    { "id": "llama-3.3-70b-versatile", "name": "llama-3.3-70b-versatile" },
-    { "id": "meta-llama/llama-4-maverick-17b-128e-instruct", "name": "meta-llama/llama-4-maverick-17b-128e-instruct" },
-    { "id": "qwen/qwen3-32b", "name": "qwen/qwen3-32b" }
-  ]
-}
-```
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [console.groq.com/docs/models](https://console.groq.com/docs/models)
 
 ### Dashboard Setup
 
@@ -171,38 +127,18 @@ Aggregator with many free models. Requires a free OpenRouter API key.
 
 | Model ID |
 |----------|
-| `stepfun/step-3.5-flash:free` |
-| `arcee-ai/trinity-large-preview:free` |
-| `z-ai/glm-4.5-air:free` |
-| `qwen/qwen3-coder:free` |
-| `openai/gpt-oss-120b:free` |
-| `google/gemma-3-27b-it:free` |
-| `meta-llama/llama-3.3-70b-instruct:free` |
-| `mistralai/mistral-small-3.1-24b-instruct:free` |
-| `nousresearch/hermes-3-llama-3.1-405b:free` |
+| `z-ai/glm-5.2:free` |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` |
+| `nvidia/nemotron-3-super-120b-a12b:free` |
+| `nvidia/nemotron-3.5-lightning:free` |
+| `google/gemma-4-31b-it:free` |
+| `google/gemma-4-26b-a4b-it:free` |
+| `openai/gpt-oss-20b:free` |
+| `cohere/north-mini-code:free` |
+| `poolside/laguna-s-2.1:free` |
+| `liquid/lfm-2.5-2.6b:free` |
 
-Check for more: https://openrouter.ai/models
-
-### OpenClaw Configuration
-
-```json
-"openrouter": {
-  "baseUrl": "http://localhost:3030/proxy/openrouter/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "stepfun/step-3.5-flash:free", "name": "stepfun/step-3.5-flash:free" },
-    { "id": "arcee-ai/trinity-large-preview:free", "name": "arcee-ai/trinity-large-preview:free" },
-    { "id": "z-ai/glm-4.5-air:free", "name": "z-ai/glm-4.5-air:free" },
-    { "id": "qwen/qwen3-coder:free", "name": "qwen/qwen3-coder:free" },
-    { "id": "openai/gpt-oss-120b:free", "name": "openai/gpt-oss-120b:free" },
-    { "id": "google/gemma-3-27b-it:free", "name": "google/gemma-3-27b-it:free" },
-    { "id": "meta-llama/llama-3.3-70b-instruct:free", "name": "meta-llama/llama-3.3-70b-instruct:free" },
-    { "id": "mistralai/mistral-small-3.1-24b-instruct:free", "name": "mistralai/mistral-small-3.1-24b-instruct:free" },
-    { "id": "nousresearch/hermes-3-llama-3.1-405b:free", "name": "nousresearch/hermes-3-llama-3.1-405b:free" }
-  ]
-}
-```
+> *The `:free` roster rotates constantly -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [openrouter.ai/models](https://openrouter.ai/models)
 
 ### Dashboard Setup
 
@@ -236,27 +172,7 @@ High-performance hosted models. Free tier available via developer program.
 | `deepseek-ai/deepseek-v3.2` | Efficient |
 | `deepseek-ai/deepseek-r1` | Reasoning |
 
-Check for more: https://build.nvidia.com/models
-
-### OpenClaw Configuration
-
-```json
-"nvidia": {
-  "baseUrl": "http://localhost:3030/proxy/nvidia-nim/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "z-ai/glm5", "name": "z-ai/glm5" },
-    { "id": "z-ai/glm4.7", "name": "z-ai/glm4.7" },
-    { "id": "moonshotai/kimi-k2.5", "name": "moonshotai/kimi-k2.5" },
-    { "id": "moonshotai/kimi-k2-thinking", "name": "moonshotai/kimi-k2-thinking" },
-    { "id": "minimaxai/minimax-m2.5", "name": "minimaxai/minimax-m2.5" },
-    { "id": "qwen/qwen3.5-397b-a17b", "name": "qwen/qwen3.5-397b-a17b" },
-    { "id": "deepseek-ai/deepseek-v3.2", "name": "deepseek-ai/deepseek-v3.2" },
-    { "id": "deepseek-ai/deepseek-r1", "name": "deepseek-ai/deepseek-r1" }
-  ]
-}
-```
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [build.nvidia.com/models](https://build.nvidia.com/models)
 
 ### Dashboard Setup
 
@@ -273,32 +189,22 @@ Excellent for RAG and multilingual tasks. Free for development/research.
 | Setting | Value |
 |---------|-------|
 | **Template** | Quick Setup > **Cohere** |
-| **Upstream URL** | `https://api.cohere.com/v1` |
+| **Upstream URL** | `https://api.cohere.com/compatibility/v1` |
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
+
+> **Two Cohere APIs:** the preset targets Cohere's **OpenAI-compatibility API** (`/compatibility/v1`), which is fully OpenAI-shaped for both chat and `/models`. The native API (`/v1`) has no `/v1/chat/completions` endpoint and is not supported.
 
 ### Models
 
 | Model ID | Notes |
 |----------|-------|
+| `command-a-03-2025` | Newest |
 | `command-r-plus-08-2024` | Flagship |
 | `command-r-08-2024` | Standard |
-| `command-a-03-2025` | Newest |
+| `command-r7b-12-2024` | Small / Fast |
 
-### OpenClaw Configuration
-
-```json
-"cohere": {
-  "baseUrl": "http://localhost:3030/proxy/cohere/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "command-r-plus-08-2024", "name": "command-r-plus-08-2024" },
-    { "id": "command-r-08-2024", "name": "command-r-08-2024" },
-    { "id": "command-a-03-2025", "name": "command-a-03-2025" }
-  ]
-}
-```
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.cohere.com/docs/models](https://docs.cohere.com/docs/models)
 
 ---
 
@@ -317,20 +223,7 @@ Ultra-fast inference on open models.
 
 `llama-3.3-70b`, `gpt-oss-120b`, `zai-glm-4.7`, `qwen-3-235b-a22b-instruct-2507`, `qwen-3-32b`
 
-### OpenClaw Configuration
-
-```json
-"cerebras": {
-  "baseUrl": "http://localhost:3030/proxy/cerebras/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "llama-3.3-70b", "name": "llama-3.3-70b" },
-    { "id": "gpt-oss-120b", "name": "gpt-oss-120b" },
-    { "id": "zai-glm-4.7", "name": "zai-glm-4.7" }
-  ]
-}
-```
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [inference-docs.cerebras.ai](https://inference-docs.cerebras.ai)
 
 ---
 
@@ -350,6 +243,8 @@ Models hosted on Cloudflare's global network. Free tier available.
 ### Models
 
 `@cf/meta/llama-3.3-70b-instruct-fp8-fast`, `@cf/moonshotai/kimi-k2.6`
+
+> *Model lists change over time -- snapshot from August 2026.* Official catalog: [developers.cloudflare.com/workers-ai/models](https://developers.cloudflare.com/workers-ai/models/)
 
 ### Dashboard Setup
 
@@ -375,6 +270,8 @@ ByteDance coding models (international endpoint). Free tier available during pro
 
 `seed-2-0-pro-260328`, `seed-2-0-code-preview-260328`, `seed-2-0-mini-260215`, `kimi-k2-thinking-251104`, `glm-4-7-251222`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [docs.byteplus.com/en/docs/ModelArk](https://docs.byteplus.com/en/docs/ModelArk)
+
 ### Dashboard Setup
 
 1. Quick Setup > **BytePlus ModelArk** > Create Provider.
@@ -398,6 +295,8 @@ Community free-tier gateway.
 
 `anthropic/claude-3.7-sonnet`, `moonshot/kimi-k2.6`, `google/gemini-2.5-flash`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ---
 
 ## Bazaarlink
@@ -415,6 +314,8 @@ Aggregated free & paid models.
 
 `auto:free`, `claude-sonnet-4.6`, `gpt-5.4`, `kimi-k2.6`, `glm-5`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ---
 
 ## Poolside
@@ -431,3 +332,5 @@ Coding-focused models.
 ### Models
 
 `poolside/laguna-s-2.1`, `poolside/laguna-xs-2.1`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*

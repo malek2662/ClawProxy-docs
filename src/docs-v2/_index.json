@@ -35,10 +35,10 @@
       "title": "Providers",
       "items": [
         { "key": "providerDirectory", "title": "Provider Directory", "path": "providers/provider-directory.md" },
-        { "key": "elevenlabsAudio", "title": "ElevenLabs (Audio)", "path": "providers/elevenlabs-audio.md" },
         { "key": "bypassProviders", "title": "Bypass Providers", "path": "providers/bypass-providers.md" },
         { "key": "freeTierProviders", "title": "Free Tier Providers", "path": "providers/free-tier-providers.md" },
-        { "key": "paidProviders", "title": "Paid Providers", "path": "providers/paid-providers.md" }
+        { "key": "paidProviders", "title": "Paid Providers", "path": "providers/paid-providers.md" },
+        { "key": "elevenlabsAudio", "title": "ElevenLabs (Audio)", "path": "providers/elevenlabs-audio.md" }
       ]
     },
     {

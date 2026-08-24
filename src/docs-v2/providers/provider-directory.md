@@ -8,7 +8,7 @@ A complete list of all built-in provider presets in ClawRouter. Each preset come
 
 ## Built-in Presets
 
-ClawRouter ships **51 built-in provider presets**. Selecting a preset auto-fills every field -- including the correct API Key Mode -- and seeds the preset's recommended models into the provider's Models tab at creation.
+ClawRouter ships **52 built-in provider presets**. Selecting a preset auto-fills every field -- including the correct API Key Mode -- and seeds the preset's recommended models into the provider's Models tab at creation.
 
 ### Keyless Presets (No API Key Required)
 
@@ -49,7 +49,7 @@ Genuine free tiers or quotas. You need a free API key from each provider -- the 
 | DeepSeek | openai-completions | `https://api.deepseek.com` |
 | xAI (Grok) | openai-completions | `https://api.x.ai/v1` |
 | Mistral | openai-completions | `https://api.mistral.ai/v1` |
-| Cohere | openai-completions | `https://api.cohere.com/v1` |
+| Cohere | openai-completions | `https://api.cohere.com/compatibility/v1` |
 | Perplexity | openai-completions | `https://api.perplexity.ai` |
 | Perplexity Agent | openai-responses | `https://api.perplexity.ai/v1` |
 | Kimi for Coding | anthropic-messages | `https://api.kimi.com/coding/v1` |
@@ -60,6 +60,7 @@ Genuine free tiers or quotas. You need a free API key from each provider -- the 
 | Z.AI Coding (China) | openai-completions | `https://open.bigmodel.cn/api/coding/paas/v4` |
 | Alibaba Coding Plan (CN) | openai-completions | `https://coding.dashscope.aliyuncs.com/v1` |
 | Alibaba Coding Plan (Intl) | openai-completions | `https://coding-intl.dashscope.aliyuncs.com/v1` |
+| Alibaba Model Studio (CN) | openai-completions | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
 | Alibaba Model Studio (Intl) | openai-completions | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` |
 | Baidu Qianfan | openai-completions | `https://qianfan.baidubce.com/v2` |
 | Tencent Hunyuan | openai-completions | `https://api.hunyuan.cloud.tencent.com/v1` |
@@ -117,7 +118,7 @@ The Providers list groups your configured providers into four sections: **Favori
 
 **Quick Setup (Recommended):**
 1. Go to **Providers** > **Add Provider** > **Quick Setup**.
-2. Use the **search box** to filter the 51 presets, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**.
+2. Use the **search box** to filter the 52 presets, or browse the two category groups: **Free & Free-Tier** and **API Key Providers**.
 3. Select a preset -- all settings are pre-filled, including the correct API Key Mode.
 4. Click **Create Provider**. The preset's recommended models are seeded into the Models tab automatically.
 5. Add your API key(s) -- skip this step entirely for keyless presets.

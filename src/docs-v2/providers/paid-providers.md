@@ -6,7 +6,7 @@ Configure paid API providers securely in ClawRouter. All keys are stored locally
 
 > **Important:** ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 
-> **About `apiKey`:** In the OpenClaw configuration below, `cr_your_proxy_key` stands for the **proxy API key** from the dashboard (**Settings** > **Proxy API Key**). The **"Prompt for AI"** dialog inserts it automatically.
+> **Client configuration:** Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the **Client Setup** section -- or open the provider's **Prompt for AI** dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.
 
 ---
 
@@ -36,21 +36,9 @@ Native search-augmented models: `sonar`, `sonar-pro`, `sonar-reasoning-pro`, `so
 
 Third-party frontier models with optional web search via the OpenAI Responses API format: `perplexity/sonar`, `openai/gpt-5.4`, `anthropic/claude-sonnet-4-6`, `google/gemini-3.1-pro-preview`
 
-### OpenClaw Configuration
+> **Live Model List:** Perplexity has a real `/v1/models` endpoint -- **Fetch Models** retrieves the current catalog (45+ models, including Agent-API gateway ids like `anthropic/...`, `openai/...`, `perplexity/glm-5.x`, `perplexity/kimi-k2.7-code`) with per-model pricing. The seeded lists above are only the starting set.
 
-```json
-"perplexity": {
-  "baseUrl": "http://localhost:3030/proxy/perplexity/v1",
-  "apiKey": "cr_your_proxy_key",
-  "api": "openai-completions",
-  "models": [
-    { "id": "sonar", "name": "Sonar" },
-    { "id": "sonar-pro", "name": "Sonar Pro" },
-    { "id": "sonar-reasoning-pro", "name": "Sonar Reasoning Pro" },
-    { "id": "sonar-deep-research", "name": "Sonar Deep Research" }
-  ]
-}
-```
+> *Model lists change over time -- snapshot from August 2026.* Official catalog: [docs.perplexity.ai/docs/sonar/models](https://docs.perplexity.ai/docs/sonar/models)
 
 ---
 
@@ -63,7 +51,9 @@ Third-party frontier models with optional web search via the OpenAI Responses AP
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `gpt-5.2`, `gpt-5.1`, `gpt-5`, `gpt-5-mini`, `gpt-4o`, `gpt-4o-mini`, `o4-mini`, `o3`
+Seeded models: `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`, `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.2`, `gpt-5.1`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [platform.openai.com/docs/models](https://platform.openai.com/docs/models)
 
 ### Dashboard Setup
 
@@ -82,9 +72,13 @@ Seeded models: `gpt-5.2`, `gpt-5.1`, `gpt-5`, `gpt-5-mini`, `gpt-4o`, `gpt-4o-mi
 | **API Format** | `anthropic-messages` |
 | **API Key Mode** | `Managed` |
 
+Seeded models: `claude-fable-5`, `claude-opus-5`, `claude-sonnet-5`, `claude-haiku-4-5-20251001`
+
 > **Note:** Anthropic uses the `anthropic-messages` API format, not `openai-completions`. ClawRouter auto-fills the required `anthropic-version: 2023-06-01` header when your client doesn't send it.
 
 > **Live Model List:** Anthropic has a real `/v1/models` endpoint -- **Fetch Models** retrieves the current catalog (paginated). A hardcoded list is used only as a fallback.
+
+> *Model lists change over time -- snapshot from August 2026.* Official catalog: [platform.claude.com/docs/en/about-claude/models/overview](https://platform.claude.com/docs/en/about-claude/models/overview)
 
 ### Dashboard Setup
 
@@ -103,7 +97,9 @@ Seeded models: `gpt-5.2`, `gpt-5.1`, `gpt-5`, `gpt-5-mini`, `gpt-4o`, `gpt-4o-mi
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `deepseek-chat`, `deepseek-reasoner`, `deepseek-v4-pro`, `deepseek-v4-flash`
+Seeded models: `deepseek-v4-pro`, `deepseek-v4-flash`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [api-docs.deepseek.com/quick_start/pricing](https://api-docs.deepseek.com/quick_start/pricing)
 
 ---
 
@@ -116,7 +112,9 @@ Seeded models: `deepseek-chat`, `deepseek-reasoner`, `deepseek-v4-pro`, `deepsee
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `grok-4`, `grok-4-fast-reasoning`, `grok-code-fast-1`, `grok-3`
+Seeded models: `grok-4.6`, `grok-4.5`, `grok-4.3`, `grok-code-fast-1`, `grok-build-0.1`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.x.ai/docs/models](https://docs.x.ai/docs/models)
 
 ---
 
@@ -130,6 +128,8 @@ Seeded models: `grok-4`, `grok-4-fast-reasoning`, `grok-code-fast-1`, `grok-3`
 | **API Key Mode** | `Managed` |
 
 Seeded models: `mistral-large-latest`, `codestral-latest`, `mistral-medium-latest`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.mistral.ai/getting-started/models/models_overview](https://docs.mistral.ai/getting-started/models/models_overview/)
 
 ---
 
@@ -155,7 +155,7 @@ Z.AI offers three separate presets:
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `glm-5.2`, `glm-5.1`, `glm-5`, `glm-4.7`
+Seeded models: `glm-5.3`, `glm-5-turbo`, `glm-5v-turbo`, `glm-5.2`, `glm-5.1`, `glm-4.7`
 
 ### Z.AI Coding (China)
 
@@ -166,7 +166,9 @@ Seeded models: `glm-5.2`, `glm-5.1`, `glm-5`, `glm-4.7`
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `glm-5.2`, `glm-5.1`, `glm-5`, `glm-4.7`, `glm-4.6`, `glm-4.5-air`
+Seeded models: `glm-5.3`, `glm-5-turbo`, `glm-5v-turbo`, `glm-5.2`, `glm-5.1`, `glm-5`, `glm-4.7`
+
+> *Model lists change over time -- snapshot from August 2026. The coding-plan gateway has no public model-list endpoint, so **Fetch Models** uses the curated list above; the general Z.AI API preset fetches live.* Official docs: [docs.z.ai](https://docs.z.ai)
 
 ### Business Error Codes
 
@@ -207,7 +209,9 @@ Moonshot's Kimi models via a Claude-compatible endpoint.
 | **API Format** | `anthropic-messages` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `kimi-for-coding`, `kimi-k2.7-code`, `kimi-k2.6`, `kimi-k2.5`, `kimi-latest`
+Seeded models: `kimi-for-coding`, `k3`, `k3-256k`
+
+> *Model lists change over time -- snapshot from August 2026.* Official docs: [platform.kimi.ai/docs](https://platform.kimi.ai/docs)
 
 > **Claude Code ready:** Because this provider speaks the Anthropic Messages format, you can point Claude Code at it -- use the **Claude Code** tab in the provider's **Prompt for AI** dialog.
 
@@ -246,11 +250,15 @@ MiniMax M-series via Claude-compatible endpoints. Two regional presets:
 
 Seeded models: `MiniMax-M3`, `MiniMax-M2.7`, `MiniMax-M2.5`, `MiniMax-M2.1`
 
+> **Live Model List:** MiniMax has a real `/v1/models` endpoint (on both the international and China hosts) -- **Fetch Models** retrieves the current catalog, including the `-highspeed` variants (`MiniMax-M2.7-highspeed`, `MiniMax-M2.5-highspeed`, `MiniMax-M2.1-highspeed`). The seeded list above is used only as a fetch-failure fallback.
+
+> *Model lists change over time -- snapshot from August 2026.* Official docs: [platform.minimax.io/docs](https://platform.minimax.io/docs/api-reference/text-chat-openai)
+
 ---
 
 ## Alibaba
 
-Three presets covering the coding plans and the general Model Studio API:
+Four presets covering the coding plans and the general Model Studio API:
 
 ### Alibaba Coding Plan (CN)
 
@@ -261,7 +269,7 @@ Three presets covering the coding plans and the general Model Studio API:
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `qwen3.5-plus`, `qwen3-coder-next`, `qwen3-coder-plus`, `kimi-k2.5`, `glm-5`, `MiniMax-M2.5`
+Seeded models: `qwen3.7-plus`, `qwen3.6-plus`, `qwen3.5-plus`, `qwen3-max-2026-01-23`, `qwen3-coder-next`, `qwen3-coder-plus`, `glm-5`, `glm-4.7`, `kimi-k2.5`, `MiniMax-M2.5`
 
 ### Alibaba Coding Plan (Intl)
 
@@ -272,7 +280,18 @@ Seeded models: `qwen3.5-plus`, `qwen3-coder-next`, `qwen3-coder-plus`, `kimi-k2.
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `qwen3.5-plus`, `qwen3-coder-next`, `kimi-k2.5`, `glm-5`, `MiniMax-M2.5`
+Seeded models: `qwen3.7-plus`, `qwen3.6-plus`, `qwen3.5-plus`, `qwen3-max-2026-01-23`, `qwen3-coder-next`, `qwen3-coder-plus`, `glm-5`, `glm-4.7`, `kimi-k2.5`, `MiniMax-M2.5`
+
+### Alibaba Model Studio (CN)
+
+| Setting | Value |
+|---------|-------|
+| **Template** | Quick Setup > **Alibaba Model Studio (CN)** |
+| **Upstream URL** | `https://dashscope.aliyuncs.com/compatible-mode/v1` |
+| **API Format** | `openai-completions` |
+| **API Key Mode** | `Managed` |
+
+Seeded models: `qwen3.5-plus`, `qwen3-coder-plus`, `qwen3-coder-next`, `qwen-plus`, `qwen-turbo`
 
 ### Alibaba Model Studio (Intl)
 
@@ -283,7 +302,11 @@ Seeded models: `qwen3.5-plus`, `qwen3-coder-next`, `kimi-k2.5`, `glm-5`, `MiniMa
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
-Seeded models: `qwen3.5-plus`, `qwen3-coder-next`, `kimi-k2.5`, `glm-5`
+Seeded models: `qwen3.5-plus`, `qwen3-coder-plus`, `qwen3-coder-next`, `qwen-plus`, `qwen-turbo`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list (all four endpoints answer `/models`).* Official docs: [help.aliyun.com/en/model-studio](https://help.aliyun.com/en/model-studio/qwen-api-via-openai-chat-completions)
+
+> **Coding Plan vs Model Studio keys are NOT interchangeable:** Coding-Plan keys come from a subscription and only work on the `coding{,-intl}` endpoints; Model Studio keys are pay-as-you-go and only work on the `dashscope{,-intl}` endpoints. Mixing them is the usual cause of `invalid_api_key`.
 
 ---
 
@@ -300,6 +323,8 @@ Seeded models: `qwen3.5-plus`, `qwen3-coder-next`, `kimi-k2.5`, `glm-5`
 
 Seeded models: `deepseek-v4-pro`, `deepseek-v4-flash`, `glm-5.2`, `kimi-k2.6`, `qwen3.5-397b-a17b`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Tencent Hunyuan
 
 | Setting | Value |
@@ -310,6 +335,8 @@ Seeded models: `deepseek-v4-pro`, `deepseek-v4-flash`, `glm-5.2`, `kimi-k2.6`, `
 | **API Key Mode** | `Managed` |
 
 Seeded models: `hunyuan-turbos-latest`, `hunyuan-t1-latest`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Volcengine Ark
 
@@ -322,6 +349,8 @@ Seeded models: `hunyuan-turbos-latest`, `hunyuan-t1-latest`
 
 Seeded models: `Doubao-Seed-2.0-Code`, `Doubao-Seed-Code`, `DeepSeek-V4-Flash`, `GLM-5.1`, `Kimi-K2.6`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [volcengine.com/docs/82379](https://www.volcengine.com/docs/82379)
+
 ### Xiaomi MiMo
 
 | Setting | Value |
@@ -332,6 +361,8 @@ Seeded models: `Doubao-Seed-2.0-Code`, `Doubao-Seed-Code`, `DeepSeek-V4-Flash`, 
 | **API Key Mode** | `Managed` |
 
 Seeded models: `mimo-v2.5-pro`, `mimo-v2.5`, `mimo-v2-omni`, `mimo-v2-flash`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Xiaomi MiMo Token Plan
 
@@ -345,6 +376,8 @@ For MiMo subscription keys (`tp-` prefix).
 | **API Key Mode** | `Managed` |
 
 Seeded models: `mimo-v2.5-pro`, `mimo-v2.5`, `mimo-v2-pro`, `mimo-v2-omni`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ---
 
@@ -361,6 +394,8 @@ Seeded models: `mimo-v2.5-pro`, `mimo-v2.5`, `mimo-v2-pro`, `mimo-v2-omni`
 
 Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Qwen3.5-397B-A17B`, `zai-org/GLM-5.1`, `moonshotai/Kimi-K2.6`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [docs.siliconflow.cn](https://docs.siliconflow.cn)
+
 ### Together AI
 
 | Setting | Value |
@@ -369,6 +404,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **Upstream URL** | `https://api.together.xyz/v1` |
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
+
+Seeded models: `meta-llama/Llama-3.3-70B-Instruct-Turbo`, `deepseek-ai/DeepSeek-R1`, `Qwen/Qwen3-235B-A22B`, `meta-llama/Llama-4-Maverick-FP8`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official catalog: [docs.together.ai/docs/serverless-models](https://docs.together.ai/docs/serverless-models)
 
 ### Fireworks AI
 
@@ -379,6 +418,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
+Seeded models: `accounts/fireworks/models/deepseek-v3p1`, `accounts/fireworks/models/llama-v3p3-70b-instruct`, `accounts/fireworks/models/qwen3-235b-a22b`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [docs.fireworks.ai](https://docs.fireworks.ai)
+
 ### Featherless
 
 | Setting | Value |
@@ -388,6 +431,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
+Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `zai-org/GLM-5.2`, `moonshotai/Kimi-K2.7-Code`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Hyperbolic
 
 | Setting | Value |
@@ -396,6 +443,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **Upstream URL** | `https://api.hyperbolic.xyz/v1` |
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
+
+Seeded models: `Qwen/QwQ-32B`, `deepseek-ai/DeepSeek-R1`, `deepseek-ai/DeepSeek-V3`, `meta-llama/Llama-3.3-70B-Instruct`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Chutes AI
 
@@ -415,6 +466,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
+Seeded models: `meta-llama/Llama-3.3-70B-Instruct`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Venice AI
 
 | Setting | Value |
@@ -423,6 +478,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **Upstream URL** | `https://api.venice.ai/api/v1` |
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
+
+Seeded models: `venice-uncensored-1-2`, `zai-org-glm-5`, `qwen3-235b-a22b-instruct-2507`, `llama-3.3-70b`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Vercel AI Gateway
 
@@ -442,6 +501,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
 
+Seeded models: `gpt-5.5`, `deepseek-v4-flash`, `kimi-k3`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### Blackbox AI
 
 | Setting | Value |
@@ -450,6 +513,10 @@ Seeded models: `deepseek-ai/DeepSeek-V4-Pro`, `deepseek-ai/DeepSeek-R1`, `Qwen/Q
 | **Upstream URL** | `https://api.blackbox.ai/v1` |
 | **API Format** | `openai-completions` |
 | **API Key Mode** | `Managed` |
+
+Seeded models: `claude-sonnet-4.6`, `gpt-5.4`, `deepseek-v4-flash`, `grok-4.3`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
 
 ### Morph
 
@@ -464,6 +531,8 @@ Fast-apply / coding models.
 
 Seeded models: `morph-v3-large`, `morph-v3-fast`
 
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
+
 ### OpenCode Go
 
 OpenCode's paid tier -- same platform as the free OpenCode Zen preset, but with a key.
@@ -476,3 +545,5 @@ OpenCode's paid tier -- same platform as the free OpenCode Zen preset, but with 
 | **API Key Mode** | `Managed` |
 
 Seeded models: `glm-5.2`, `kimi-k2.7-code`, `deepseek-v4-pro`, `minimax-m3`, `qwen3.7-max`
+
+> *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [opencode.ai/docs/zen](https://opencode.ai/docs/zen/)

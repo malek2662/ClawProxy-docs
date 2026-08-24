@@ -18,7 +18,7 @@ Speech-to-Text (Scribe) and Text-to-Speech through ClawRouter. ElevenLabs is a *
 | **API Key Mode** | `Managed` |
 | **Get API Key** | [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys) |
 
-**Seeded models:** `scribe_v2`, `scribe_v1` (Speech-to-Text) and `eleven_v3`, `eleven_multilingual_v2`, `eleven_flash_v2_5`, `eleven_turbo_v2_5` (Text-to-Speech). Use **Fetch Models** on the Models tab to pull the live TTS model list -- the Scribe STT models are always included.
+**Seeded models:** `scribe_v2`, `scribe_v1` (Speech-to-Text) and `eleven_v3`, `eleven_multilingual_v2`, `eleven_flash_v2_5`, `eleven_turbo_v2_5` (Text-to-Speech). Use **Fetch Models** on the Models tab to pull the live TTS model list -- the Scribe STT models are always included. See **Available Models** below.
 
 ### Authentication
 
@@ -71,6 +71,28 @@ curl -X POST http://localhost:3030/proxy/{provider-id}/v1/speech-to-text \
 ```
 
 Returns the JSON transcript from the Scribe model.
+
+---
+
+## Available Models
+
+**Speech-to-Text (Scribe):** use via `POST /v1/speech-to-text` (`model_id` field). Scribe models are not listed by the `/v1/models` endpoint, so ClawRouter always keeps them in the seeded list.
+
+| Model ID | Notes |
+|----------|-------|
+| `scribe_v2` | Latest Scribe STT |
+| `scribe_v1` | Previous Scribe STT |
+
+**Text-to-Speech:** pass as `model_id` in the TTS request body.
+
+| Model ID | Notes |
+|----------|-------|
+| `eleven_v3` | Latest flagship TTS |
+| `eleven_multilingual_v2` | Multilingual, high quality |
+| `eleven_flash_v2_5` | Low latency |
+| `eleven_turbo_v2_5` | Balanced latency / quality |
+
+> *Model lists change over time -- snapshot from August 2026. **Models tab > Fetch Models** pulls the live TTS list (`GET /v1/models`).* Official catalog: [elevenlabs.io/docs/models](https://elevenlabs.io/docs/models)
 
 ---
 
