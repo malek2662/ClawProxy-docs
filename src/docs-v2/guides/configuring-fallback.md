@@ -2,6 +2,8 @@
 
 Step-by-step guide for setting up provider fallback chains and building a complete multi-provider fallback system.
 
+> Want one endpoint that exposes models from several providers at once? See [Virtual Providers (Combos)](../core-concepts/virtual-providers.md).
+
 > **Version 1.0.17**
 
 ---

@@ -102,6 +102,19 @@ Both usage modes **auto-disable definitively rejected keys**: the rejection runs
 
 ---
 
+## Virtual Providers (Combos)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/virtual-providers` | List all combos with members and 24h request stats |
+| POST | `/api/virtual-providers` | Create a combo — `{ "name", "id"?, "members"? }` (name-only create allowed; id must not collide with a provider) |
+| GET | `/api/virtual-providers/:id` | Combo detail with members and 24h stats |
+| PUT | `/api/virtual-providers/:id` | Update `name` / `enabled` / replace `members` (priority defaults to array position) |
+| DELETE | `/api/virtual-providers/:id` | Delete the combo (members cascade) |
+| GET | `/api/virtual-providers/:id` `/models` | Public model list — aliases with captured metadata (Prompt for AI source) |
+
+---
+
 ## Circuit Breaker
 
 | Method | Endpoint | Description |

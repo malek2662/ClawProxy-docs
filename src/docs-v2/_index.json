@@ -15,6 +15,7 @@
         { "key": "keyRotation", "title": "Key Rotation", "path": "core-concepts/key-rotation.md" },
         { "key": "modelFallback", "title": "Model Fallback", "path": "core-concepts/model-fallback.md" },
         { "key": "providerFallback", "title": "Provider Fallback Chain", "path": "core-concepts/provider-fallback-chain.md" },
+        { "key": "virtualProviders", "title": "Virtual Providers (Combos)", "path": "core-concepts/virtual-providers.md" },
         { "key": "formatTranslation", "title": "API Format Translation", "path": "core-concepts/format-translation.md" },
         { "key": "circuitBreaker", "title": "Circuit Breaker", "path": "core-concepts/circuit-breaker.md" },
         { "key": "errorHandling", "title": "Error Classification & Retry", "path": "core-concepts/error-handling.md" }
