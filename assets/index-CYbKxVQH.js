@@ -801,7 +801,156 @@ Checklist:
 
 ### Fallback succeeds but with wrong model?
 The fallback provider uses different model naming conventions. Edit the fallback entry and pin the exact model ID the fallback provider expects -- or use **Automatic** with Model Fallback enabled on the target to cascade through its saved model list.
-`,zN=`# Virtual Providers (Combos)
+`,zN=`# System Prompt Control (Prompt Injection)
+
+Inject, replace, or surgically edit the system prompt of every request — per client, per provider, or per combo — directly at the gateway.
+
+> **Version 1.0.17**
+
+---
+
+## What Is System Prompt Control?
+
+ClawRouter can modify the **system prompt** of any request that passes through it, before the request is translated and sent upstream. You define a **rule** once — on a client, a provider, or a combo — and every matching request is adjusted automatically:
+
+\`\`\`
+Client request → [client rule] → [combo rule] → [provider rule] → translation → upstream
+\`\`\`
+
+No client reconfiguration. No per-project instruction files. The change lives in one place and applies everywhere the traffic flows.
+
+---
+
+## Why It Matters
+
+Not all instructions are equal. Modern models are trained to follow an **instruction hierarchy**: the system prompt outranks user messages, which outrank project files.
+
+| Layer | Example | Authority |
+|---|---|---|
+| System prompt | The client's built-in prompt, **your injected rules** | Highest |
+| User messages | What you type in the chat | Medium |
+| Project files | \`CLAUDE.md\`, \`AGENTS.md\` (sent as user-turn context) | Lowest |
+
+This is not folklore — it is how the clients are built. Claude Code, for example, deliberately injects \`CLAUDE.md\` as *user-turn* context and lets its built-in system prompt win any conflict. **A gateway rule sits at the same tier as the client's own system prompt — strictly above every project file.**
+
+Concretely, that means you can:
+
+- **Steer agent behavior globally** — enforce planning-before-acting, verbosity, language, or tool-use discipline for every client at once, without editing a single client config.
+- **Correct a provider's behavior** — append house rules only for traffic through a specific provider or combo.
+- **Neutralize a bad instruction** — surgically remove or rewrite one sentence inside a client's 20,000-token system prompt without touching the rest.
+- **Standardize a stack** — one rule on the \`coding-stack\` combo shapes every model behind it identically.
+
+---
+
+## The Three Tiers
+
+Rules can live at three levels. When several match the same request, they compose in a fixed order:
+
+| Order | Tier | Scope | Typical use |
+|---|---|---|---|
+| 1 | **Client** | Matches the detected client name (OpenCode, Claude Code, Codex…) — any provider | House rules per tool |
+| 2 | **Combo** | Every request through that combo | Stack-wide behavior |
+| 3 | **Provider** | Every request served by that provider — including via combos | Provider-specific corrections |
+
+**Composition semantics:**
+
+- \`prepend\` / \`append\` **concatenate** in tier order (client text first, then combo, then provider).
+- \`replace\` **resets** the accumulated text — the tier closest to the model wins.
+- \`patch\` rules run **sequentially**, each on the result of the previous tier.
+
+---
+
+## The Four Modes
+
+| Mode | What it does |
+|---|---|
+| **Prepend** | Adds your text *before* the client's system prompt (creates one when the client sends none). |
+| **Append** | Adds your text *after* the client's system prompt — still inside the system tier, so it keeps outranking user messages. |
+| **Replace** | Discards the client's system prompt entirely and installs yours. Maximum control — use deliberately. |
+| **Patch** | Surgical find-and-replace **inside the existing system prompt only** (exact text or regex, up to 20 rules). |
+
+### Patch mode — surgical edits
+
+Patch rules are the precision instrument. Each rule is \`{ find, replace, regex? }\`:
+
+\`\`\`json
+{
+  "mode": "patch",
+  "patches": [
+    { "find": "Never use emojis in code comments.", "replace": "" },
+    { "find": "/always respond in English/i", "replace": "always respond in the user's language", "regex": true }
+  ]
+}
+\`\`\`
+
+Only the system prompt is ever touched. **Conversation messages and \`tools[]\` definitions are structurally untouchable** — in every supported API format, tools are a separate field, so a patch can never break tool calling.
+
+---
+
+## Where to Manage Rules
+
+Everything is managed from one place — **Prompt Injection** in the sidebar (syringe icon):
+
+- **Client Rules tab** — create rules matched by client identity, with a live list of **detected clients** from your logs (click one to pre-fill a rule). Priority decides which rule wins when several match (first enabled match, lowest priority number).
+- **Provider Rules tab** — every provider with its current rule status; edit in a slide-over.
+- **Combo Rules tab** — same for combos.
+
+The same rules can also be edited in place: a provider's **Prompt tab**, or a combo's **System Prompt card**.
+
+### Seeing what actually happened — the Inspector
+
+Open any request in **Logs → System Prompt tab**:
+
+- The client's **original** system prompt, extracted per API format.
+- An **Original / Effective** toggle — *Effective* shows the exact text the model received after all matching rules were applied (with a "after N rules" indicator).
+- Badges for every rule tier that fired, and an **Edit rule** button that jumps straight to that rule's editor.
+
+The logged request body always preserves what the client sent (pre-injection); the Effective view is computed from that body plus the active rules.
+
+---
+
+## Format Coverage
+
+Rules work identically across all four supported API formats — OpenAI Chat, OpenAI Responses, Anthropic Messages, and Google Gemini — **including translated traffic**. Injection happens on the client-format body *before* translation, so the pivot engine carries your text into the provider's native dialect for free:
+
+| Target format | Where the text lands |
+|---|---|
+| OpenAI Chat | A \`system\` message in the leading system/developer run |
+| OpenAI Responses | Joined into \`instructions\` |
+| Anthropic Messages | A \`system\` block (cache-control breakpoints preserved) |
+| Google Gemini | Joined into \`systemInstruction\` |
+
+Non-chat traffic (e.g. ElevenLabs audio passthrough) is never modified. When no rule matches, the request body is forwarded **byte-identical** — zero parsing, zero copying.
+
+Rules are also **prompt-cache friendly**: injection only ever adds or sets stable text, so provider-side prompt caching keeps working.
+
+---
+
+## Recipes
+
+**Enforce planning discipline on every coding client:**
+> Client rule, match \`opencode\` (or \`Claude Code\`), mode *Append*:
+> "Before writing code, state a 3-step plan. Prefer existing project conventions over new abstractions."
+
+**Provider-specific correction:**
+> Provider rule on your Kimi provider, mode *Append*:
+> "Always answer in English, regardless of the conversation language."
+
+**Replace a weak built-in prompt entirely:**
+> Provider rule, mode *Replace* — your full battle-tested system prompt. Every request through that provider runs on your prompt.
+
+**Remove one bad line from a huge client prompt:**
+> Client rule, mode *Patch*: find the exact sentence → replace with nothing. The other ~20k tokens pass through untouched.
+
+---
+
+## Notes & Limits
+
+- Patch mode needs an existing system prompt to edit — if the client sends none, a patch rule has no effect (use prepend instead).
+- Client rules match against the client name ClawRouter detects from headers/User-Agent (case-insensitive *contains*). Check the Detected Clients list on the Prompt Injection page for the exact names seen in your traffic.
+- Rule text is limited to 100,000 characters; patch \`find\` to 5,000 per rule (20 rules max) — validated on save.
+- Error responses from upstream providers are passed through unchanged; rules apply to requests, not responses.
+`,BN=`# Virtual Providers (Combos)
 
 Merge models from multiple providers behind a single endpoint — add it to your AI client once and the client sees every member model.
 
@@ -864,7 +1013,7 @@ Combo requests are logged under the **combo id** (filterable in Logs, marked "(C
 - **Combo** — many *different* models from different providers behind one client configuration, chosen by the client per request, with optional same-alias failover.
 
 They compose: a combo member that has its own fallback chain will fall through its chain before the combo moves to the next member.
-`,BN=`# Your First Provider
+`,VN=`# Your First Provider
 
 Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Quick Setup presets or create a custom configuration.
 
@@ -951,7 +1100,7 @@ After creating your first provider:
 - **Enable Model Fallback** -- automatically switch models when one is unavailable
 - **Set up Provider Fallback Chain** -- route to a backup provider when the primary fails (Fallback tab)
 - **Configure your AI client** -- dedicated per-client guides live in the **Client Setup** section (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, Other/Custom), or use the "Prompt for AI" dialog (7 client tabs)
-`,VN=`# Installation & Activation
+`,HN=`# Installation & Activation
 
 ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.
 
@@ -1057,7 +1206,7 @@ Everything is stored locally on your machine. Providers, keys, logs, and configu
 The only external requests ClawRouter makes are:
 1. **To the AI providers you configure** -- forwarding your API requests.
 2. **Periodic license check** -- a lightweight check for activation status and available updates.
-`,HN=`# Quickstart Guide
+`,UN=`# Quickstart Guide
 
 Get ClawRouter running and route your first AI request in minutes.
 
@@ -1240,7 +1389,7 @@ For OpenClaw or any compatible client, add the provider to your configuration:
 - **Preset:** Quick Setup > **Google Gemini**
 - **Get free API key at:** [Google AI Studio](https://aistudio.google.com/)
 - **Top Models:** \`gemini-3.1-pro-preview\`, \`gemini-2.5-flash\`
-`,UN=`# Configuring Fallback
+`,WN=`# Configuring Fallback
 
 Step-by-step guide for setting up provider fallback chains and building a complete multi-provider fallback system.
 
@@ -1333,7 +1482,7 @@ Step-by-step guide for setting up provider fallback chains and building a comple
 4. If all Groq keys exhausted > route to OpenRouter automatically.
 5. On OpenRouter, the same key rotation and model fallback applies.
 6. Your client receives a successful response without seeing any of the internal retries.
-`,WN=`# Configuring Models
+`,GN=`# Configuring Models
 
 Step-by-step guides for discovering models, adding them to your provider, and enabling Model Fallback.
 
@@ -1409,7 +1558,7 @@ See **Core Concepts > Model Fallback > Model Circuit Breaker** for the full beha
 **Generally, no.** You define the Provider and its API Keys in ClawRouter. Model selection happens in your AI client (like OpenClaw). When your client requests a model, ClawRouter forwards the request upstream as-is.
 
 **Exception:** Add models to the provider's **Models tab** if you want to use **Model Fallback** (automatic retry with a different model). Saved models also appear as options when configuring the Provider Fallback Chain, and power the **Automatic** cascade on fallback entries.
-`,GN=`# Global Settings
+`,KN=`# Global Settings
 
 Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.
 
@@ -1503,7 +1652,7 @@ If you have many API keys (e.g., 50+) but want faster failover to a fallback pro
 
 - **All** (default): On failure, ClawRouter tries every available key for the provider before giving up.
 - **Fixed**: ClawRouter tries up to the configured **Key Retry Limit** number of keys, then triggers the fallback chain.
-`,KN=`# Managing API Keys
+`,qN=`# Managing API Keys
 
 Step-by-step guides for adding, managing, testing, and troubleshooting API keys in ClawRouter.
 
@@ -1665,7 +1814,7 @@ To zero all counters (total, success, failed, consecutive errors) for a key:
 1. Open the provider's **API Keys** tab.
 2. Find the key.
 3. Click the **Reset Stats** button.
-`,qN=`# Monitoring & Notifications
+`,JN=`# Monitoring & Notifications
 
 Step-by-step guides for monitoring proxy activity through notifications, request logs, and usage stats.
 
@@ -1774,7 +1923,7 @@ The **Usage** page in the sidebar breaks down token consumption and cost per pro
 2. **Static pricing estimate** -- otherwise, ClawRouter estimates cost from a built-in pricing table (~50 popular models) using cache-aware math (cached tokens are priced separately from fresh input).
 
 > **All costs are estimates.** The Usage page labels them accordingly -- they are for guidance only, never actual billing. Check your provider's dashboard for authoritative numbers.
-`,JN=`# Provider Management
+`,YN=`# Provider Management
 
 Step-by-step guides for managing provider lifecycle: testing connections, resetting the circuit breaker, configuring timeouts, enabling/disabling, and deleting providers.
 
@@ -1939,7 +2088,7 @@ A disabled provider:
    - **Changelog** (if provided)
    - **Install/update commands** for your platform
 5. Run the provided command in your terminal to update.
-`,YN=`# Client Setup Overview
+`,XN=`# Client Setup Overview
 
 ClawRouter works with any AI client that supports a custom base URL. This page explains the two setup methods and what all clients have in common -- then points you to the dedicated guide for your client.
 
@@ -2017,7 +2166,7 @@ Prefer editing config files yourself? Each dedicated client guide has the exact 
 | Claude Code | **No** \`/v1\` -- Claude Code appends \`/v1/messages\` itself |
 
 The base URL always starts with \`http://localhost:3030/proxy/{provider-id}\` (adjust host/port if you changed them).
-`,XN=`# Claude Code Setup
+`,ZN=`# Claude Code Setup
 
 Claude Code is Anthropic's terminal coding agent. It speaks the Anthropic Messages API -- which ClawRouter exposes on every provider -- so you can route Claude Code through ClawRouter to any configured provider, including non-Anthropic ones.
 
@@ -2128,7 +2277,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/messages \\
 
 **Changes not taking effect**
 - Claude Code reads \`settings.json\` at startup -- restart it after every edit.
-`,ZN=`# Codex CLI Setup
+`,QN=`# Codex CLI Setup
 
 Codex CLI is OpenAI's terminal coding agent, configured through \`~/.codex/config.toml\`. This guide registers ClawRouter as a custom model provider so Codex routes through it.
 
@@ -2238,7 +2387,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/chat/completions \\
 **"Model not found" errors**
 - The model ID must exist on the upstream provider. Use **Fetch Models** in the provider's Models tab for the current list.
 - Enable **Model Fallback** with backup models so a stale ID fails over automatically.
-`,QN=`# DeepSeek Harness Setup
+`,$N=`# DeepSeek Harness Setup
 
 DeepSeek Harness (\`dsh\`, npm \`@deepseek-ai/dsh\`) is DeepSeek's open-source agent harness -- the tools/files/sandbox/control-loop layer around a model, built on plugins. It speaks OpenAI-compatible APIs through its \`llm-pi-ai\` provider plugin -- point it at ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
@@ -2330,7 +2479,7 @@ References: <https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/mast
 
 **"Model not found" errors**
 - The model ID must exist on the upstream provider. Use **Fetch Models** in the provider's Models tab for the current list.
-`,$N=`# OpenClaw Setup
+`,eP=`# OpenClaw Setup
 
 OpenClaw is an AI agent client configured through a JSON file (\`openclaw.json\`). This guide connects it to ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
@@ -2489,7 +2638,7 @@ For ready-to-use OpenClaw configuration snippets per provider, see:
 - **Providers > Paid Providers** -- OpenAI, Anthropic, DeepSeek, xAI, Kimi, MiniMax, Z.AI, and more
 
 > **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
-`,eP=`# OpenCode Setup
+`,tP=`# OpenCode Setup
 
 OpenCode is a terminal AI coding agent configured through an \`opencode.json\` file. This guide points it at ClawRouter so it benefits from key rotation, fallback chains, circuit breaking, and centralized logging.
 
@@ -2633,7 +2782,7 @@ curl -X POST http://localhost:3030/proxy/my-provider-id/v1/chat/completions \\
 - ClawRouter supports SSE streaming with zero buffering. Check the ClawRouter **Logs** page for error details.
 
 > **Note on built-in free models:** OpenCode already ships its own free models out of the box. ClawRouter adds value on top: key rotation, provider fallback chains, circuit breaking, and centralized logging across all your providers -- including third-party free-tier APIs that require their own keys (Google Gemini, Groq, OpenRouter, NVIDIA, etc.).
-`,tP=`# Other / Custom Clients
+`,nP=`# Other / Custom Clients
 
 Any AI client that supports a custom base URL can route through ClawRouter. This page gives the generic connection details, ready-to-paste environment variable blocks, and a guide for Aider.
 
@@ -2736,7 +2885,7 @@ A successful JSON response means the provider, keys, and proxy auth are all work
 
 **Wrong Base URL suffix**
 - OpenAI-style clients need the base URL to end at \`/v1\`; Anthropic-style clients need the bare endpoint with **no** \`/v1\`; Google-style clients need \`/v1beta\`. When in doubt, copy the exact value from the **Custom / Other** tab of the "Prompt for AI" dialog.
-`,nP=`# Qwen Code Setup
+`,rP=`# Qwen Code Setup
 
 Qwen Code is Alibaba's terminal coding agent (a Gemini CLI fork). It speaks OpenAI-compatible, Anthropic, Gemini, and Qwen protocols -- point its OpenAI-compatible mode at ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
@@ -2851,7 +3000,7 @@ References: <https://qwenlm.github.io/qwen-code-docs/en/users/configuration/mode
 
 **"Model not found" errors**
 - The model ID must exist on the upstream provider. Use **Fetch Models** in the provider's Models tab for the current list.
-`,rP=`# Bypass Providers
+`,iP=`# Bypass Providers
 
 Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add, no signup required.
 
@@ -2983,7 +3132,7 @@ For both hosted bypass providers:
 
 - **Free**: The model is accessible without a paid subscription.
 - **Paid**: The model requires an active subscription or credits on the provider's platform. Using a paid model without a subscription will result in a "PAID_MODEL_AUTH_REQUIRED" error, which ClawRouter classifies as MODEL_ERROR (not AUTH_ERROR).
-`,iP=`# ElevenLabs (Audio)
+`,aP=`# ElevenLabs (Audio)
 
 Speech-to-Text (Scribe) and Text-to-Speech through ClawRouter. ElevenLabs is a **passthrough audio provider** -- requests are forwarded byte-identical, with your managed API key injected automatically.
 
@@ -3093,7 +3242,7 @@ The **Test** button uses a zero-cost \`GET /v1/user\` probe -- no characters are
 - **No Quota tab / usage probe.** ElevenLabs has no supported usage endpoint.
 - **No token or cost extraction.** Audio responses carry no token usage, so these requests show no token counts or estimated cost in the logs. Binary audio bodies are never stored in logs -- a placeholder is recorded instead.
 - **Realtime STT/TTS is not proxied.** ElevenLabs realtime endpoints run over client-direct WebSocket (\`wss://api.elevenlabs.io/...\`) -- connect to ElevenLabs directly for those. (Client-side vs server-side streaming are commit strategies over the same realtime endpoint; both bypass the proxy.)
-`,aP=`# Free Tier Providers
+`,oP=`# Free Tier Providers
 
 These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required. Each preset includes a **Get API Key** link directly in the Add Provider form.
 
@@ -3429,7 +3578,7 @@ Coding-focused models.
 \`poolside/laguna-s-2.1\`, \`poolside/laguna-xs-2.1\`
 
 > *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.*
-`,oP=`# Paid Providers
+`,sP=`# Paid Providers
 
 Configure paid API providers securely in ClawRouter. All keys are stored locally -- never sent externally.
 
@@ -3978,7 +4127,7 @@ OpenCode's paid tier -- same platform as the free OpenCode Zen preset, but with 
 Seeded models: \`glm-5.2\`, \`kimi-k2.7-code\`, \`deepseek-v4-pro\`, \`minimax-m3\`, \`qwen3.7-max\`
 
 > *Model lists change over time -- snapshot from August 2026. Use **Models tab > Fetch Models** for the live list.* Official docs: [opencode.ai/docs/zen](https://opencode.ai/docs/zen/)
-`,sP=`# Provider Directory
+`,cP=`# Provider Directory
 
 A complete list of all built-in provider presets in ClawRouter. Each preset comes pre-configured with the correct name, API format, upstream URL, and API key mode -- plus an icon, brand color, "Get API Key" link, and a seeded model list.
 
@@ -4113,7 +4262,7 @@ For providers not in the preset list, use the **Custom** option with a blank for
 
 - ClawRouter only supports standard **Developer API Keys**. It does NOT support web session tokens, OAuth logins, or consumer subscriptions (e.g., ChatGPT Plus or Claude Pro web credentials). You must generate an actual API Key from the provider's developer console.
 - **100% Local Privacy:** ClawRouter runs entirely on your local machine. All API keys, configurations, and logs are stored locally. No data is sent to external servers other than the AI providers you explicitly configure.
-`,cP='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.17**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n| PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |\n\n---\n\n## Dashboard Authentication\n\nAll `/api/*` endpoints (except `/api/health` and `/api/auth/*`) require a session token from login -- send it as `Authorization: Bearer <token>`.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/auth/login` | Verify the dashboard password (`{ password }`). Returns `{ token }` (12-hour session) |\n| POST | `/api/auth/logout` | Invalidate the current session token |\n| GET | `/api/auth/session` | Validate the current session token |\n| POST | `/api/auth/change-password` | Change the dashboard password (`{ currentPassword, newPassword }`). Invalidates all sessions |\n\n---\n\n## Connection Testing\n\nEvery test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.\n\nKey-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| POST | `/api/providers/:id/keys/bulk-delete` | Bulk delete keys (`{ key_ids }`, provider-scoped, max 500 per call). Returns `{ deleted }` |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Model Circuits & Usage\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |\n| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \\| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |\n| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \\| null, invalid? }] }` |\n\nBoth usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI\'s HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.\n\n---\n\n## Virtual Providers (Combos)\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/virtual-providers` | List all combos with members and 24h request stats |\n| POST | `/api/virtual-providers` | Create a combo — `{ "name", "id"?, "members"? }` (name-only create allowed; id must not collide with a provider) |\n| GET | `/api/virtual-providers/:id` | Combo detail with members and 24h stats |\n| PUT | `/api/virtual-providers/:id` | Update `name` / `enabled` / replace `members` (priority defaults to array position) |\n| DELETE | `/api/virtual-providers/:id` | Delete the combo (members cascade) |\n| GET | `/api/virtual-providers/:id` `/models` | Public model list — aliases with captured metadata (Prompt for AI source) |\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',lP=`# CLI Commands
+`,lP='# API Reference\n\nClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at `http://localhost:3030`.\n\n> **Version 1.0.17**\n\n---\n\n## Provider Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers` | List all providers with key/today stats |\n| POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |\n| GET | `/api/providers/:id` | Get single provider details |\n| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers; `system_prompt_rule` accepts a rule object or `null` to clear — see System Prompt Control) |\n| DELETE | `/api/providers/:id` | Delete provider (cascades) |\n| PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |\n| PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |\n\n---\n\n## Dashboard Authentication\n\nAll `/api/*` endpoints (except `/api/health` and `/api/auth/*`) require a session token from login -- send it as `Authorization: Bearer <token>`.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/auth/login` | Verify the dashboard password (`{ password }`). Returns `{ token }` (12-hour session) |\n| POST | `/api/auth/logout` | Invalidate the current session token |\n| GET | `/api/auth/session` | Validate the current session token |\n| POST | `/api/auth/change-password` | Change the dashboard password (`{ currentPassword, newPassword }`). Invalidates all sessions |\n\n---\n\n## Connection Testing\n\nEvery test runs a free `/models` check **followed by a 1-token generation probe** (`max_tokens: 1`) -- the `/models` 200 alone only proves authentication, not usable credit. Returns `{ valid, latencyMs, status?, error?, errorType?, softWarning? }`. 401/403 and hard billing (402, "insufficient balance" / `insufficient_quota` -- reported as "recharge required") = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.\n\nKey-level tests **auto-disable** a key when the test proves it definitively invalid (`!valid` + `errorType: "AUTH_ERROR"` -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains `auto_disabled: true`. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports `auto_disabled: true` without re-firing the notification. The provider-level test does **not** disable keys.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| POST | `/api/providers/:id/test` | Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional `{ "key_value": "..." }` to test an unsaved key (test-before-save). Does not disable keys |\n| POST | `/api/providers/:id/keys/:keyId/test` | Test one key; persists `test_status`, `test_latency_ms`, `tested_at`, `last_test_error` on the key row. Auto-disables on a definitive invalid verdict (adds `auto_disabled: true`) |\n| POST | `/api/providers/:id/keys/test-all` | Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns `{ results: [...] }` (per-item `auto_disabled` flag) |\n\n---\n\n## API Key Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/keys` | List all keys for provider |\n| POST | `/api/providers/:id/keys` | Add a single key (400 if the provider\'s API Key Mode is `none`) |\n| POST | `/api/providers/:id/keys/bulk` | Bulk add keys (newline-separated) |\n| POST | `/api/providers/:id/keys/bulk-delete` | Bulk delete keys (`{ key_ids }`, provider-scoped, max 500 per call). Returns `{ deleted }` |\n| PUT | `/api/providers/:id/keys/:keyId` | Update key (label, priority) |\n| DELETE | `/api/providers/:id/keys/:keyId` | Delete key |\n| PATCH | `/api/providers/:id/keys/:keyId/toggle` | Toggle key enabled/disabled |\n| PATCH | `/api/providers/:id/keys/:keyId/reset` | Reset key stats to zero |\n| POST | `/api/providers/:id/keys/reorder` | Reorder key priorities |\n| GET | `/api/providers/:id/keys/:keyId/errors` | Get last 50 errors for key |\n\n---\n\n## Provider Fallback Chain\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/fallbacks` | List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page) |\n| GET | `/api/providers/:id/fallbacks` | List fallback entries |\n| POST | `/api/providers/:id/fallbacks` | Add fallback entry (`fallback_model_id: null` = Automatic) |\n| PUT | `/api/providers/:id/fallbacks/:fbId` | Update fallback entry |\n| DELETE | `/api/providers/:id/fallbacks/:fbId` | Delete fallback entry |\n| POST | `/api/providers/:id/fallbacks/reorder` | Reorder fallback chain |\n\n---\n\n## Model Management\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/models` | List saved models |\n| POST | `/api/providers/:id/models` | Add a model |\n| POST | `/api/providers/:id/models/bulk` | Bulk add models (`{ models: [{ model_id, display_name? }] }`) |\n| DELETE | `/api/providers/:id/models/:modelId` | Delete a model |\n| POST | `/api/providers/:id/models/reorder` | Reorder model priorities |\n| POST | `/api/providers/:id/models/fetch` | Fetch models from upstream. Returns `{ models, fetched_at, cached }`. 5-min in-memory cache; `?force=1` bypasses. Cache invalidated on key add/delete/toggle |\n\n---\n\n## Model Circuits & Usage\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/model-circuits` | Open model circuits for the provider. Returns `[{ model_id, failures, remaining_s, last_error_type }]` -- powers the Models-tab "Skipped" badges |\n| GET | `/api/providers/:id/usage` | Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to **any** enabled key when all are quota-backed-off. Returns `{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } \\| null }`. Returns `{ supported: false }` for providers without a known usage endpoint |\n| GET | `/api/providers/:id/usage?all=1` | Probes **every enabled key** in parallel (each key is a separate quota account) -- powers the provider **Quota tab**. Returns `{ supported, keys: [{ key_id, label, hint, usage \\| null, invalid? }] }` |\n\nBoth usage modes **auto-disable definitively rejected keys**: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + `key_disabled` notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI\'s HTTP-200 `{"code":1000,"msg":"Authentication Failed"}` dead-key envelope is detected and treated like a real 401.\n\n---\n\n## Virtual Providers (Combos)\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/virtual-providers` | List all combos with members and 24h request stats |\n| POST | `/api/virtual-providers` | Create a combo — `{ "name", "id"?, "members"? }` (name-only create allowed; id must not collide with a provider) |\n| GET | `/api/virtual-providers/:id` | Combo detail with members and 24h stats |\n| PUT | `/api/virtual-providers/:id` | Update `name` / `enabled` / replace `members` (priority defaults to array position) |\n| DELETE | `/api/virtual-providers/:id` | Delete the combo (members cascade) |\n| GET | `/api/virtual-providers/:id` `/models` | Public model list — aliases with captured metadata (Prompt for AI source) |\n\n---\n\n## Client Rules (System Prompt Control)\n\nClient rules inject/modify the system prompt for requests from a matching client (case-insensitive `match` against the detected client name; the first enabled rule by `priority` wins). Rule shape: `{ "mode": "prepend" | "append" | "replace" | "patch", "text"?, "patches"? }` — see the System Prompt Control concept page. Provider and combo rules use the same shape via the `system_prompt_rule` field on their PUT endpoints.\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/client-rules` | List all client rules (`{ rules: [...] }`) |\n| POST | `/api/client-rules` | Create a rule — `{ "name", "match", "rule", "priority"?, "enabled"? }` |\n| PUT | `/api/client-rules/:id` | Update any subset of fields (`rule: null` is rejected — a client rule without injection has no effect) |\n| DELETE | `/api/client-rules/:id` | Delete the rule |\n\n---\n\n## Circuit Breaker\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/providers/:id/circuit-status` | Get circuit breaker state |\n| POST | `/api/providers/:id/circuit-reset` | Reset circuit breaker |\n\n---\n\n## Notifications\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/notifications` | List all notifications |\n| POST | `/api/notifications/:id/read` | Mark as read |\n| DELETE | `/api/notifications` | Clear all notifications |\n\n---\n\n## Logs\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/logs` | List logs (paginated, filterable) |\n| GET | `/api/logs/clients` | List distinct client names seen in logs (powers the client filter) |\n| GET | `/api/logs/:id` | Get single log detail |\n| GET | `/api/logs/:id/raw` | Get parsed raw request/response headers and bodies for a log |\n| DELETE | `/api/logs` | Clear all logs |\n\n---\n\n## Global Settings\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings` | Get all global settings |\n| PUT | `/api/settings` | Update global settings (includes `proxy_auth_enabled` -- toggle proxy API key requirement on `/proxy/*`, default `true`) |\n\n---\n\n## Proxy API Key\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/settings/proxy-key` | Get the proxy API key and auth state. Returns `{ key, enabled }` |\n| POST | `/api/settings/proxy-key/regenerate` | Generate a new proxy API key. Returns `{ key, enabled }`. The old key stops working immediately |\n\n---\n\n## System\n\n| Method | Endpoint | Description |\n|--------|----------|-------------|\n| GET | `/api/health` | Health check (status, uptime) |\n| GET | `/api/stats` | Global stats (range: 24h, 7d, all). `today.estimated_cost` = sum of request costs since local midnight |\n| GET | `/api/providers/:id/stats` | Provider-specific stats |\n| GET | `/api/license-status` | Activation/license status |\n| POST | `/api/check-activation` | Trigger manual activation check |\n\n---\n\n## WebSocket\n\n| Endpoint | Description |\n|----------|-------------|\n| `/ws/logs` | Real-time log updates + notification broadcasts |\n\n---\n\n## Proxy\n\n| Endpoint | Description |\n|----------|-------------|\n| `POST /proxy/{providerId}/*` | Main proxy endpoint (all AI requests) |\n\nRequests require the **proxy API key** by default -- sent as `Authorization: Bearer <key>` (OpenAI style) or `x-api-key: <key>` (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under **Settings > Proxy API Key**. The requirement can be toggled via the `proxy_auth_enabled` global setting (`PUT /api/settings`).\n',uP=`# CLI Commands
 
 ClawRouter includes a built-in command-line interface (CLI) to manage the proxy as a background service. Run these commands from any terminal after installation.
 
@@ -4224,7 +4373,7 @@ If the native service manager isn't available, ClawRouter falls back to a built-
 ---
 
 > **Tip:** Run \`clawrouter logs\` regularly to ensure your Provider Fallback Chain, Model Fallback, Smart Key Rotation, and Circuit Breaker are all working as expected.
-`,uP=`# Environment Variables
+`,dP=`# Environment Variables
 
 All environment variables that ClawRouter recognizes, with their defaults and descriptions.
 
@@ -4258,7 +4407,7 @@ All environment variables that ClawRouter recognizes, with their defaults and de
 - The \`--port\` CLI flag takes precedence over the \`PORT\` environment variable.
 - Log retention and auto-cleanup settings can also be changed at runtime from the **Settings** page in the dashboard, without needing a restart.
 - All data is stored locally in the SQLite database. No data is sent externally except to the AI providers you configure and a periodic license check.
-`,dP=`# Settings Reference
+`,fP=`# Settings Reference
 
 Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
 
@@ -4502,7 +4651,7 @@ Configured in the provider's **Fallback** tab or the global **Fallback** page (s
 | **Key error history** | Last 50 errors per key |
 | **Notification buffer** | Last 100 notifications |
 | **Log retention** | 7 days (configurable via Settings page or LOG_RETENTION_DAYS env) |
-`,fP=`# Support & Contact
+`,pP=`# Support & Contact
 
 **ClawRouter** is developed and maintained by **Malek-Rsh**.
 
@@ -4537,7 +4686,7 @@ If you need help with activation:
 3. Your installation will be activated promptly.
 
 > The Installation ID is machine-specific. If you move to a new machine, you will need a new activation.
-`,pP=`# Frequently Asked Questions
+`,mP=`# Frequently Asked Questions
 
 Answers to common questions about ClawRouter configuration and usage.
 
@@ -4676,7 +4825,7 @@ On large setups with many providers and extensive logs, initial loading can take
 
 ### How do I completely reset my configuration?
 Delete the local database file and restart ClawRouter. This removes all providers, keys, and logs. You may need to contact the developer to re-activate.
-`,mP=`# Troubleshooting
+`,hP=`# Troubleshooting
 
 Diagnose and resolve common issues with ClawRouter.
 
@@ -5017,9 +5166,9 @@ If all else fails and you need to start fresh:
 3. You will need to reconfigure all providers and keys. Contact the developer if re-activation is needed.
 
 > **Warning:** This removes all providers, keys, and logs.
-`,hP={sections:[{title:`Getting Started`,items:[{key:`quickstart`,title:`Quickstart Guide`,path:`getting-started/quickstart.md`},{key:`installation`,title:`Installation & Activation`,path:`getting-started/installation-activation.md`},{key:`firstProvider`,title:`Your First Provider`,path:`getting-started/first-provider.md`}]},{title:`Core Concepts`,items:[{key:`howItWorks`,title:`How ClawRouter Works`,path:`core-concepts/how-clawrouter-works.md`},{key:`keyRotation`,title:`Key Rotation`,path:`core-concepts/key-rotation.md`},{key:`modelFallback`,title:`Model Fallback`,path:`core-concepts/model-fallback.md`},{key:`providerFallback`,title:`Provider Fallback Chain`,path:`core-concepts/provider-fallback-chain.md`},{key:`virtualProviders`,title:`Virtual Providers (Combos)`,path:`core-concepts/virtual-providers.md`},{key:`formatTranslation`,title:`API Format Translation`,path:`core-concepts/format-translation.md`},{key:`circuitBreaker`,title:`Circuit Breaker`,path:`core-concepts/circuit-breaker.md`},{key:`errorHandling`,title:`Error Classification & Retry`,path:`core-concepts/error-handling.md`}]},{title:`How-To Guides`,items:[{key:`managingKeys`,title:`Managing API Keys`,path:`guides/managing-api-keys.md`},{key:`configuringModels`,title:`Configuring Models`,path:`guides/configuring-models.md`},{key:`configuringFallback`,title:`Configuring Fallback`,path:`guides/configuring-fallback.md`},{key:`monitoring`,title:`Monitoring & Notifications`,path:`guides/monitoring-notifications.md`},{key:`providerManagement`,title:`Provider Management`,path:`guides/provider-management.md`},{key:`globalSettings`,title:`Global Settings`,path:`guides/global-settings.md`}]},{title:`Providers`,items:[{key:`providerDirectory`,title:`Provider Directory`,path:`providers/provider-directory.md`},{key:`bypassProviders`,title:`Bypass Providers`,path:`providers/bypass-providers.md`},{key:`freeTierProviders`,title:`Free Tier Providers`,path:`providers/free-tier-providers.md`},{key:`paidProviders`,title:`Paid Providers`,path:`providers/paid-providers.md`},{key:`elevenlabsAudio`,title:`ElevenLabs (Audio)`,path:`providers/elevenlabs-audio.md`}]},{title:`Client Setup`,items:[{key:`aiClientSetup`,title:`Client Setup Overview`,path:`integrations/ai-client-setup.md`},{key:`openclawSetup`,title:`OpenClaw`,path:`integrations/openclaw-setup.md`},{key:`opencodeSetup`,title:`OpenCode`,path:`integrations/opencode-setup.md`},{key:`claudeCodeSetup`,title:`Claude Code`,path:`integrations/claude-code-setup.md`},{key:`codexCliSetup`,title:`Codex CLI`,path:`integrations/codex-cli-setup.md`},{key:`qwenCodeSetup`,title:`Qwen Code`,path:`integrations/qwen-code-setup.md`},{key:`deepseekHarnessSetup`,title:`DeepSeek Harness`,path:`integrations/deepseek-harness-setup.md`},{key:`otherClients`,title:`Other / Custom Clients`,path:`integrations/other-clients.md`}]},{title:`Reference`,items:[{key:`cliCommands`,title:`CLI Commands`,path:`reference/cli-commands.md`},{key:`settingsReference`,title:`Settings Reference`,path:`reference/settings-reference.md`},{key:`apiReference`,title:`API Reference`,path:`reference/api-reference.md`},{key:`envVars`,title:`Environment Variables`,path:`reference/environment-variables.md`}]},{title:`Help`,items:[{key:`troubleshooting`,title:`Troubleshooting`,path:`troubleshooting/troubleshooting.md`},{key:`faq`,title:`FAQ`,path:`troubleshooting/faq.md`},{key:`support`,title:`Support & Contact`,path:`support.md`}]}]},gP=Object.assign({"../docs-v2/core-concepts/circuit-breaker.md":MN,"../docs-v2/core-concepts/error-handling.md":NN,"../docs-v2/core-concepts/format-translation.md":PN,"../docs-v2/core-concepts/how-clawrouter-works.md":FN,"../docs-v2/core-concepts/key-rotation.md":IN,"../docs-v2/core-concepts/model-fallback.md":LN,"../docs-v2/core-concepts/provider-fallback-chain.md":RN,"../docs-v2/core-concepts/virtual-providers.md":zN,"../docs-v2/getting-started/first-provider.md":BN,"../docs-v2/getting-started/installation-activation.md":VN,"../docs-v2/getting-started/quickstart.md":HN,"../docs-v2/guides/configuring-fallback.md":UN,"../docs-v2/guides/configuring-models.md":WN,"../docs-v2/guides/global-settings.md":GN,"../docs-v2/guides/managing-api-keys.md":KN,"../docs-v2/guides/monitoring-notifications.md":qN,"../docs-v2/guides/provider-management.md":JN,"../docs-v2/integrations/ai-client-setup.md":YN,"../docs-v2/integrations/claude-code-setup.md":XN,"../docs-v2/integrations/codex-cli-setup.md":ZN,"../docs-v2/integrations/deepseek-harness-setup.md":QN,"../docs-v2/integrations/openclaw-setup.md":$N,"../docs-v2/integrations/opencode-setup.md":eP,"../docs-v2/integrations/other-clients.md":tP,"../docs-v2/integrations/qwen-code-setup.md":nP,"../docs-v2/providers/bypass-providers.md":rP,"../docs-v2/providers/elevenlabs-audio.md":iP,"../docs-v2/providers/free-tier-providers.md":aP,"../docs-v2/providers/paid-providers.md":oP,"../docs-v2/providers/provider-directory.md":sP,"../docs-v2/reference/api-reference.md":cP,"../docs-v2/reference/cli-commands.md":lP,"../docs-v2/reference/environment-variables.md":uP,"../docs-v2/reference/settings-reference.md":dP,"../docs-v2/support.md":fP,"../docs-v2/troubleshooting/faq.md":pP,"../docs-v2/troubleshooting/troubleshooting.md":mP}),_P=e=>e.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{E0020}-\u{E007F}\u{FE0F}\u{200D}\u{1F400}-\u{1F4FF}]/gu,``).trim();function vP(e){let t=new xx,n=e.split(`
-`),r=[],i=null;return n.forEach(e=>{let n=e.match(/^##\s+(.+)$/);if(n){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim();if(e.toLowerCase()===`table of contents`)return;i={id:t.slug(e),title:_P(e),items:[]},r.push(i)}else{let n=e.match(/^###\s+(.+)$/);if(n&&i){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim(),r=t.slug(e),a=_P(e);i.items.push({id:r,title:a})}}}),r}function yP(e){return gP[`../docs-v2/${e}`]||(console.warn(`[docs] Missing markdown file for path: ${e}`),``)}function bP(e){return e.replace(/```[\s\S]*?```/g,``).replace(/`[^`]+`/g,``).replace(/!?\[([^\]]*)\]\([^)]*\)/g,`$1`).replace(/^\s{0,3}#{1,6}\s+/gm,``).replace(/[*_~]{1,3}/g,``).replace(/^\s*[-*+]\s+/gm,``).replace(/^\s*\d+\.\s+/gm,``).replace(/^\s*>\s?/gm,``).replace(/\|/g,` `).replace(/<\/?[^>]+(>|$)/g,``).replace(/\n{2,}/g,`
-`).trim()}var xP={},SP=hP.sections.map(e=>({label:e.title,keys:e.items.map(e=>{let t=yP(e.path);return xP[e.key]={title:e.title,content:t,toc:vP(t)},e.key})})),CP=(()=>{let e=[],t=new xx;for(let n of hP.sections)for(let r of n.items){let i=xP[r.key];if(!i||!i.content)continue;t.reset();let a=i.content.split(`
-`),o=null,s=null,c=[],l=()=>{if(c.length===0)return;let t=bP(c.join(`
-`));t.length<3||e.push({key:r.key,docTitle:r.title,sectionTitle:n.title,headingId:s,headingTitle:o,text:t})};for(let e of a){let n=e.match(/^##\s+(.+)$/),r=!n&&e.match(/^###\s+(.+)$/);if(n||r){l(),c=[];let e=(n||r)[1].replace(/<\/?[^>]+(>|$)/g,``).trim();o=_P(e),s=t.slug(e)}else c.push(e)}l()}return e})();function wP({children:e,...t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(!1);return(0,S.useEffect)(()=>{let e=n.current;if(!e)return;let t=()=>i(e.scrollWidth>e.clientWidth+1);t();let r=new ResizeObserver(t);return r.observe(e),()=>r.disconnect()},[e]),(0,A.jsxs)(`div`,{children:[(0,A.jsx)(`div`,{className:`table-scroll-wrapper`,ref:n,children:(0,A.jsx)(`table`,{...t,children:e})}),r&&(0,A.jsxs)(`div`,{className:`table-scroll-hint`,children:[(0,A.jsxs)(`svg`,{width:`14`,height:`14`,viewBox:`0 0 24 24`,fill:`none`,stroke:`currentColor`,strokeWidth:`2`,strokeLinecap:`round`,strokeLinejoin:`round`,children:[(0,A.jsx)(`path`,{d:`M5 12h14`}),(0,A.jsx)(`path`,{d:`m12 5 7 7-7 7`})]}),`Swipe to see more`]})]})}function TP({language:e,children:t}){let[n,r]=(0,S.useState)(!1),i=(0,S.useCallback)(()=>{navigator.clipboard.writeText(String(t).replace(/\n$/,``)).then(()=>{r(!0),setTimeout(()=>r(!1),2e3)}).catch(()=>{})},[t]);return(0,A.jsxs)(`div`,{className:`code-block`,children:[(0,A.jsxs)(`div`,{className:`code-block-bar`,children:[(0,A.jsxs)(`span`,{className:`code-lang`,children:[(0,A.jsx)(`i`,{className:`code-lang-dot`,"aria-hidden":`true`}),e||`text`]}),(0,A.jsx)(`button`,{type:`button`,onClick:i,className:`code-copy${n?` copied`:``}`,"aria-label":`Copy code block`,children:n?(0,A.jsxs)(A.Fragment,{children:[(0,A.jsx)(sr,{size:13,"aria-hidden":`true`}),` Copied`]}):(0,A.jsxs)(A.Fragment,{children:[(0,A.jsx)(cr,{size:13,"aria-hidden":`true`}),` Copy`]})})]}),(0,A.jsx)(AN,{language:e||`text`,style:jN,customStyle:{margin:0,border:`none`,borderRadius:0,fontSize:`0.85rem`,padding:`16px 18px`,background:`transparent`,lineHeight:1.7},codeTagProps:{style:{fontFamily:`var(--font-mono)`}},children:String(t).replace(/\n$/,``)})]})}function EP({onNavigate:e}){let[t,n]=(0,S.useState)(``),[r,i]=(0,S.useState)([]),[a,o]=(0,S.useState)(0),[s,c]=(0,S.useState)(!1),l=(0,S.useRef)(null),u=(0,S.useRef)(null),d=(0,S.useRef)(null),f=(0,S.useCallback)(e=>{if(d.current&&clearTimeout(d.current),e.length<2){i([]),c(!1);return}d.current=setTimeout(()=>{let t=e.toLowerCase(),n=[];for(let r of CP){if(n.length>=30)break;let i=r.headingTitle&&r.headingTitle.toLowerCase().includes(t),a=r.text.toLowerCase().includes(t);if(i||a){let a=``,o=r.text.toLowerCase().indexOf(t);if(o>=0){let t=Math.max(0,o-40),n=Math.min(r.text.length,o+e.length+80);a=(t>0?`...`:``)+r.text.slice(t,n)+(n<r.text.length?`...`:``)}else r.text.length>0&&(a=r.text.slice(0,120)+(r.text.length>120?`...`:``));n.push({...r,snippet:a,headingMatch:i})}}n.sort((e,t)=>(t.headingMatch?1:0)-(e.headingMatch?1:0)),i(n),o(0),c(!0)},150)},[]),p=e=>{let t=e.target.value;n(t),f(t)},m=()=>{n(``),i([]),c(!1),l.current?.focus()},h=(0,S.useCallback)(t=>{e(t.key,t.headingId),c(!1),n(``),i([])},[e]),g=e=>{if(!s||r.length===0){e.key===`Escape`&&(m(),l.current?.blur());return}e.key===`ArrowDown`?(e.preventDefault(),o(e=>Math.min(e+1,r.length-1))):e.key===`ArrowUp`?(e.preventDefault(),o(e=>Math.max(e-1,0))):e.key===`Enter`?(e.preventDefault(),h(r[a])):e.key===`Escape`&&c(!1)};(0,S.useEffect)(()=>{if(!u.current)return;let e=u.current.querySelector(`.docs-search-result-item.active`);e&&e.scrollIntoView({block:`nearest`})},[a]),(0,S.useEffect)(()=>{let e=e=>{(e.metaKey||e.ctrlKey)&&e.key===`k`&&(e.preventDefault(),l.current?.focus())};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[]),(0,S.useEffect)(()=>{if(!s)return;let e=e=>{let t=l.current?.closest(`.docs-search-wrapper`);t&&!t.contains(e.target)&&c(!1)};return document.addEventListener(`mousedown`,e),()=>document.removeEventListener(`mousedown`,e)},[s]);let _=(e,t)=>!t||t.length<2?e:e.split(RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g,`\\$&`)})`,`gi`)).map((e,n)=>e.toLowerCase()===t.toLowerCase()?(0,A.jsx)(`mark`,{className:`docs-search-highlight`,children:e},n):e);return(0,A.jsxs)(`div`,{className:`docs-search-wrapper`,children:[(0,A.jsxs)(`div`,{className:`docs-search-input-box`,children:[(0,A.jsx)(`span`,{className:`docs-search-icon`,children:(0,A.jsx)(Cr,{size:15,"aria-hidden":`true`})}),(0,A.jsx)(`input`,{ref:l,type:`text`,className:`docs-search-input`,placeholder:`Search docs...`,value:t,onChange:p,onKeyDown:g,onFocus:()=>{r.length>0&&c(!0)}}),t?(0,A.jsx)(`button`,{className:`docs-search-clear`,onClick:m,"aria-label":`Clear search`,children:(0,A.jsx)(kr,{size:14,"aria-hidden":`true`})}):(0,A.jsxs)(`span`,{className:`docs-search-kbd`,children:[(0,A.jsx)(`kbd`,{children:navigator.platform?.includes(`Mac`)?`⌘`:`Ctrl`}),(0,A.jsx)(`kbd`,{children:`K`})]})]}),s&&(0,A.jsx)(`div`,{className:`docs-search-results`,ref:u,children:r.length>0?(0,A.jsxs)(A.Fragment,{children:[(0,A.jsxs)(`div`,{className:`docs-search-results-header`,children:[r.length,` result`,r.length===1?``:`s`]}),r.map((e,n)=>(0,A.jsxs)(`div`,{className:`docs-search-result-item${n===a?` active`:``}`,onClick:()=>h(e),onMouseEnter:()=>o(n),children:[(0,A.jsxs)(`span`,{className:`docs-search-result-doc`,children:[e.sectionTitle,` › `,e.docTitle]}),e.headingTitle&&(0,A.jsx)(`span`,{className:`docs-search-result-heading`,children:_(e.headingTitle,t)}),e.snippet&&(0,A.jsx)(`span`,{className:`docs-search-result-snippet`,children:_(e.snippet,t)})]},`${e.key}-${e.headingId}-${n}`))]}):(0,A.jsxs)(`div`,{className:`docs-search-empty`,children:[(0,A.jsx)(Cr,{size:24,"aria-hidden":`true`}),`No results for “`,t,`”`]})})]})}function DP({activeTab:e,onSelect:t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(null);return(0,S.useLayoutEffect)(()=>{let e=()=>{let e=n.current;if(!e)return;let t=e.querySelector(`.docs-nav-item.active`);i(t?{top:t.offsetTop,height:t.offsetHeight,visible:!0}:e=>e?{...e,visible:!1}:null)};return e(),window.addEventListener(`resize`,e),document.fonts?.ready&&document.fonts.ready.then(e).catch(()=>{}),()=>window.removeEventListener(`resize`,e)},[e]),(0,A.jsxs)(`div`,{className:`docs-nav`,ref:n,children:[r&&(0,A.jsx)(`span`,{className:`docs-nav-glider`,style:{transform:`translateY(${r.top}px)`,height:`${r.height}px`,opacity:r.visible?1:0},"aria-hidden":`true`}),SP.map(n=>(0,A.jsxs)(`div`,{className:`docs-nav-section`,children:[(0,A.jsx)(`h3`,{className:`docs-nav-label`,children:n.label}),(0,A.jsx)(`div`,{className:`docs-nav-items`,children:n.keys.map(n=>(0,A.jsx)(`button`,{type:`button`,onClick:()=>t(n),className:`docs-nav-item${e===n?` active`:``}`,children:xP[n].title},n))})]},n.label))]})}function OP(){let e=it(),[t,n]=(0,S.useState)(()=>{let t=new URLSearchParams(e.search).get(`tab`);return t&&xP[t]?t:`quickstart`}),[r,i]=(0,S.useState)(``),[a,o]=(0,S.useState)(!1);(0,S.useEffect)(()=>(document.body.style.overflow=a?`hidden`:`unset`,()=>{document.body.style.overflow=`unset`}),[a]);let s=(0,S.useCallback)((e,t)=>{n(e),o(!1),t?setTimeout(()=>{let e=document.getElementById(t);if(e){let n=e.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:n,behavior:`smooth`}),i(t)}},200):(window.scrollTo({top:0,behavior:`smooth`}),i(``))},[]),c=(0,S.useCallback)(e=>{n(e),o(!1),window.scrollTo({top:0,behavior:`smooth`}),i(``)},[]),l=e=>{let t=document.getElementById(e);if(t){let n=t.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:n,behavior:`smooth`}),i(e)}},[u,d]=(0,S.useState)(e);if(u!==e){d(e);let t=new URLSearchParams(e.search).get(`tab`);t&&xP[t]&&n(t),i(``)}return(0,S.useEffect)(()=>{let t=new URLSearchParams(e.search),n=t.get(`tab`),r=t.get(`anchor`);if(n&&xP[n]&&r){let e=setTimeout(()=>{let e=document.getElementById(r);if(e){let t=e.getBoundingClientRect().top+window.scrollY-90;window.scrollTo({top:t,behavior:`smooth`}),i(r)}},200);return()=>clearTimeout(e)}window.scrollTo(0,0)},[e]),(0,S.useEffect)(()=>{let e=()=>{let e=document.querySelector(`.md-content`);if(!e)return;let t=Array.from(e.querySelectorAll(`h2, h3`));if(t.length===0)return;let n=``;for(let e of t)if(e.getBoundingClientRect().top<=120)n=e.id;else break;n&&i(n)};return window.addEventListener(`scroll`,e,{passive:!0}),()=>window.removeEventListener(`scroll`,e)},[t]),(0,A.jsxs)(A.Fragment,{children:[(0,A.jsx)(`button`,{type:`button`,className:`docs-mobile-menu-btn`,onClick:()=>o(!0),"aria-label":`Open navigation`,children:(0,A.jsx)(_r,{size:18,"aria-hidden":`true`})}),a&&(0,A.jsx)(`div`,{className:`docs-drawer-backdrop`,onClick:()=>o(!1),children:(0,A.jsxs)(`aside`,{className:`docs-drawer`,onClick:e=>e.stopPropagation(),children:[(0,A.jsxs)(`div`,{className:`docs-drawer-header`,children:[(0,A.jsx)(`span`,{style:{fontWeight:600,color:`var(--text-main)`,fontSize:`1rem`},children:`Documentation`}),(0,A.jsx)(`button`,{type:`button`,onClick:()=>o(!1),"aria-label":`Close navigation`,style:{background:`none`,border:`none`,color:`var(--text-muted)`,cursor:`pointer`,padding:`4px`,display:`flex`},children:(0,A.jsx)(kr,{size:20,"aria-hidden":`true`})})]}),(0,A.jsx)(EP,{onNavigate:s}),(0,A.jsx)(DP,{activeTab:t,onSelect:c})]})}),(0,A.jsx)(`div`,{className:`animate-fade-in docs-layout`,children:(0,A.jsxs)(`div`,{className:`docs-layout-inner`,children:[(0,A.jsxs)(`aside`,{className:`docs-side-left`,children:[(0,A.jsx)(EP,{onNavigate:s}),(0,A.jsx)(DP,{activeTab:t,onSelect:c})]}),(0,A.jsx)(`main`,{className:`docs-main`,children:(0,A.jsx)(`div`,{className:`md-content md-tab-anim`,children:(0,A.jsx)(fv,{remarkPlugins:[vx],rehypePlugins:[kx,zE],components:{code:({inline:e,className:t,children:n,...r})=>{let i=/language-(\w+)/.exec(t||``);return!e&&i?(0,A.jsx)(TP,{language:i[1],children:n}):!e&&!i&&String(n).includes(`
-`)?(0,A.jsx)(TP,{language:`text`,children:n}):(0,A.jsx)(`code`,{className:t,...r,children:n})},pre:({children:e})=>(0,A.jsx)(A.Fragment,{children:e}),table:({children:e,...t})=>(0,A.jsx)(wP,{...t,children:e}),a:({href:e,children:t,...n})=>{if(e?.startsWith(`#`)){let r=e.slice(1);return(0,A.jsx)(`a`,{href:e,onClick:e=>{e.preventDefault(),l(r)},...n,children:t})}return(0,A.jsx)(`a`,{href:e,target:e?.startsWith(`http`)?`_blank`:`_self`,rel:`noopener noreferrer`,...n,children:t})}},children:xP[t].content})},t)}),(0,A.jsx)(`aside`,{className:`docs-side-right`,children:xP[t].toc&&xP[t].toc.length>0&&(0,A.jsxs)(`div`,{className:`toc-wrap`,children:[(0,A.jsxs)(`div`,{className:`toc-label`,children:[(0,A.jsx)(mr,{size:14,"aria-hidden":`true`}),`On this page`]}),(0,A.jsx)(`div`,{className:`toc-items`,children:xP[t].toc.map(e=>(0,A.jsxs)(S.Fragment,{children:[(0,A.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link${r===e.id?` active`:``}`,children:e.title}),e.items&&e.items.length>0&&e.items.map(e=>(0,A.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link toc-link-sub${r===e.id?` active`:``}`,children:e.title},e.id))]},e.id))})]})})]})})]})}function kP(){return(0,A.jsx)(wn,{children:(0,A.jsx)(Lt,{children:(0,A.jsxs)(Ft,{path:`/`,element:(0,A.jsx)(Pr,{}),children:[(0,A.jsx)(Ft,{index:!0,element:(0,A.jsx)(Pd,{})}),(0,A.jsx)(Ft,{path:`docs`,element:(0,A.jsx)(OP,{})}),(0,A.jsx)(Ft,{path:`*`,element:(0,A.jsx)(Pd,{})})]})})})}jr.createRoot(document.getElementById(`root`)).render((0,A.jsx)(S.StrictMode,{children:(0,A.jsx)(kP,{})}));
+`,gP={sections:[{title:`Getting Started`,items:[{key:`quickstart`,title:`Quickstart Guide`,path:`getting-started/quickstart.md`},{key:`installation`,title:`Installation & Activation`,path:`getting-started/installation-activation.md`},{key:`firstProvider`,title:`Your First Provider`,path:`getting-started/first-provider.md`}]},{title:`Core Concepts`,items:[{key:`howItWorks`,title:`How ClawRouter Works`,path:`core-concepts/how-clawrouter-works.md`},{key:`keyRotation`,title:`Key Rotation`,path:`core-concepts/key-rotation.md`},{key:`modelFallback`,title:`Model Fallback`,path:`core-concepts/model-fallback.md`},{key:`providerFallback`,title:`Provider Fallback Chain`,path:`core-concepts/provider-fallback-chain.md`},{key:`virtualProviders`,title:`Virtual Providers (Combos)`,path:`core-concepts/virtual-providers.md`},{key:`formatTranslation`,title:`API Format Translation`,path:`core-concepts/format-translation.md`},{key:`circuitBreaker`,title:`Circuit Breaker`,path:`core-concepts/circuit-breaker.md`},{key:`errorHandling`,title:`Error Classification & Retry`,path:`core-concepts/error-handling.md`},{key:`systemPromptControl`,title:`System Prompt Control`,path:`core-concepts/system-prompt-control.md`}]},{title:`How-To Guides`,items:[{key:`managingKeys`,title:`Managing API Keys`,path:`guides/managing-api-keys.md`},{key:`configuringModels`,title:`Configuring Models`,path:`guides/configuring-models.md`},{key:`configuringFallback`,title:`Configuring Fallback`,path:`guides/configuring-fallback.md`},{key:`monitoring`,title:`Monitoring & Notifications`,path:`guides/monitoring-notifications.md`},{key:`providerManagement`,title:`Provider Management`,path:`guides/provider-management.md`},{key:`globalSettings`,title:`Global Settings`,path:`guides/global-settings.md`}]},{title:`Providers`,items:[{key:`providerDirectory`,title:`Provider Directory`,path:`providers/provider-directory.md`},{key:`bypassProviders`,title:`Bypass Providers`,path:`providers/bypass-providers.md`},{key:`freeTierProviders`,title:`Free Tier Providers`,path:`providers/free-tier-providers.md`},{key:`paidProviders`,title:`Paid Providers`,path:`providers/paid-providers.md`},{key:`elevenlabsAudio`,title:`ElevenLabs (Audio)`,path:`providers/elevenlabs-audio.md`}]},{title:`Client Setup`,items:[{key:`aiClientSetup`,title:`Client Setup Overview`,path:`integrations/ai-client-setup.md`},{key:`openclawSetup`,title:`OpenClaw`,path:`integrations/openclaw-setup.md`},{key:`opencodeSetup`,title:`OpenCode`,path:`integrations/opencode-setup.md`},{key:`claudeCodeSetup`,title:`Claude Code`,path:`integrations/claude-code-setup.md`},{key:`codexCliSetup`,title:`Codex CLI`,path:`integrations/codex-cli-setup.md`},{key:`qwenCodeSetup`,title:`Qwen Code`,path:`integrations/qwen-code-setup.md`},{key:`deepseekHarnessSetup`,title:`DeepSeek Harness`,path:`integrations/deepseek-harness-setup.md`},{key:`otherClients`,title:`Other / Custom Clients`,path:`integrations/other-clients.md`}]},{title:`Reference`,items:[{key:`cliCommands`,title:`CLI Commands`,path:`reference/cli-commands.md`},{key:`settingsReference`,title:`Settings Reference`,path:`reference/settings-reference.md`},{key:`apiReference`,title:`API Reference`,path:`reference/api-reference.md`},{key:`envVars`,title:`Environment Variables`,path:`reference/environment-variables.md`}]},{title:`Help`,items:[{key:`troubleshooting`,title:`Troubleshooting`,path:`troubleshooting/troubleshooting.md`},{key:`faq`,title:`FAQ`,path:`troubleshooting/faq.md`},{key:`support`,title:`Support & Contact`,path:`support.md`}]}]},_P=Object.assign({"../docs-v2/core-concepts/circuit-breaker.md":MN,"../docs-v2/core-concepts/error-handling.md":NN,"../docs-v2/core-concepts/format-translation.md":PN,"../docs-v2/core-concepts/how-clawrouter-works.md":FN,"../docs-v2/core-concepts/key-rotation.md":IN,"../docs-v2/core-concepts/model-fallback.md":LN,"../docs-v2/core-concepts/provider-fallback-chain.md":RN,"../docs-v2/core-concepts/system-prompt-control.md":zN,"../docs-v2/core-concepts/virtual-providers.md":BN,"../docs-v2/getting-started/first-provider.md":VN,"../docs-v2/getting-started/installation-activation.md":HN,"../docs-v2/getting-started/quickstart.md":UN,"../docs-v2/guides/configuring-fallback.md":WN,"../docs-v2/guides/configuring-models.md":GN,"../docs-v2/guides/global-settings.md":KN,"../docs-v2/guides/managing-api-keys.md":qN,"../docs-v2/guides/monitoring-notifications.md":JN,"../docs-v2/guides/provider-management.md":YN,"../docs-v2/integrations/ai-client-setup.md":XN,"../docs-v2/integrations/claude-code-setup.md":ZN,"../docs-v2/integrations/codex-cli-setup.md":QN,"../docs-v2/integrations/deepseek-harness-setup.md":$N,"../docs-v2/integrations/openclaw-setup.md":eP,"../docs-v2/integrations/opencode-setup.md":tP,"../docs-v2/integrations/other-clients.md":nP,"../docs-v2/integrations/qwen-code-setup.md":rP,"../docs-v2/providers/bypass-providers.md":iP,"../docs-v2/providers/elevenlabs-audio.md":aP,"../docs-v2/providers/free-tier-providers.md":oP,"../docs-v2/providers/paid-providers.md":sP,"../docs-v2/providers/provider-directory.md":cP,"../docs-v2/reference/api-reference.md":lP,"../docs-v2/reference/cli-commands.md":uP,"../docs-v2/reference/environment-variables.md":dP,"../docs-v2/reference/settings-reference.md":fP,"../docs-v2/support.md":pP,"../docs-v2/troubleshooting/faq.md":mP,"../docs-v2/troubleshooting/troubleshooting.md":hP}),vP=e=>e.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{E0020}-\u{E007F}\u{FE0F}\u{200D}\u{1F400}-\u{1F4FF}]/gu,``).trim();function yP(e){let t=new xx,n=e.split(`
+`),r=[],i=null;return n.forEach(e=>{let n=e.match(/^##\s+(.+)$/);if(n){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim();if(e.toLowerCase()===`table of contents`)return;i={id:t.slug(e),title:vP(e),items:[]},r.push(i)}else{let n=e.match(/^###\s+(.+)$/);if(n&&i){let e=n[1].replace(/<\/?[^>]+(>|$)/g,``).trim(),r=t.slug(e),a=vP(e);i.items.push({id:r,title:a})}}}),r}function bP(e){return _P[`../docs-v2/${e}`]||(console.warn(`[docs] Missing markdown file for path: ${e}`),``)}function xP(e){return e.replace(/```[\s\S]*?```/g,``).replace(/`[^`]+`/g,``).replace(/!?\[([^\]]*)\]\([^)]*\)/g,`$1`).replace(/^\s{0,3}#{1,6}\s+/gm,``).replace(/[*_~]{1,3}/g,``).replace(/^\s*[-*+]\s+/gm,``).replace(/^\s*\d+\.\s+/gm,``).replace(/^\s*>\s?/gm,``).replace(/\|/g,` `).replace(/<\/?[^>]+(>|$)/g,``).replace(/\n{2,}/g,`
+`).trim()}var SP={},CP=gP.sections.map(e=>({label:e.title,keys:e.items.map(e=>{let t=bP(e.path);return SP[e.key]={title:e.title,content:t,toc:yP(t)},e.key})})),wP=(()=>{let e=[],t=new xx;for(let n of gP.sections)for(let r of n.items){let i=SP[r.key];if(!i||!i.content)continue;t.reset();let a=i.content.split(`
+`),o=null,s=null,c=[],l=()=>{if(c.length===0)return;let t=xP(c.join(`
+`));t.length<3||e.push({key:r.key,docTitle:r.title,sectionTitle:n.title,headingId:s,headingTitle:o,text:t})};for(let e of a){let n=e.match(/^##\s+(.+)$/),r=!n&&e.match(/^###\s+(.+)$/);if(n||r){l(),c=[];let e=(n||r)[1].replace(/<\/?[^>]+(>|$)/g,``).trim();o=vP(e),s=t.slug(e)}else c.push(e)}l()}return e})();function TP({children:e,...t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(!1);return(0,S.useEffect)(()=>{let e=n.current;if(!e)return;let t=()=>i(e.scrollWidth>e.clientWidth+1);t();let r=new ResizeObserver(t);return r.observe(e),()=>r.disconnect()},[e]),(0,A.jsxs)(`div`,{children:[(0,A.jsx)(`div`,{className:`table-scroll-wrapper`,ref:n,children:(0,A.jsx)(`table`,{...t,children:e})}),r&&(0,A.jsxs)(`div`,{className:`table-scroll-hint`,children:[(0,A.jsxs)(`svg`,{width:`14`,height:`14`,viewBox:`0 0 24 24`,fill:`none`,stroke:`currentColor`,strokeWidth:`2`,strokeLinecap:`round`,strokeLinejoin:`round`,children:[(0,A.jsx)(`path`,{d:`M5 12h14`}),(0,A.jsx)(`path`,{d:`m12 5 7 7-7 7`})]}),`Swipe to see more`]})]})}function EP({language:e,children:t}){let[n,r]=(0,S.useState)(!1),i=(0,S.useCallback)(()=>{navigator.clipboard.writeText(String(t).replace(/\n$/,``)).then(()=>{r(!0),setTimeout(()=>r(!1),2e3)}).catch(()=>{})},[t]);return(0,A.jsxs)(`div`,{className:`code-block`,children:[(0,A.jsxs)(`div`,{className:`code-block-bar`,children:[(0,A.jsxs)(`span`,{className:`code-lang`,children:[(0,A.jsx)(`i`,{className:`code-lang-dot`,"aria-hidden":`true`}),e||`text`]}),(0,A.jsx)(`button`,{type:`button`,onClick:i,className:`code-copy${n?` copied`:``}`,"aria-label":`Copy code block`,children:n?(0,A.jsxs)(A.Fragment,{children:[(0,A.jsx)(sr,{size:13,"aria-hidden":`true`}),` Copied`]}):(0,A.jsxs)(A.Fragment,{children:[(0,A.jsx)(cr,{size:13,"aria-hidden":`true`}),` Copy`]})})]}),(0,A.jsx)(AN,{language:e||`text`,style:jN,customStyle:{margin:0,border:`none`,borderRadius:0,fontSize:`0.85rem`,padding:`16px 18px`,background:`transparent`,lineHeight:1.7},codeTagProps:{style:{fontFamily:`var(--font-mono)`}},children:String(t).replace(/\n$/,``)})]})}function DP({onNavigate:e}){let[t,n]=(0,S.useState)(``),[r,i]=(0,S.useState)([]),[a,o]=(0,S.useState)(0),[s,c]=(0,S.useState)(!1),l=(0,S.useRef)(null),u=(0,S.useRef)(null),d=(0,S.useRef)(null),f=(0,S.useCallback)(e=>{if(d.current&&clearTimeout(d.current),e.length<2){i([]),c(!1);return}d.current=setTimeout(()=>{let t=e.toLowerCase(),n=[];for(let r of wP){if(n.length>=30)break;let i=r.headingTitle&&r.headingTitle.toLowerCase().includes(t),a=r.text.toLowerCase().includes(t);if(i||a){let a=``,o=r.text.toLowerCase().indexOf(t);if(o>=0){let t=Math.max(0,o-40),n=Math.min(r.text.length,o+e.length+80);a=(t>0?`...`:``)+r.text.slice(t,n)+(n<r.text.length?`...`:``)}else r.text.length>0&&(a=r.text.slice(0,120)+(r.text.length>120?`...`:``));n.push({...r,snippet:a,headingMatch:i})}}n.sort((e,t)=>(t.headingMatch?1:0)-(e.headingMatch?1:0)),i(n),o(0),c(!0)},150)},[]),p=e=>{let t=e.target.value;n(t),f(t)},m=()=>{n(``),i([]),c(!1),l.current?.focus()},h=(0,S.useCallback)(t=>{e(t.key,t.headingId),c(!1),n(``),i([])},[e]),g=e=>{if(!s||r.length===0){e.key===`Escape`&&(m(),l.current?.blur());return}e.key===`ArrowDown`?(e.preventDefault(),o(e=>Math.min(e+1,r.length-1))):e.key===`ArrowUp`?(e.preventDefault(),o(e=>Math.max(e-1,0))):e.key===`Enter`?(e.preventDefault(),h(r[a])):e.key===`Escape`&&c(!1)};(0,S.useEffect)(()=>{if(!u.current)return;let e=u.current.querySelector(`.docs-search-result-item.active`);e&&e.scrollIntoView({block:`nearest`})},[a]),(0,S.useEffect)(()=>{let e=e=>{(e.metaKey||e.ctrlKey)&&e.key===`k`&&(e.preventDefault(),l.current?.focus())};return window.addEventListener(`keydown`,e),()=>window.removeEventListener(`keydown`,e)},[]),(0,S.useEffect)(()=>{if(!s)return;let e=e=>{let t=l.current?.closest(`.docs-search-wrapper`);t&&!t.contains(e.target)&&c(!1)};return document.addEventListener(`mousedown`,e),()=>document.removeEventListener(`mousedown`,e)},[s]);let _=(e,t)=>!t||t.length<2?e:e.split(RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g,`\\$&`)})`,`gi`)).map((e,n)=>e.toLowerCase()===t.toLowerCase()?(0,A.jsx)(`mark`,{className:`docs-search-highlight`,children:e},n):e);return(0,A.jsxs)(`div`,{className:`docs-search-wrapper`,children:[(0,A.jsxs)(`div`,{className:`docs-search-input-box`,children:[(0,A.jsx)(`span`,{className:`docs-search-icon`,children:(0,A.jsx)(Cr,{size:15,"aria-hidden":`true`})}),(0,A.jsx)(`input`,{ref:l,type:`text`,className:`docs-search-input`,placeholder:`Search docs...`,value:t,onChange:p,onKeyDown:g,onFocus:()=>{r.length>0&&c(!0)}}),t?(0,A.jsx)(`button`,{className:`docs-search-clear`,onClick:m,"aria-label":`Clear search`,children:(0,A.jsx)(kr,{size:14,"aria-hidden":`true`})}):(0,A.jsxs)(`span`,{className:`docs-search-kbd`,children:[(0,A.jsx)(`kbd`,{children:navigator.platform?.includes(`Mac`)?`⌘`:`Ctrl`}),(0,A.jsx)(`kbd`,{children:`K`})]})]}),s&&(0,A.jsx)(`div`,{className:`docs-search-results`,ref:u,children:r.length>0?(0,A.jsxs)(A.Fragment,{children:[(0,A.jsxs)(`div`,{className:`docs-search-results-header`,children:[r.length,` result`,r.length===1?``:`s`]}),r.map((e,n)=>(0,A.jsxs)(`div`,{className:`docs-search-result-item${n===a?` active`:``}`,onClick:()=>h(e),onMouseEnter:()=>o(n),children:[(0,A.jsxs)(`span`,{className:`docs-search-result-doc`,children:[e.sectionTitle,` › `,e.docTitle]}),e.headingTitle&&(0,A.jsx)(`span`,{className:`docs-search-result-heading`,children:_(e.headingTitle,t)}),e.snippet&&(0,A.jsx)(`span`,{className:`docs-search-result-snippet`,children:_(e.snippet,t)})]},`${e.key}-${e.headingId}-${n}`))]}):(0,A.jsxs)(`div`,{className:`docs-search-empty`,children:[(0,A.jsx)(Cr,{size:24,"aria-hidden":`true`}),`No results for “`,t,`”`]})})]})}function OP({activeTab:e,onSelect:t}){let n=(0,S.useRef)(null),[r,i]=(0,S.useState)(null);return(0,S.useLayoutEffect)(()=>{let e=()=>{let e=n.current;if(!e)return;let t=e.querySelector(`.docs-nav-item.active`);i(t?{top:t.offsetTop,height:t.offsetHeight,visible:!0}:e=>e?{...e,visible:!1}:null)};return e(),window.addEventListener(`resize`,e),document.fonts?.ready&&document.fonts.ready.then(e).catch(()=>{}),()=>window.removeEventListener(`resize`,e)},[e]),(0,A.jsxs)(`div`,{className:`docs-nav`,ref:n,children:[r&&(0,A.jsx)(`span`,{className:`docs-nav-glider`,style:{transform:`translateY(${r.top}px)`,height:`${r.height}px`,opacity:r.visible?1:0},"aria-hidden":`true`}),CP.map(n=>(0,A.jsxs)(`div`,{className:`docs-nav-section`,children:[(0,A.jsx)(`h3`,{className:`docs-nav-label`,children:n.label}),(0,A.jsx)(`div`,{className:`docs-nav-items`,children:n.keys.map(n=>(0,A.jsx)(`button`,{type:`button`,onClick:()=>t(n),className:`docs-nav-item${e===n?` active`:``}`,children:SP[n].title},n))})]},n.label))]})}function kP(){let e=it(),[t,n]=(0,S.useState)(()=>{let t=new URLSearchParams(e.search).get(`tab`);return t&&SP[t]?t:`quickstart`}),[r,i]=(0,S.useState)(``),[a,o]=(0,S.useState)(!1);(0,S.useEffect)(()=>(document.body.style.overflow=a?`hidden`:`unset`,()=>{document.body.style.overflow=`unset`}),[a]);let s=(0,S.useCallback)((e,t)=>{n(e),o(!1),t?setTimeout(()=>{let e=document.getElementById(t);if(e){let n=e.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:n,behavior:`smooth`}),i(t)}},200):(window.scrollTo({top:0,behavior:`smooth`}),i(``))},[]),c=(0,S.useCallback)(e=>{n(e),o(!1),window.scrollTo({top:0,behavior:`smooth`}),i(``)},[]),l=e=>{let t=document.getElementById(e);if(t){let n=t.getBoundingClientRect().top+window.scrollY+-90;window.scrollTo({top:n,behavior:`smooth`}),i(e)}},[u,d]=(0,S.useState)(e);if(u!==e){d(e);let t=new URLSearchParams(e.search).get(`tab`);t&&SP[t]&&n(t),i(``)}return(0,S.useEffect)(()=>{let t=new URLSearchParams(e.search),n=t.get(`tab`),r=t.get(`anchor`);if(n&&SP[n]&&r){let e=setTimeout(()=>{let e=document.getElementById(r);if(e){let t=e.getBoundingClientRect().top+window.scrollY-90;window.scrollTo({top:t,behavior:`smooth`}),i(r)}},200);return()=>clearTimeout(e)}window.scrollTo(0,0)},[e]),(0,S.useEffect)(()=>{let e=()=>{let e=document.querySelector(`.md-content`);if(!e)return;let t=Array.from(e.querySelectorAll(`h2, h3`));if(t.length===0)return;let n=``;for(let e of t)if(e.getBoundingClientRect().top<=120)n=e.id;else break;n&&i(n)};return window.addEventListener(`scroll`,e,{passive:!0}),()=>window.removeEventListener(`scroll`,e)},[t]),(0,A.jsxs)(A.Fragment,{children:[(0,A.jsx)(`button`,{type:`button`,className:`docs-mobile-menu-btn`,onClick:()=>o(!0),"aria-label":`Open navigation`,children:(0,A.jsx)(_r,{size:18,"aria-hidden":`true`})}),a&&(0,A.jsx)(`div`,{className:`docs-drawer-backdrop`,onClick:()=>o(!1),children:(0,A.jsxs)(`aside`,{className:`docs-drawer`,onClick:e=>e.stopPropagation(),children:[(0,A.jsxs)(`div`,{className:`docs-drawer-header`,children:[(0,A.jsx)(`span`,{style:{fontWeight:600,color:`var(--text-main)`,fontSize:`1rem`},children:`Documentation`}),(0,A.jsx)(`button`,{type:`button`,onClick:()=>o(!1),"aria-label":`Close navigation`,style:{background:`none`,border:`none`,color:`var(--text-muted)`,cursor:`pointer`,padding:`4px`,display:`flex`},children:(0,A.jsx)(kr,{size:20,"aria-hidden":`true`})})]}),(0,A.jsx)(DP,{onNavigate:s}),(0,A.jsx)(OP,{activeTab:t,onSelect:c})]})}),(0,A.jsx)(`div`,{className:`animate-fade-in docs-layout`,children:(0,A.jsxs)(`div`,{className:`docs-layout-inner`,children:[(0,A.jsxs)(`aside`,{className:`docs-side-left`,children:[(0,A.jsx)(DP,{onNavigate:s}),(0,A.jsx)(OP,{activeTab:t,onSelect:c})]}),(0,A.jsx)(`main`,{className:`docs-main`,children:(0,A.jsx)(`div`,{className:`md-content md-tab-anim`,children:(0,A.jsx)(fv,{remarkPlugins:[vx],rehypePlugins:[kx,zE],components:{code:({inline:e,className:t,children:n,...r})=>{let i=/language-(\w+)/.exec(t||``);return!e&&i?(0,A.jsx)(EP,{language:i[1],children:n}):!e&&!i&&String(n).includes(`
+`)?(0,A.jsx)(EP,{language:`text`,children:n}):(0,A.jsx)(`code`,{className:t,...r,children:n})},pre:({children:e})=>(0,A.jsx)(A.Fragment,{children:e}),table:({children:e,...t})=>(0,A.jsx)(TP,{...t,children:e}),a:({href:e,children:t,...n})=>{if(e?.startsWith(`#`)){let r=e.slice(1);return(0,A.jsx)(`a`,{href:e,onClick:e=>{e.preventDefault(),l(r)},...n,children:t})}return(0,A.jsx)(`a`,{href:e,target:e?.startsWith(`http`)?`_blank`:`_self`,rel:`noopener noreferrer`,...n,children:t})}},children:SP[t].content})},t)}),(0,A.jsx)(`aside`,{className:`docs-side-right`,children:SP[t].toc&&SP[t].toc.length>0&&(0,A.jsxs)(`div`,{className:`toc-wrap`,children:[(0,A.jsxs)(`div`,{className:`toc-label`,children:[(0,A.jsx)(mr,{size:14,"aria-hidden":`true`}),`On this page`]}),(0,A.jsx)(`div`,{className:`toc-items`,children:SP[t].toc.map(e=>(0,A.jsxs)(S.Fragment,{children:[(0,A.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link${r===e.id?` active`:``}`,children:e.title}),e.items&&e.items.length>0&&e.items.map(e=>(0,A.jsx)(`button`,{type:`button`,onClick:()=>l(e.id),className:`toc-link toc-link-sub${r===e.id?` active`:``}`,children:e.title},e.id))]},e.id))})]})})]})})]})}function AP(){return(0,A.jsx)(wn,{children:(0,A.jsx)(Lt,{children:(0,A.jsxs)(Ft,{path:`/`,element:(0,A.jsx)(Pr,{}),children:[(0,A.jsx)(Ft,{index:!0,element:(0,A.jsx)(Pd,{})}),(0,A.jsx)(Ft,{path:`docs`,element:(0,A.jsx)(kP,{})}),(0,A.jsx)(Ft,{path:`*`,element:(0,A.jsx)(Pd,{})})]})})})}jr.createRoot(document.getElementById(`root`)).render((0,A.jsx)(S.StrictMode,{children:(0,A.jsx)(AP,{})}));
