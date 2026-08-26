@@ -18,7 +18,8 @@
         { "key": "virtualProviders", "title": "Virtual Providers (Combos)", "path": "core-concepts/virtual-providers.md" },
         { "key": "formatTranslation", "title": "API Format Translation", "path": "core-concepts/format-translation.md" },
         { "key": "circuitBreaker", "title": "Circuit Breaker", "path": "core-concepts/circuit-breaker.md" },
-        { "key": "errorHandling", "title": "Error Classification & Retry", "path": "core-concepts/error-handling.md" }
+        { "key": "errorHandling", "title": "Error Classification & Retry", "path": "core-concepts/error-handling.md" },
+        { "key": "systemPromptControl", "title": "System Prompt Control", "path": "core-concepts/system-prompt-control.md" }
       ]
     },
     {

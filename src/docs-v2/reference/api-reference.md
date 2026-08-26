@@ -13,7 +13,7 @@ ClawRouter exposes a RESTful API for managing providers, keys, models, and setti
 | GET | `/api/providers` | List all providers with key/today stats |
 | POST | `/api/providers` | Create a new provider. Accepts optional `models[]` (`{id,name}` or `{model_id,display_name}`) to seed the Models tab, and optional `default_headers` (object of strings) |
 | GET | `/api/providers/:id` | Get single provider details |
-| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers) |
+| PUT | `/api/providers/:id` | Update provider settings (`default_headers: null` clears static headers; `system_prompt_rule` accepts a rule object or `null` to clear — see System Prompt Control) |
 | DELETE | `/api/providers/:id` | Delete provider (cascades) |
 | PATCH | `/api/providers/:id/toggle` | Toggle enabled/disabled |
 | PATCH | `/api/providers/:id/favorite` | Toggle the favorite flag (Favorites section on the Providers page) |
@@ -112,6 +112,19 @@ Both usage modes **auto-disable definitively rejected keys**: the rejection runs
 | PUT | `/api/virtual-providers/:id` | Update `name` / `enabled` / replace `members` (priority defaults to array position) |
 | DELETE | `/api/virtual-providers/:id` | Delete the combo (members cascade) |
 | GET | `/api/virtual-providers/:id` `/models` | Public model list — aliases with captured metadata (Prompt for AI source) |
+
+---
+
+## Client Rules (System Prompt Control)
+
+Client rules inject/modify the system prompt for requests from a matching client (case-insensitive `match` against the detected client name; the first enabled rule by `priority` wins). Rule shape: `{ "mode": "prepend" | "append" | "replace" | "patch", "text"?, "patches"? }` — see the System Prompt Control concept page. Provider and combo rules use the same shape via the `system_prompt_rule` field on their PUT endpoints.
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/client-rules` | List all client rules (`{ rules: [...] }`) |
+| POST | `/api/client-rules` | Create a rule — `{ "name", "match", "rule", "priority"?, "enabled"? }` |
+| PUT | `/api/client-rules/:id` | Update any subset of fields (`rule: null` is rejected — a client rule without injection has no effect) |
+| DELETE | `/api/client-rules/:id` | Delete the rule |
 
 ---
 
