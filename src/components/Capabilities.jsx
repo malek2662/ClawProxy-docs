@@ -323,15 +323,59 @@ function ComboBoard() {
         return () => { ro.disconnect(); window.removeEventListener('resize', measure); };
     }, []);
 
+    /* Single-clock packet dots: the dots own NO timeline of their own.
+       Every frame we read the wire draw animation's currentTime (the
+       master CSS clock the whole card already runs on) and derive each
+       dot's position/opacity from the actual wire path geometry. SMIL
+       ran on an independent timeline that browsers advance differently
+       in background tabs — with this, desync is structurally impossible.
+       rAF auto-pauses in hidden tabs and resumes with the CSS clock. */
     useEffect(() => {
         const svg = svgRef.current;
-        if (!svg) return undefined;
+        const stage = stageRef.current;
+        if (!svg || !stage || !geom) return undefined;
+        const paths = Array.from(svg.querySelectorAll('.vcb-link'));
+        const dots = Array.from(svg.querySelectorAll('.vcb-dot'));
+        if (paths.length !== dots.length || !paths.length) return undefined;
+        const lens = paths.map((p) => p.getTotalLength());
+        let raf = 0;
+        let inView = false;
+        let running = false;
+
+        const tick = () => {
+            if (!running) return;
+            const master = paths[0].getAnimations().find((a) => a.animationName === 'vcb-link');
+            const t = master && master.currentTime != null
+                ? (((master.currentTime % 9000) + 9000) % 9000) / 9000
+                : null;
+            dots.forEach((dot, i) => {
+                if (t == null) { dot.setAttribute('opacity', '0'); return; }
+                const [a, b] = VCB_WIRE_WIN[i];
+                const p = (t - a) / (b - a);
+                if (p < 0 || p > 1) { dot.setAttribute('opacity', '0'); return; }
+                const pt = paths[i].getPointAtLength(lens[i] * p);
+                dot.setAttribute('cx', pt.x.toFixed(1));
+                dot.setAttribute('cy', pt.y.toFixed(1));
+                const fade = Math.min(p / 0.2, (1 - p) / 0.2, 1);
+                dot.setAttribute('opacity', Math.max(0, fade).toFixed(2));
+            });
+            raf = requestAnimationFrame(tick);
+        };
+
+        const setRunning = (on) => {
+            if (on === running) return;
+            running = on;
+            if (on) raf = requestAnimationFrame(tick);
+            else { cancelAnimationFrame(raf); dots.forEach((d) => d.setAttribute('opacity', '0')); }
+        };
         const io = new IntersectionObserver(([e]) => {
-            if (e.isIntersecting) svg.unpauseAnimations();
-            else svg.pauseAnimations();
+            inView = e.isIntersecting;
+            setRunning(inView && !document.hidden);
         }, { rootMargin: '160px 0px' });
-        io.observe(svg);
-        return () => io.disconnect();
+        io.observe(stage);
+        const onVis = () => setRunning(inView && !document.hidden);
+        document.addEventListener('visibilitychange', onVis);
+        return () => { setRunning(false); io.disconnect(); document.removeEventListener('visibilitychange', onVis); };
     }, [geom]);
 
     return (
@@ -381,29 +425,9 @@ function ComboBoard() {
                     {geom.lines.map((l, i) => (
                         <circle key={i} cx={geom.x1} cy={l.y} r={2.6} className="vcb-port" />
                     ))}
-                    {geom.lines.map((l, i) => {
-                        const [a, b] = VCB_WIRE_WIN[i];
-                        return (
-                            <circle key={i} r={2.4} className="vcb-pkt" opacity={0}>
-                                <animateMotion
-                                    dur="9s"
-                                    repeatCount="indefinite"
-                                    calcMode="linear"
-                                    keyPoints="0;0;1;1"
-                                    keyTimes={`0;${a};${b};1`}
-                                >
-                                    <mpath href={`#vcb-line-${i}`} />
-                                </animateMotion>
-                                <animate
-                                    attributeName="opacity"
-                                    dur="9s"
-                                    repeatCount="indefinite"
-                                    values="0;0;1;1;0;0"
-                                    keyTimes={`0;${a};${a + 0.02};${b - 0.02};${b};1`}
-                                />
-                            </circle>
-                        );
-                    })}
+                    {geom.lines.map((l, i) => (
+                        <circle key={i} className="vcb-dot" r={2.4} opacity={0} />
+                    ))}
                 </svg>
             )}
             <div className="vcb-type">

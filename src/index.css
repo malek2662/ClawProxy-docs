@@ -1988,7 +1988,7 @@ img {
   animation: vcb-port 9s linear infinite;
 }
 
-.vcb-pkt {
+.vcb-dot {
   fill: var(--primary-bright);
   filter: drop-shadow(0 0 4px rgba(80, 223, 144, 0.8));
 }
@@ -2064,12 +2064,15 @@ img {
   padding-top: 6px;
   gap: 0.55em;
   opacity: 0;
-  animation: 12s linear infinite;
 }
 
-.vcb-msg-a { animation-name: vcb-msg-a; }
-.vcb-msg-b { animation-name: vcb-msg-b; }
-.vcb-msg-c { animation-name: vcb-msg-c; }
+/* animation name must live INSIDE the shorthand: a nameless
+   `animation: 12s linear infinite` gets collapsed to `animation: none`
+   by the production CSS minifier, which also zeroes the duration —
+   leaving the panel stuck at opacity:0 in builds (dev was fine). */
+.vcb-msg-a { animation: vcb-msg-a 12s linear infinite; }
+.vcb-msg-b { animation: vcb-msg-b 12s linear infinite; }
+.vcb-msg-c { animation: vcb-msg-c 12s linear infinite; }
 
 .vcb-k {
   font-size: 1.75rem;
@@ -2089,19 +2092,19 @@ img {
 
 @keyframes vcb-msg-a {
   0% { opacity: 0; filter: blur(6px); transform: translateY(10px); }
-  5%, 28% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  5%, 28% { opacity: 1; filter: none; transform: translateY(0); }
   33%, 100% { opacity: 0; filter: blur(6px); transform: translateY(-10px); }
 }
 
 @keyframes vcb-msg-b {
   0%, 33% { opacity: 0; filter: blur(6px); transform: translateY(10px); }
-  38%, 61% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  38%, 61% { opacity: 1; filter: none; transform: translateY(0); }
   66%, 100% { opacity: 0; filter: blur(6px); transform: translateY(-10px); }
 }
 
 @keyframes vcb-msg-c {
   0%, 66% { opacity: 0; filter: blur(6px); transform: translateY(10px); }
-  71%, 94% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  71%, 94% { opacity: 1; filter: none; transform: translateY(0); }
   100% { opacity: 0; filter: blur(6px); transform: translateY(-10px); }
 }
 
@@ -4733,11 +4736,20 @@ img {
    the viewport, freezing every CSS animation there. Motion stays
    exactly as designed wherever you're looking; idle CPU drops to
    near zero everywhere you're not.
+
+   .tab-hidden does the same for the whole document while the tab
+   is in the background: CSS keyframes and SMIL timelines run on
+   independent clocks that browsers advance differently in hidden
+   tabs, so without freezing both they drift out of sync (e.g. the
+   combo board's packet dots landing in the wrong scene).
    ============================================================ */
 .anim-offscreen,
 .anim-offscreen *,
 .anim-offscreen *::before,
-.anim-offscreen *::after {
+.anim-offscreen *::after,
+.tab-hidden *,
+.tab-hidden *::before,
+.tab-hidden *::after {
   animation-play-state: paused !important;
 }
 
@@ -5309,7 +5321,7 @@ body > div:has(> .polar-loader-spinner) {
   }
 
   .rt-packet,
-  .vcb-pkt {
+  .vcb-dot {
     display: none;
   }
 
