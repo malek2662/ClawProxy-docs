@@ -1108,6 +1108,10 @@ img {
   grid-column: span 2;
 }
 
+.cap-span-3 {
+  grid-column: 1 / -1;
+}
+
 .cap-text {
   display: flex;
   flex-direction: column;
@@ -1181,6 +1185,26 @@ img {
   font-size: 0.88rem;
   line-height: 1.6;
   padding-left: 53px;
+}
+
+.cap-combo {
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.cap-combo-c {
+  font-size: 1.35em;
+  line-height: 1;
+  font-weight: 800;
+  margin-right: 0.06em;
+  color: var(--primary);
+  text-shadow: 0 0 12px rgba(80, 223, 144, 0.45);
+}
+
+.cap-combo-sep {
+  color: var(--text-faint);
+  font-weight: 600;
+  margin: 0 0.45em 0 0.2em;
 }
 
 .cap-visual {
@@ -1748,6 +1772,351 @@ img {
   animation: blink-cursor 1.1s steps(2) infinite;
 }
 
+/* ---------- 6. Virtual providers (combos) ---------- */
+.vcb-stage {
+  --vcb-ck: 13%;
+  --vcb-co: 30.5%;
+  --vcb-cd: 48%;
+  --vcb-cc: 26%;
+  --vcb-cw: 14.5%;
+  position: relative;
+  width: 100%;
+  height: 280px;
+  margin: auto 0;
+  font-family: var(--font-mono);
+}
+
+.vcb-col-k { left: var(--vcb-ck); width: var(--vcb-cw); }
+.vcb-col-o { left: var(--vcb-co); width: var(--vcb-cw); }
+.vcb-col-d { left: var(--vcb-cd); width: var(--vcb-cw); }
+.vcb-from-k { --fl: var(--vcb-ck); }
+.vcb-from-o { --fl: var(--vcb-co); }
+.vcb-from-d { --fl: var(--vcb-cd); }
+
+.vcb-endp {
+  position: absolute;
+  top: 0;
+  text-align: center;
+  font-size: 0.58rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: vcb-rise 9s linear infinite;
+}
+
+.vcb-endp-combo {
+  left: var(--vcb-cc);
+  width: var(--vcb-cw);
+  animation: vcb-combo-in 9s linear infinite;
+}
+
+.vcb-stack {
+  position: absolute;
+  top: 8%;
+  height: 80%;
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  background: var(--bg-inset);
+  overflow: hidden;
+  animation: vcb-rise 9s linear infinite;
+}
+
+.vcb-stack-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.66rem;
+  color: var(--text-body);
+}
+
+.vcb-stack-head svg {
+  flex-shrink: 0;
+  display: block;
+}
+
+.vcb-row {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  animation: vcb-rise 9s linear infinite;
+}
+
+.vcb-chip {
+  width: calc(100% - 24px);
+  box-sizing: border-box;
+  padding: 4px 10px;
+  border: 1px solid var(--border-light);
+  border-radius: 7px;
+  background: var(--bg-elevated);
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+.vcb-sel {
+  position: absolute;
+  z-index: 1;
+  left: var(--vcb-cc);
+  top: var(--tt);
+  width: var(--vcb-cw);
+  display: flex;
+  justify-content: center;
+  animation: vcb-fly 9s linear infinite;
+}
+
+.vcb-sel .vcb-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-color: var(--primary-border);
+  color: var(--text-body);
+  animation:
+    vcb-hl 9s linear infinite,
+    vcb-glow 9s linear infinite;
+  animation-delay: 0s, var(--gd);
+}
+
+.vcb-sel-id {
+  animation: vcb-id 9s linear infinite;
+}
+
+.vcb-sel-alias {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: vcb-pre 9s linear infinite;
+}
+
+@keyframes vcb-id {
+  0%, 44% { opacity: 1; }
+  52%, 100% { opacity: 0; }
+}
+
+.vcb-sel-pre {
+  color: var(--text-faint);
+}
+
+.vcb-combo {
+  position: absolute;
+  left: var(--vcb-cc);
+  width: var(--vcb-cw);
+  top: 8%;
+  height: 80%;
+  border: 1px solid var(--primary-border);
+  border-radius: 10px;
+  background: rgba(80, 223, 144, 0.04);
+  box-shadow: 0 0 26px rgba(80, 223, 144, 0.07);
+  animation: vcb-combo-in 9s linear infinite;
+}
+
+.vcb-combo-top {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--primary-border);
+}
+
+.vcb-combo-head {
+  font-size: 0.66rem;
+  color: var(--primary);
+}
+
+.vcb-combo-sub {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+
+.vcb-client {
+  position: absolute;
+  left: 2%;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid var(--primary-border);
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  font-size: 0.62rem;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.vcb-client img {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+.vcb-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.vcb-link {
+  fill: none;
+  stroke: rgba(80, 223, 144, 0.35);
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  animation: vcb-link 9s linear infinite;
+}
+
+.vcb-port {
+  fill: var(--bg-darker);
+  stroke: rgba(80, 223, 144, 0.5);
+  stroke-width: 1.5;
+  opacity: 0;
+  animation: vcb-port 9s linear infinite;
+}
+
+.vcb-pkt {
+  fill: var(--primary-bright);
+  filter: drop-shadow(0 0 4px rgba(80, 223, 144, 0.8));
+}
+
+@keyframes vcb-rise {
+  0% { opacity: 0; transform: translateY(10px); }
+  6%, 26% { opacity: 1; transform: translateY(0); }
+  40%, 100% { opacity: 0; transform: translateY(-26px); }
+}
+
+@keyframes vcb-fly {
+  0% { left: var(--fl); top: var(--ft); opacity: 0; }
+  6%, 30% { left: var(--fl); top: var(--ft); opacity: 1; }
+  46%, 92% { left: var(--vcb-cc); top: var(--tt); opacity: 1; }
+  100% { left: var(--vcb-cc); top: var(--tt); opacity: 0; }
+}
+
+@keyframes vcb-hl {
+  0%, 12% { border-color: var(--border-light); }
+  18%, 100% { border-color: var(--primary-border); }
+}
+
+@keyframes vcb-pre {
+  0%, 44% { opacity: 0; }
+  52%, 100% { opacity: 1; }
+}
+
+@keyframes vcb-glow {
+  0% { box-shadow: 0 0 6px rgba(80, 223, 144, 0.2); }
+  3% { box-shadow: 0 0 18px rgba(80, 223, 144, 0.55); }
+  23% { box-shadow: 0 0 12px rgba(80, 223, 144, 0.28); }
+  30%, 100% { box-shadow: 0 0 0 rgba(80, 223, 144, 0); }
+}
+
+@keyframes vcb-combo-in {
+  0%, 36% { opacity: 0; transform: scale(0.97); }
+  46%, 92% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+@keyframes vcb-link {
+  0%, 50% { stroke-dashoffset: 1; opacity: 1; }
+  58%, 92% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+
+@keyframes vcb-port {
+  0%, 50% { opacity: 0; }
+  56%, 92% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+
+.vcb-type {
+  position: absolute;
+  right: 0;
+  top: 8%;
+  width: 34%;
+  height: 84%;
+  border-left: 1px dashed var(--border-light);
+  font-family: var(--font-sans);
+}
+
+.vcb-msg {
+  position: absolute;
+  top: 0;
+  bottom: 46px;
+  right: 0;
+  left: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 6px;
+  gap: 0.55em;
+  opacity: 0;
+  animation: 12s linear infinite;
+}
+
+.vcb-msg-a { animation-name: vcb-msg-a; }
+.vcb-msg-b { animation-name: vcb-msg-b; }
+.vcb-msg-c { animation-name: vcb-msg-c; }
+
+.vcb-k {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--primary);
+  text-shadow: 0 0 26px rgba(80, 223, 144, 0.3);
+}
+
+.vcb-s {
+  font-size: 1.08rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--text-body);
+}
+
+@keyframes vcb-msg-a {
+  0% { opacity: 0; filter: blur(6px); transform: translateY(10px); }
+  5%, 28% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  33%, 100% { opacity: 0; filter: blur(6px); transform: translateY(-10px); }
+}
+
+@keyframes vcb-msg-b {
+  0%, 33% { opacity: 0; filter: blur(6px); transform: translateY(10px); }
+  38%, 61% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  66%, 100% { opacity: 0; filter: blur(6px); transform: translateY(-10px); }
+}
+
+@keyframes vcb-msg-c {
+  0%, 66% { opacity: 0; filter: blur(6px); transform: translateY(10px); }
+  71%, 94% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  100% { opacity: 0; filter: blur(6px); transform: translateY(-10px); }
+}
+
+.vcb-more {
+  position: absolute;
+  left: 30px;
+  right: 4px;
+  bottom: 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 /* ============================================================
    Cursor-tracked glow cards (Linear-style)
    ============================================================ */
@@ -2235,6 +2604,616 @@ img {
   font-size: 0.72rem;
   color: var(--primary);
   letter-spacing: 0.02em;
+}
+
+/* ============================================================
+   System Prompt Control — the surgical prompt pipeline
+   ============================================================ */
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+  color: var(--primary-bright);
+  background: rgba(80, 223, 144, 0.08);
+  border: 1px solid rgba(80, 223, 144, 0.16);
+  border-radius: 5px;
+  padding: 1px 5px;
+  white-space: nowrap;
+}
+
+.pc-diagram {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--r-lg);
+  padding: 26px 24px 22px;
+  overflow: hidden;
+}
+
+/* Blueprint grid + ambient glow — same language as the cp diagram */
+.pc-diagram::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(80, 223, 144, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(80, 223, 144, 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 70% 62% at 50% 50%, #000 22%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 62% at 50% 50%, #000 22%, transparent 80%);
+  pointer-events: none;
+}
+
+.pc-diagram::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 42% 40% at 50% 50%, rgba(80, 223, 144, 0.09), transparent 72%);
+  pointer-events: none;
+}
+
+/* ---- Top tier: the wire pipeline (grid keeps wires dead-center on the tiles) ---- */
+.pc-flow {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto minmax(56px, 1fr) auto minmax(56px, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: 16px;
+  row-gap: 9px;
+  align-items: center;
+}
+
+.pc-side-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.pc-lbl-a { grid-column: 1; grid-row: 1; justify-self: center; }
+.pc-lbl-b { grid-column: 5; grid-row: 1; justify-self: center; }
+
+.pc-clients {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pc-tile {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.pc-tile svg {
+  display: block;
+}
+
+.pc-tile:hover {
+  border-color: var(--primary-border);
+  box-shadow: 0 0 14px rgba(80, 223, 144, 0.18);
+}
+
+.pc-tile-p {
+  grid-column: 5;
+  grid-row: 2;
+  justify-self: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  border-color: var(--primary-border);
+  box-shadow: 0 0 18px rgba(80, 223, 144, 0.16);
+}
+
+.pc-tile-p:hover {
+  box-shadow: 0 0 24px rgba(80, 223, 144, 0.3);
+}
+
+/* The router node — same heartbeat language as the hero diagram */
+.pc-node-tile {
+  position: relative;
+  grid-column: 3;
+  grid-row: 2;
+  justify-self: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 15px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--primary-border);
+  display: grid;
+  place-items: center;
+  box-shadow:
+    0 0 30px rgba(80, 223, 144, 0.2),
+    0 0 10px rgba(80, 223, 144, 0.12);
+}
+
+.pc-node-tile::before,
+.pc-node-tile::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 17px;
+  border: 1px solid rgba(80, 223, 144, 0.4);
+  opacity: 0;
+  animation: pc-ring 3.2s var(--ease-out) infinite;
+  pointer-events: none;
+}
+
+.pc-node-tile::after {
+  animation-delay: 1.6s;
+}
+
+@keyframes pc-ring {
+  0% { transform: scale(1); opacity: 0.55; }
+  70%, 100% { transform: scale(1.5); opacity: 0; }
+}
+
+.pc-node-tile img {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+
+.pc-node-name {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: center;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--primary);
+  letter-spacing: 0.02em;
+}
+
+/* ---- Wires: measured SVG lines, same language as the hero diagram ---- */
+.pc-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Per-scene choreography overlay — above the wires, below tiles/gateway
+   (they come later in DOM order at the same z-index). The inner .pc-pkts is
+   keyed by scene in the component, so remounting restarts every animation in
+   sync with the scene. */
+.pc-pkts-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pc-pkts {
+  position: absolute;
+  inset: 0;
+}
+
+.pc-link {
+  fill: none;
+  stroke: rgba(80, 223, 144, 0.22);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke 0.25s ease, opacity 0.25s ease;
+}
+
+.pc-on .pc-link {
+  animation: pc-draw 0.9s var(--ease-out) forwards;
+  animation-delay: calc(var(--i) * 85ms);
+}
+
+@keyframes pc-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Hovering a tile lights up its wire — same language as the hero diagram */
+.pc-has-hover .pc-link:not(.on) {
+  opacity: 0.18;
+}
+
+.pc-link.on {
+  stroke: rgba(116, 229, 165, 0.85);
+  filter: drop-shadow(0 0 5px rgba(80, 223, 144, 0.55));
+}
+
+.pc-port {
+  fill: var(--bg-darker);
+  stroke: rgba(80, 223, 144, 0.45);
+  stroke-width: 1.5;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+.pc-port.on {
+  fill: var(--primary);
+  stroke: var(--primary-bright);
+}
+
+/* ---- The request packet: one dot, one journey per scene ----
+   Same principle as the hero diagram: each dot is an SVG circle riding the
+   ACTUAL drawn wire via animateMotion + mpath, so it stays glued to the line
+   100% at any size. The overlay svg is remounted per scene (keyed container),
+   which rewinds the SMIL timeline in sync with the scene. */
+.pc-svg-fx {
+  z-index: 1;
+}
+
+.pc-pkt {
+  fill: var(--primary-bright);
+  filter: drop-shadow(0 0 8px rgba(80, 223, 144, 0.9)) drop-shadow(0 0 2px rgba(214, 255, 231, 0.9));
+}
+
+/* The drop wire lights up while the packet is inside the inspector — drawn
+   from the same measured path as the static drop line, so it overlays it
+   exactly, centered on the router node */
+.pc-drop-glow {
+  fill: none;
+  stroke: rgba(116, 229, 165, 0.85);
+  stroke-width: 2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(80, 223, 144, 0.65));
+  opacity: 0;
+  animation: pc-drop-glow 5.4s linear both;
+}
+
+@keyframes pc-drop-glow {
+  0%, 36% { opacity: 0; }
+  42%, 78% { opacity: 1; }
+  83%, 100% { opacity: 0; }
+}
+
+/* The inspector frame lights up while the edit happens inside it —
+   the element is remounted per scene, so this replays in sync */
+.pc-on .pc-gateway {
+  animation: pc-gw-glow 5.4s linear both;
+}
+
+@keyframes pc-gw-glow {
+  0%, 34% {
+    border-color: var(--border-light);
+    box-shadow: none;
+  }
+  42%, 78% {
+    border-color: rgba(80, 223, 144, 0.6);
+    box-shadow: 0 0 32px rgba(80, 223, 144, 0.2), inset 0 0 22px rgba(80, 223, 144, 0.06);
+  }
+  88%, 100% {
+    border-color: var(--border-light);
+    box-shadow: none;
+  }
+}
+
+/* The router "notices" the request the moment the packet lands — a rect over
+   the node tile in the overlay svg, replayed each scene via the keyed remount */
+.pc-flash {
+  fill: rgba(116, 229, 165, 0.22);
+  stroke: rgba(214, 255, 231, 0.55);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 18px rgba(80, 223, 144, 0.55));
+  opacity: 0;
+  animation: pc-flash 5.4s ease both;
+}
+
+@keyframes pc-flash {
+  0%, 27% { opacity: 0; }
+  32% { opacity: 0.9; }
+  46%, 100% { opacity: 0; }
+}
+
+/* ---- Bottom tier: the request inspector ---- */
+.pc-gateway {
+  position: relative;
+  z-index: 1;
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 0 30px rgba(80, 223, 144, 0.07);
+}
+
+.pc-gw-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pc-gw-title {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pc-tiers {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pc-tier-arrow {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-faint);
+}
+
+.pc-tier {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border-light);
+  color: var(--text-faint);
+  white-space: nowrap;
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pc-tier-on {
+  color: var(--primary-bright);
+  border-color: var(--primary-border);
+  background: var(--primary-muted);
+  box-shadow: 0 0 10px rgba(80, 223, 144, 0.2);
+}
+
+/* ---- The request envelope ---- */
+.pc-env {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.pc-env-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  color: var(--text-faint);
+}
+
+.pc-env-badge {
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  padding: 1px 7px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.pc-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.pc-row-key {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* The system tier — the only part the gateway ever touches */
+.pc-row-system {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+  border: 1px solid rgba(80, 223, 144, 0.32);
+  background: rgba(80, 223, 144, 0.05);
+}
+
+.pc-row-system > .pc-row-key {
+  color: var(--primary);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+/* Fixed height (3 scene lines + the "more tokens" line) so the card never
+   resizes between scenes and the copy column beside it stays put */
+.pc-sys-body {
+  display: flex;
+  flex-direction: column;
+  height: 6em;
+  overflow: hidden;
+  color: var(--text-body);
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+
+.pc-sys-scene {
+  display: flex;
+  flex-direction: column;
+}
+
+.pc-sys-base {
+  color: var(--text-muted);
+}
+
+.pc-sys-add,
+.pc-sys-new {
+  color: var(--primary-bright);
+}
+
+.pc-sys-old {
+  color: var(--text-muted);
+}
+
+.pc-caret {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--primary-bright);
+  animation: pc-caret-blink 0.8s steps(1) infinite;
+}
+
+@keyframes pc-caret-blink {
+  50% { opacity: 0; }
+}
+
+.pc-sys-more {
+  margin-top: auto;
+  color: var(--text-faint);
+  opacity: 0.8;
+  font-size: 0.92em;
+}
+
+.pc-sys-bad {
+  color: #ef7070;
+}
+
+.pc-sys-strike {
+  background: linear-gradient(#ef7070, #ef7070) 0 58% / 100% 1px no-repeat;
+}
+
+/* Scene: append — your rules join the system tier while the packet is down */
+.pc-on .pc-sys-append .pc-sys-add {
+  animation: pc-pop 0.55s var(--ease-out) 2.55s both;
+}
+
+@keyframes pc-pop {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Scene: patch — the bad line is struck through the middle of the text in
+   red, then the fix lands beneath it. Base state = the "after" picture so
+   reduced motion reads correctly. */
+.pc-on .pc-sys-patch .pc-sys-strike {
+  animation: pc-strike 5.4s linear both;
+}
+
+@keyframes pc-strike {
+  0%, 44% { background-size: 0% 1px; }
+  56%, 100% { background-size: 100% 1px; }
+}
+
+.pc-on .pc-sys-patch .pc-sys-fix {
+  animation: pc-fix-in 5.4s linear both;
+}
+
+@keyframes pc-fix-in {
+  0%, 58% { opacity: 0; transform: translateY(4px); }
+  66%, 100% { opacity: 1; transform: none; }
+}
+
+/* Locked rows — structurally untouchable, and visibly so */
+.pc-row-lock {
+  border: 1px dashed var(--border-light);
+  color: var(--text-faint);
+  opacity: 0.8;
+}
+
+.pc-row-lock svg {
+  flex-shrink: 0;
+}
+
+.pc-row-val {
+  margin-left: auto;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.pc-untouched {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  padding: 1px 7px;
+  white-space: nowrap;
+}
+
+/* Each time the gateway edits, the locks quietly confirm nothing else moved */
+.pc-on .pc-untouched {
+  animation: pc-lock-pulse 5.4s ease both;
+}
+
+@keyframes pc-lock-pulse {
+  0%, 32%, 72%, 100% { color: var(--text-faint); border-color: var(--border-light); }
+  50% { color: var(--primary); border-color: var(--primary-border); }
+}
+
+/* ---- Gateway footer: modes + live caption ---- */
+.pc-gw-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pc-modes {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-light);
+  border-radius: 999px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.pc-mode {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  color: var(--text-faint);
+  transition: color 0.3s ease, background 0.3s ease;
+}
+
+.pc-mode-on {
+  background: var(--primary-muted);
+  color: var(--primary-bright);
+}
+
+.pc-caption {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.45;
+  min-height: 2.9em;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.pc-on .pc-caption {
+  animation: pc-cap 0.45s var(--ease-out) both;
+}
+
+@keyframes pc-cap {
+  from { opacity: 0; transform: translateY(4px); }
 }
 
 /* ============================================================
@@ -4089,11 +5068,120 @@ body > div:has(> .polar-loader-spinner) {
     width: 30px;
     height: 30px;
   }
+
+  .pc-diagram {
+    padding: 18px 14px 14px;
+  }
+
+  .pc-flow {
+    column-gap: 10px;
+  }
+
+  .pc-side-label {
+    font-size: 0.56rem;
+  }
+
+  .pc-tile {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+  }
+
+  .pc-tile-p {
+    width: 38px;
+    height: 38px;
+  }
+
+  .pc-node-tile {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .pc-node-tile img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .pc-gateway {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .pc-tiers {
+    display: none;
+  }
+
+  .pc-env {
+    padding: 9px;
+  }
+
+  .pc-row {
+    font-size: 0.62rem;
+    padding: 5px 6px;
+  }
+
+  .pc-sys-body {
+    font-size: 0.64rem;
+  }
+
+  .pc-row-val {
+    display: none;
+  }
+
+  .pc-caption {
+    font-size: 0.56rem;
+  }
+
+  .vcb-stage {
+    --vcb-ck: 0%;
+    --vcb-co: 35%;
+    --vcb-cd: 70%;
+    --vcb-cc: 35%;
+    --vcb-cw: 30%;
+    height: 240px;
+  }
+
+  .vcb-row,
+  .vcb-endp,
+  .vcb-type {
+    display: none;
+  }
+
+  .vcb-endp-combo {
+    display: block;
+  }
+
+  .vcb-chip {
+    font-size: 0.55rem;
+    padding: 4px 6px;
+  }
+
+  .vcb-client {
+    padding: 5px 8px;
+    font-size: 0.55rem;
+  }
 }
 
 @media (max-width: 420px) {
   .cp-name {
     display: none;
+  }
+
+  .pc-flow {
+    column-gap: 8px;
+  }
+
+  .pc-node-name {
+    font-size: 0.6rem;
+  }
+
+  .pc-env-head {
+    font-size: 0.54rem;
+  }
+
+  .pc-caption {
+    text-align: left;
   }
 }
 
@@ -4153,6 +5241,47 @@ body > div:has(> .polar-loader-spinner) {
     animation: none;
   }
 
+  /* Prompt pipeline: base states already encode the "after edit" picture */
+  .pc-link {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+
+  .pc-on .pc-link {
+    animation: none;
+  }
+
+  .pc-node-tile::before,
+  .pc-node-tile::after {
+    animation: none;
+  }
+
+  .pc-pkt,
+  .pc-drop-glow {
+    display: none;
+  }
+
+  .pc-on .pc-gateway {
+    animation: none;
+  }
+
+  .pc-flash,
+  .pc-caret {
+    animation: none;
+  }
+
+  .pc-flash {
+    opacity: 0;
+  }
+
+  .pc-on .pc-sys-append .pc-sys-add,
+  .pc-on .pc-sys-patch .pc-sys-strike,
+  .pc-on .pc-sys-patch .pc-sys-fix,
+  .pc-on .pc-untouched,
+  .pc-on .pc-caption {
+    animation: none;
+  }
+
   .aterm-cursor,
   .nav-version i,
   .hero-eyebrow i {
@@ -4179,8 +5308,56 @@ body > div:has(> .polar-loader-spinner) {
     transition: none;
   }
 
-  .rt-packet {
+  .rt-packet,
+  .vcb-pkt {
     display: none;
+  }
+
+  .vcb-endp,
+  .vcb-stack,
+  .vcb-row {
+    display: none;
+  }
+
+  .vcb-sel,
+  .vcb-combo {
+    animation: none;
+  }
+
+  .vcb-sel .vcb-chip {
+    animation: none;
+  }
+
+  .vcb-sel-id {
+    display: none;
+  }
+
+  .vcb-sel-alias {
+    animation: none;
+    opacity: 1;
+  }
+
+  .vcb-endp-combo {
+    display: block;
+    animation: none;
+    opacity: 1;
+  }
+
+  .vcb-svg {
+    display: none;
+  }
+
+  .vcb-msg {
+    animation: none;
+  }
+
+  .vcb-msg-b,
+  .vcb-msg-c {
+    display: none;
+  }
+
+  .vcb-msg-a {
+    opacity: 1;
   }
 
   .fo-rec {

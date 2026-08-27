@@ -2,7 +2,7 @@
 
 These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required. Each preset includes a **Get API Key** link directly in the Add Provider form.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 > **Client configuration:** Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the **Client Setup** section -- or open the provider's **Prompt for AI** dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.
 

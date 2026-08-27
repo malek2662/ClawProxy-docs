@@ -2,7 +2,7 @@
 
 Diagnose and resolve common issues with ClawRouter.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

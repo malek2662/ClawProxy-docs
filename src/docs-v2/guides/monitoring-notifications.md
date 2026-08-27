@@ -2,7 +2,7 @@
 
 Step-by-step guides for monitoring proxy activity through notifications, request logs, and usage stats.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

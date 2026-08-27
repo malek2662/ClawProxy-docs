@@ -2,7 +2,7 @@
 
 ClawRouter works with any AI client that supports a custom base URL. This page explains the two setup methods and what all clients have in common -- then points you to the dedicated guide for your client.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

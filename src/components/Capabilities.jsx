@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { LayoutGrid, KeyRound, ShieldCheck, Network, AudioWaveform } from 'lucide-react';
+import { LayoutGrid, KeyRound, ShieldCheck, Network, AudioWaveform, Combine, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 import { useCycle } from '../hooks/useCycle';
 
@@ -8,7 +9,10 @@ import OpenAIMono from '@lobehub/icons/es/OpenAI/components/Mono';
 import GeminiColor from '@lobehub/icons/es/Gemini/components/Color';
 import OpenRouterColor from '@lobehub/icons/es/OpenRouter/components/Color';
 import DeepSeekColor from '@lobehub/icons/es/DeepSeek/components/Color';
+import KimiColor from '@lobehub/icons/es/Kimi/components/Color';
+import ZAIMono from '@lobehub/icons/es/ZAI/components/Mono';
 import GroqMono from '@lobehub/icons/es/Groq/components/Mono';
+import XAIMono from '@lobehub/icons/es/XAI/components/Mono';
 import OllamaMono from '@lobehub/icons/es/Ollama/components/Mono';
 import OpenCodeMono from '@lobehub/icons/es/OpenCode/components/Mono';
 
@@ -93,9 +97,9 @@ function KeyRotation() {
    ============================================================ */
 
 const FO_ROWS = [
-    { name: 'OpenAI', model: 'gpt-4o-mini', Icon: OpenAIMono, latency: '0.8s' },
-    { name: 'Gemini', model: 'gemini-2.0-flash', Icon: GeminiColor, latency: '1.1s' },
-    { name: 'Groq', model: 'llama-3.3-70b', Icon: GroqMono, latency: '0.6s' },
+    { name: 'OpenAI', model: 'gpt-5.6', Icon: OpenAIMono, latency: '0.8s' },
+    { name: 'Gemini', model: 'gemini-3.7-flash', Icon: GeminiColor, latency: '1.1s' },
+    { name: 'xAI', model: 'grok-4.5', Icon: XAIMono, latency: '0.6s' },
 ];
 
 function Failover() {
@@ -261,12 +265,175 @@ function Streaming() {
 }
 
 /* ============================================================
+   6. Virtual Providers (Combos) — three provider stacks collapse
+      into one combo endpoint. Single 9s CSS timeline.
+   ============================================================ */
+
+const VCB_SLOTS = [30, 50, 70];
+
+const VCB_STACKS = [
+    { id: 'k', name: 'Kimi', Icon: KimiColor, endpoint: 'api.moonshot.ai/v1', models: ['kimi-k2.5', 'kimi-k3', 'kimi-k2.7-code'] },
+    { id: 'o', name: 'OpenAI', Icon: OpenAIMono, endpoint: 'api.openai.com/v1', models: ['gpt-5.5', 'gpt-5.6', 'gpt-5.6-terra'] },
+    { id: 'd', name: 'Z.ai', Icon: ZAIMono, endpoint: 'api.z.ai/v1', models: ['glm-5.3', 'glm-5.3-flash', 'glm-5.2'] },
+];
+
+const VCB_SEL = [
+    { id: 'kimi-k3', pre: 'kimi', alias: 'k3', from: 'k', tt: 30, gd: '6.9s' },
+    { id: 'gpt-5.6', pre: 'openai', alias: 'gpt-5.6', from: 'o', tt: 50, gd: '7.3s' },
+    { id: 'glm-5.3-flash', pre: 'zai', alias: 'glm-5.3-flash', from: 'd', tt: 70, gd: '7.7s' },
+];
+
+const VCB_WIRE_WIN = [
+    [0.6, 0.7],
+    [0.65, 0.75],
+    [0.7, 0.8],
+];
+
+function ComboBoard() {
+    const stageRef = useRef(null);
+    const clientRef = useRef(null);
+    const svgRef = useRef(null);
+    const [geom, setGeom] = useState(null);
+
+    useEffect(() => {
+        const stage = stageRef.current;
+        const client = clientRef.current;
+        if (!stage || !client) return undefined;
+
+        const measure = () => {
+            const sr = stage.getBoundingClientRect();
+            const cr = client.getBoundingClientRect();
+            const ccPct = parseFloat(getComputedStyle(stage).getPropertyValue('--vcb-cc')) / 100;
+            if (sr.width < 10 || !ccPct) return;
+            const x0 = Math.round(cr.right - sr.left) + 1;
+            const y0 = Math.round(cr.top + cr.height / 2 - sr.top);
+            const x1 = Math.round(sr.width * ccPct) - 2;
+            const lines = VCB_SLOTS.map((t) => {
+                const y = Math.round((sr.height * t) / 100) + 11;
+                const dx = Math.max(24, (x1 - x0) * 0.5);
+                return { y, d: `M ${x0} ${y0} C ${x0 + dx} ${y0}, ${x1 - dx} ${y}, ${x1} ${y}` };
+            });
+            setGeom({ x0, y0, x1, lines });
+        };
+
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(stage);
+        window.addEventListener('resize', measure);
+        return () => { ro.disconnect(); window.removeEventListener('resize', measure); };
+    }, []);
+
+    useEffect(() => {
+        const svg = svgRef.current;
+        if (!svg) return undefined;
+        const io = new IntersectionObserver(([e]) => {
+            if (e.isIntersecting) svg.unpauseAnimations();
+            else svg.pauseAnimations();
+        }, { rootMargin: '160px 0px' });
+        io.observe(svg);
+        return () => io.disconnect();
+    }, [geom]);
+
+    return (
+        <div ref={stageRef} className="vcb-stage">
+            {VCB_STACKS.map((s) => (
+                <React.Fragment key={s.id}>
+                    <span className={`vcb-endp vcb-col-${s.id}`}>{s.endpoint}</span>
+                    <div className={`vcb-stack vcb-col-${s.id}`}>
+                        <span className="vcb-stack-head"><s.Icon size={13} />{s.name}</span>
+                    </div>
+                    {s.models.map((m, i) => (i === 1 ? null : (
+                        <span key={m} className={`vcb-row vcb-col-${s.id}`} style={{ top: `${VCB_SLOTS[i]}%` }}>
+                            <span className="vcb-chip">{m}</span>
+                        </span>
+                    )))}
+                </React.Fragment>
+            ))}
+            <div className="vcb-combo">
+                <span className="vcb-combo-top">
+                    <span className="vcb-combo-head">coding-stack</span>
+                    <span className="vcb-combo-sub">combo · one endpoint</span>
+                </span>
+            </div>
+            <span className="vcb-endp vcb-endp-combo">/proxy/coding-stack/v1</span>
+            {VCB_SEL.map((r) => (
+                <span
+                    key={r.id}
+                    className={`vcb-sel vcb-from-${r.from}`}
+                    style={{ '--ft': '50%', '--tt': `${r.tt}%`, '--gd': r.gd }}
+                >
+                    <span className="vcb-chip">
+                        <span className="vcb-sel-id">{r.id}</span>
+                        <span className="vcb-sel-alias"><span className="vcb-sel-pre">{r.pre}/</span>{r.alias}</span>
+                    </span>
+                </span>
+            ))}
+            <span ref={clientRef} className="vcb-client">
+                <img src={clawLogo} alt="" />
+                <span>client</span>
+            </span>
+            {geom && (
+                <svg ref={svgRef} className="vcb-svg" aria-hidden="true">
+                    {geom.lines.map((l, i) => (
+                        <path key={i} id={`vcb-line-${i}`} className="vcb-link" d={l.d} pathLength={1} />
+                    ))}
+                    <circle cx={geom.x0} cy={geom.y0} r={2.6} className="vcb-port" />
+                    {geom.lines.map((l, i) => (
+                        <circle key={i} cx={geom.x1} cy={l.y} r={2.6} className="vcb-port" />
+                    ))}
+                    {geom.lines.map((l, i) => {
+                        const [a, b] = VCB_WIRE_WIN[i];
+                        return (
+                            <circle key={i} r={2.4} className="vcb-pkt" opacity={0}>
+                                <animateMotion
+                                    dur="9s"
+                                    repeatCount="indefinite"
+                                    calcMode="linear"
+                                    keyPoints="0;0;1;1"
+                                    keyTimes={`0;${a};${b};1`}
+                                >
+                                    <mpath href={`#vcb-line-${i}`} />
+                                </animateMotion>
+                                <animate
+                                    attributeName="opacity"
+                                    dur="9s"
+                                    repeatCount="indefinite"
+                                    values="0;0;1;1;0;0"
+                                    keyTimes={`0;${a};${a + 0.02};${b - 0.02};${b};1`}
+                                />
+                            </circle>
+                        );
+                    })}
+                </svg>
+            )}
+            <div className="vcb-type">
+                <div className="vcb-msg vcb-msg-a">
+                    <span className="vcb-k">One URL.</span>
+                    <span className="vcb-s">Every model you need behind it — Kimi, OpenAI, DeepSeek.</span>
+                </div>
+                <div className="vcb-msg vcb-msg-b">
+                    <span className="vcb-k">Failover, built in.</span>
+                    <span className="vcb-s">Priority order at the router, alias by alias — not in your code.</span>
+                </div>
+                <div className="vcb-msg vcb-msg-c">
+                    <span className="vcb-k">Any format.</span>
+                    <span className="vcb-s">Chat, Responses, Gemini, Claude — the right format out.</span>
+                </div>
+                <Link to="/docs?tab=virtualProviders" className="vcb-more link-arrow">
+                    Explore the combos <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+/* ============================================================
    Section
    ============================================================ */
 
-function CapCard({ span2 = false, delay = 0, icon, title, desc, children }) {
+function CapCard({ span2 = false, span3 = false, delay = 0, icon, title, desc, children }) {
     return (
-        <Reveal className={`cap-card glow-card${span2 ? ' cap-span-2' : ''}`} delay={delay}>
+        <Reveal className={`cap-card glow-card${span2 ? ' cap-span-2' : ''}${span3 ? ' cap-span-3' : ''}`} delay={delay}>
             <div className="cap-text">
                 <div className="cap-head">
                     <span className="cap-icon-tile">{icon}</span>
@@ -329,6 +496,22 @@ export default function Capabilities() {
                         desc="Native streaming pass-through delivers tokens instantly — even across translated formats."
                     >
                         <Streaming />
+                    </CapCard>
+                    <CapCard
+                        span3
+                        delay={0}
+                        icon={<Combine size={19} aria-hidden="true" />}
+                        title={<>
+                            <span className="cap-combo">
+                                <span className="cap-combo-c">C</span>
+                                <em className="cap-accent">ombos</em>
+                            </span>
+                            <span className="cap-combo-sep">:</span>
+                            One endpoint, <em className="cap-accent">every model</em>
+                        </>}
+                        desc="Kimi, OpenAI, DeepSeek and more behind one virtual provider — one client entry, every model."
+                    >
+                        <ComboBoard />
                     </CapCard>
                 </div>
             </div>

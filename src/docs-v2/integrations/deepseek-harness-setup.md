@@ -2,7 +2,7 @@
 
 DeepSeek Harness (`dsh`, npm `@deepseek-ai/dsh`) is DeepSeek's open-source agent harness -- the tools/files/sandbox/control-loop layer around a model, built on plugins. It speaks OpenAI-compatible APIs through its `llm-pi-ai` provider plugin -- point it at ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

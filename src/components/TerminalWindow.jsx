@@ -69,13 +69,13 @@ const CurlPane = () => (
         <PromptLine>{'curl -s http://localhost:3030/proxy/openai/v1/chat/completions \\'}</PromptLine>
         <Line>{'    '}<span className="tc">-H "Authorization: Bearer {FAKE_KEY}" \</span></Line>
         <Line>{'    '}<span className="tc">-H "Content-Type: application/json" \</span></Line>
-        <Line>{'    '}<span className="tc">{'-d \'{"model":"gpt-4o-mini","messages":[{"role":"user","content":"Hello"}]}\''}</span></Line>
+        <Line>{'    '}<span className="tc">{'-d \'{"model":"gpt-5.6-luna","messages":[{"role":"user","content":"Hello"}]}\''}</span></Line>
         <Line><span className="aterm-meta"># HTTP 200 · 0.41s · routed via openai</span></Line>
         <div className="json-block">
             <div>{'{'}</div>
             <div>{'  '}<JKey>"id"</JKey>: <JStr>"chatcmpl-Qx2k9fA7Lp"</JStr>,</div>
             <div>{'  '}<JKey>"object"</JKey>: <JStr>"chat.completion"</JStr>,</div>
-            <div>{'  '}<JKey>"model"</JKey>: <JStr>"gpt-4o-mini"</JStr>,</div>
+            <div>{'  '}<JKey>"model"</JKey>: <JStr>"gpt-5.6-luna"</JStr>,</div>
             <div>{'  '}<JKey>"choices"</JKey>: [</div>
             <div>{'    {'}</div>
             <div>{'      '}<JKey>"index"</JKey>: <JNum>0</JNum>,</div>

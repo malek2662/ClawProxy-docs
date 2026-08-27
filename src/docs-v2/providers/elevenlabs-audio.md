@@ -2,7 +2,7 @@
 
 Speech-to-Text (Scribe) and Text-to-Speech through ClawRouter. ElevenLabs is a **passthrough audio provider** -- requests are forwarded byte-identical, with your managed API key injected automatically.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 > **Not a chat provider:** ElevenLabs has no chat completions. Chat-style requests (`/v1/chat/completions`, `/v1/messages`, etc.) sent to an ElevenLabs provider fail with HTTP 400 -- format translation does not apply.
 

@@ -2,7 +2,7 @@
 
 Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Quick Setup presets or create a custom configuration.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

@@ -2,7 +2,7 @@
 
 ClawRouter classifies upstream errors to determine the correct recovery action. Each error type triggers a specific behavior in the retry cascade.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

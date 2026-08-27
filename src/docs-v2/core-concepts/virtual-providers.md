@@ -2,7 +2,7 @@
 
 Merge models from multiple providers behind a single endpoint — add it to your AI client once and the client sees every member model.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

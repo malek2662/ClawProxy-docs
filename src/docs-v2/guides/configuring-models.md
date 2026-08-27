@@ -2,7 +2,7 @@
 
 Step-by-step guides for discovering models, adding them to your provider, and enabling Model Fallback.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

@@ -2,7 +2,7 @@
 
 Qwen Code is Alibaba's terminal coding agent (a Gemini CLI fork). It speaks OpenAI-compatible, Anthropic, Gemini, and Qwen protocols -- point its OpenAI-compatible mode at ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

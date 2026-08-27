@@ -2,7 +2,7 @@
 
 Automatically retries a failed request with an alternative model, **same provider, same API key**.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

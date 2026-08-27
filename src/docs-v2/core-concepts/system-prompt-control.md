@@ -2,7 +2,7 @@
 
 Inject, replace, or surgically edit the system prompt of every request — per client, per provider, or per combo — directly at the gateway.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

@@ -4,7 +4,7 @@ Step-by-step guide for setting up provider fallback chains and building a comple
 
 > Want one endpoint that exposes models from several providers at once? See [Virtual Providers (Combos)](../core-concepts/virtual-providers.md).
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

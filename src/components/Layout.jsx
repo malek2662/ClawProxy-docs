@@ -92,7 +92,7 @@ export default function Layout() {
                     </Link>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                        <span className="nav-version"><i aria-hidden="true" />v1.0.17</span>
+                        <span className="nav-version"><i aria-hidden="true" />v1.0.18</span>
 
                         <div style={{ display: 'flex', gap: '6px' }}>
                             {navLinks.map((link) => {

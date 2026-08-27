@@ -2,7 +2,7 @@
 
 OpenClaw is an AI agent client configured through a JSON file (`openclaw.json`). This guide connects it to ClawRouter so every request benefits from key rotation, fallback chains, and logging.
 
-> **Version 1.0.17**
+> **Version 1.0.18**
 
 ---
 

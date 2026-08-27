@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowRight, ArrowLeftRight, Shield, Zap, RefreshCw, Server, Settings, Sparkles, X, Lock, Gauge } from 'lucide-react';
+import { ArrowRight, ArrowLeftRight, Shield, Zap, RefreshCw, Server, Settings, Sparkles, X, Lock, Gauge, Crosshair } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Reveal from '../components/Reveal';
 import TerminalWindow from '../components/TerminalWindow';
@@ -8,6 +8,7 @@ import ProvidersMarquee from '../components/ProvidersMarquee';
 import StatCell from '../components/StatCell';
 import ClientProviderDiagram from '../components/ClientProviderDiagram';
 import Capabilities from '../components/Capabilities';
+import PromptControlDiagram from '../components/PromptControlDiagram';
 import CommandCenter from '../components/CommandCenter';
 import HowItWorks from '../components/HowItWorks';
 import Pricing from '../components/Pricing';
@@ -228,6 +229,30 @@ export default function LandingPage() {
 
             {/* ============ Capabilities (animated bento) ============ */}
             <Capabilities />
+
+            {/* ============ System Prompt Control ============ */}
+            <section className="section section-tint" data-anim>
+                <div className="container diagram-grid">
+                    <Reveal className="diagram-copy">
+                        <div className="section-eyebrow">System Prompt Control</div>
+                        <h2 className="section-title">Grab every agent <span className="accent">by its system prompt</span></h2>
+                        <p className="showcase-body">
+                            Define a rule once and ClawRouter rewrites the system prompt of every matching request — before translation, before it reaches the provider. Prepend, append, replace, or <strong>surgically patch a single sentence</strong> inside a 20,000-token prompt. Conversation messages and tool definitions always pass through untouched.
+                        </p>
+                        <ul className="showcase-list">
+                            <li><span className="list-dot"><Crosshair size={14} aria-hidden="true" /></span><span>Scope rules per client, per provider, or per combo — they compose in order, one place for all your traffic</span></li>
+                            <li><span className="list-dot"><Lock size={14} aria-hidden="true" /></span><span>Structurally surgical: <code className="inline-code">messages</code> and <code className="inline-code">tools[]</code> can never be affected</span></li>
+                            <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span><span>Works across all 4 API formats — prompt-cache friendly, byte-identical when no rule matches</span></li>
+                        </ul>
+                        <Link to="/docs?tab=systemPromptControl" className="link-arrow">
+                            Read the System Prompt Control docs <ArrowRight size={14} aria-hidden="true" />
+                        </Link>
+                    </Reveal>
+                    <Reveal className="diagram-visual reveal-scale" delay={120}>
+                        <PromptControlDiagram />
+                    </Reveal>
+                </div>
+            </section>
 
             {/* ============ Providers Management ============ */}
             <Showcase
