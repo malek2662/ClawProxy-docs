@@ -2,19 +2,60 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      /* Routing bootstrap — runs before anything renders.
+         1. Legacy hash-router URLs (#/docs?tab=x&anchor=y) are redirected to
+            their canonical path equivalents (/docs/x#y).
+         2. Deep links that hit GitHub Pages' 404.html are stashed in
+            sessionStorage by that page and restored here. */
+      (function () {
+        try {
+          if (location.hash.indexOf('#/') === 0) {
+            var legacy = location.hash.slice(1);
+            var qi = legacy.indexOf('?');
+            var path = qi === -1 ? legacy : legacy.slice(0, qi);
+            var query = qi === -1 ? '' : legacy.slice(qi + 1);
+            var tab = null;
+            var anchor = '';
+            query.split('&').forEach(function (pair) {
+              var kv = pair.split('=');
+              if (kv[0] === 'tab') tab = decodeURIComponent(kv[1] || '');
+              if (kv[0] === 'anchor') anchor = '#' + decodeURIComponent(kv[1] || '');
+            });
+            if (path === '/docs' && tab && tab !== 'quickstart') path = '/docs/' + tab;
+            location.replace(path + anchor);
+            return;
+          }
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            history.replaceState(null, '', redirect);
+          }
+        } catch (e) { /* routing must never block rendering */ }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="ClawRouter — self-hosted AI routing gateway. Route, manage and monitor AI API requests across 50 providers from a single endpoint, with automatic format translation and failover." />
     <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://clawrouter.qzz.io/" />
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClawRouter" />
+    <meta property="og:url" content="https://clawrouter.qzz.io/" />
     <meta property="og:title" content="ClawRouter — Self-hosted AI Routing Gateway" />
     <meta property="og:description" content="Route, manage and monitor AI API requests across 50 providers from a single endpoint. Automatic format translation, failover and quota tracking — one-time $20 lifetime license." />
-    <meta property="og:image" content="/ClawProxy-docs/assets/screenshots/dashboard-overview.png" />
+    <meta property="og:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="ClawRouter — Self-hosted AI Routing Gateway" />
     <meta name="twitter:description" content="Any AI client, any provider, one self-hosted endpoint. $20 lifetime license." />
-    <meta name="twitter:image" content="/ClawProxy-docs/assets/screenshots/dashboard-overview.png" />
+    <meta name="twitter:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
     <title>ClawRouter — Self-hosted AI Routing Gateway</title>
+    <noscript>
+      <style>
+        /* Without JS the reveal-on-scroll observer never runs — show content. */
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
   </head>
   <body>
     <div id="root"></div>

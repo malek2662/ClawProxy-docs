@@ -27,15 +27,15 @@ const STATS = [
 // reserves the exact box before lazy images decode — no layout shift while
 // scrolling (which would also throw off scrollIntoView targets).
 const SHOT_DIMS = {
-    'assets/screenshots/providers-list.png': [2880, 1800],
-    'assets/screenshots/provider-keys.png': [2880, 1800],
-    'assets/screenshots/providers-presets.png': [2880, 1800],
-    'assets/screenshots/provider-fallback.png': [2880, 1800],
-    'assets/screenshots/provider-models.png': [2880, 1800],
-    'assets/screenshots/provider-quota.png': [2880, 1800],
-    'assets/screenshots/providers-ai1.png': [1863, 958],
-    'assets/screenshots/providers-ai2.png': [1863, 958],
-    'assets/screenshots/settings.png': [1699, 952]
+    '/assets/screenshots/providers-list.png': [2880, 1800],
+    '/assets/screenshots/provider-keys.png': [2880, 1800],
+    '/assets/screenshots/providers-presets.png': [2880, 1800],
+    '/assets/screenshots/provider-fallback.png': [2880, 1800],
+    '/assets/screenshots/provider-models.png': [2880, 1800],
+    '/assets/screenshots/provider-quota.png': [2880, 1800],
+    '/assets/screenshots/providers-ai1.png': [1863, 958],
+    '/assets/screenshots/providers-ai2.png': [1863, 958],
+    '/assets/screenshots/settings.png': [1699, 952]
 };
 
 function shotDims(src) {
@@ -206,7 +206,7 @@ export default function LandingPage() {
                             <li><span className="list-dot"><ArrowLeftRight size={14} aria-hidden="true" /></span> Full fidelity: tools, reasoning, usage & images</li>
                             <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span> Zero-copy passthrough when formats match</li>
                         </ul>
-                        <Link to="/docs?tab=formatTranslation" className="link-arrow">
+                        <Link to="/docs/formatTranslation" className="link-arrow">
                             How format translation works <ArrowRight size={14} aria-hidden="true" />
                         </Link>
                     </Reveal>
@@ -244,7 +244,7 @@ export default function LandingPage() {
                             <li><span className="list-dot"><Lock size={14} aria-hidden="true" /></span><span>Structurally surgical: <code className="inline-code">messages</code> and <code className="inline-code">tools[]</code> can never be affected</span></li>
                             <li><span className="list-dot"><Zap size={14} aria-hidden="true" /></span><span>Works across all 4 API formats — prompt-cache friendly, byte-identical when no rule matches</span></li>
                         </ul>
-                        <Link to="/docs?tab=systemPromptControl" className="link-arrow">
+                        <Link to="/docs/systemPromptControl" className="link-arrow">
                             Read the System Prompt Control docs <ArrowRight size={14} aria-hidden="true" />
                         </Link>
                     </Reveal>
@@ -261,15 +261,15 @@ export default function LandingPage() {
                 reverse
                 media={
                     <div className="media-stack">
-                        <BrowserShot src="assets/screenshots/providers-list.png" url="localhost:3030/providers" alt="Providers Management" onZoom={setSelectedImage} />
-                        <Shot src="assets/screenshots/provider-keys.png" alt="Provider API Keys with rotation status" onZoom={setSelectedImage} className="media-frame-secondary" />
+                        <BrowserShot src="/assets/screenshots/providers-list.png" url="localhost:3030/providers" alt="Providers Management" onZoom={setSelectedImage} />
+                        <Shot src="/assets/screenshots/provider-keys.png" alt="Provider API Keys with rotation status" onZoom={setSelectedImage} className="media-frame-secondary" />
                     </div>
                 }
             >
                 <p className="showcase-body">
                     Add multiple API providers easily. ClawRouter speaks all four major API formats — OpenAI Completions, OpenAI Responses, Anthropic Messages, and Google Gemini — and translates between them automatically. Add, rotate, and monitor API keys with automatic error tracking and seamless fallback mechanisms.
                 </p>
-                <Link to="/docs?tab=providerDirectory" className="link-arrow">
+                <Link to="/docs/providerDirectory" className="link-arrow">
                     Read the documentation <ArrowRight size={14} aria-hidden="true" />
                 </Link>
             </Showcase>
@@ -279,12 +279,12 @@ export default function LandingPage() {
                 eyebrow="Onboarding"
                 title="Quick Setup Templates"
                 tint
-                media={<BrowserShot src="assets/screenshots/providers-presets.png" url="localhost:3030/providers" alt="Quick Setup Templates" onZoom={setSelectedImage} />}
+                media={<BrowserShot src="/assets/screenshots/providers-presets.png" url="localhost:3030/providers" alt="Quick Setup Templates" onZoom={setSelectedImage} />}
             >
                 <p className="showcase-body">
                     Get up and running in seconds with <strong>50 built-in provider presets</strong> — including free-tier providers like OpenRouter, Google Gemini, Groq and Cerebras, plus keyless options like OpenCode Zen and Kilo AI that need no signup at all. Select a preset, add your API key if required, and you're ready to start routing.
                 </p>
-                <Link to="/docs?tab=firstProvider&anchor=add-a-provider-via-quick-setup" className="link-arrow">
+                <Link to="/docs/firstProvider#add-a-provider-via-quick-setup" className="link-arrow">
                     View provider templates <ArrowRight size={14} aria-hidden="true" />
                 </Link>
             </Showcase>
@@ -300,8 +300,8 @@ export default function LandingPage() {
                 tint
                 media={
                     <div className="media-stack">
-                        <BrowserShot src="assets/screenshots/provider-fallback.png" url="localhost:3030/providers" alt="Provider Fallback Chain Configuration" onZoom={setSelectedImage} />
-                        <Shot src="assets/screenshots/provider-models.png" alt="Model Fallback Configuration" onZoom={setSelectedImage} className="media-frame-secondary" />
+                        <BrowserShot src="/assets/screenshots/provider-fallback.png" url="localhost:3030/providers" alt="Provider Fallback Chain Configuration" onZoom={setSelectedImage} />
+                        <Shot src="/assets/screenshots/provider-models.png" alt="Model Fallback Configuration" onZoom={setSelectedImage} className="media-frame-secondary" />
                     </div>
                 }
             >
@@ -314,7 +314,7 @@ export default function LandingPage() {
                         <div>
                             <strong style={{ color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>Model Fallback</strong>
                             <span className="notif-desc">Silently retry with alternative models within the same provider if the primary model is unavailable.{' '}
-                                <Link to="/docs?tab=modelFallback" className="link-arrow" style={{ fontSize: '0.88rem' }}>Learn more <ArrowRight size={12} aria-hidden="true" /></Link>
+                                <Link to="/docs/modelFallback" className="link-arrow" style={{ fontSize: '0.88rem' }}>Learn more <ArrowRight size={12} aria-hidden="true" /></Link>
                             </span>
                         </div>
                     </div>
@@ -323,7 +323,7 @@ export default function LandingPage() {
                         <div>
                             <strong style={{ color: 'var(--text-main)', display: 'block', marginBottom: '4px' }}>Provider Fallback Chain</strong>
                             <span className="notif-desc">Configure prioritized chains of backup providers. Any provider can back up any other — even with a different API format — because ClawRouter translates between formats automatically.{' '}
-                                <Link to="/docs?tab=providerFallback" className="link-arrow" style={{ fontSize: '0.88rem' }}>Learn more <ArrowRight size={12} aria-hidden="true" /></Link>
+                                <Link to="/docs/providerFallback" className="link-arrow" style={{ fontSize: '0.88rem' }}>Learn more <ArrowRight size={12} aria-hidden="true" /></Link>
                             </span>
                         </div>
                     </div>
@@ -335,7 +335,7 @@ export default function LandingPage() {
                 eyebrow="Quota tracking"
                 title="Know your limits before you hit them"
                 reverse
-                media={<BrowserShot src="assets/screenshots/provider-quota.png" url="localhost:3030/providers" alt="Per-key quota windows for a subscription provider" onZoom={setSelectedImage} />}
+                media={<BrowserShot src="/assets/screenshots/provider-quota.png" url="localhost:3030/providers" alt="Per-key quota windows for a subscription provider" onZoom={setSelectedImage} />}
             >
                 <p className="showcase-body">
                     Subscription providers like Kimi for Coding and Z.AI GLM Coding report live quota windows — 5-hour, weekly and monthly cycles. ClawRouter probes every key and shows exactly how much headroom each one has left, and when it resets.
@@ -353,8 +353,8 @@ export default function LandingPage() {
                 tint
                 media={
                     <div className="media-stack">
-                        <Shot src="assets/screenshots/providers-ai2.png" alt="AI Prompt Assistant Feature" onZoom={setSelectedImage} />
-                        <Shot src="assets/screenshots/providers-ai1.png" alt="AI Assistant Prompt Generation" onZoom={setSelectedImage} className="media-frame-secondary" />
+                        <Shot src="/assets/screenshots/providers-ai2.png" alt="AI Prompt Assistant Feature" onZoom={setSelectedImage} />
+                        <Shot src="/assets/screenshots/providers-ai1.png" alt="AI Assistant Prompt Generation" onZoom={setSelectedImage} className="media-frame-secondary" />
                     </div>
                 }
             >
@@ -366,7 +366,7 @@ export default function LandingPage() {
                     <li><span className="list-dot"><RefreshCw size={14} aria-hidden="true" /></span> Auto-discovery of upstream model IDs</li>
                     <li><span className="list-dot"><Shield size={14} aria-hidden="true" /></span> Proxy API key embedded automatically</li>
                 </ul>
-                <Link to="/docs?tab=aiClientSetup" className="link-arrow">
+                <Link to="/docs/aiClientSetup" className="link-arrow">
                     How to use the AI Assistant <ArrowRight size={14} aria-hidden="true" />
                 </Link>
             </Showcase>
@@ -382,8 +382,8 @@ export default function LandingPage() {
                     { icon: <Zap size={14} aria-hidden="true" />, text: 'Rate limit backoff & failover tuning' },
                     { icon: <Server size={14} aria-hidden="true" />, text: 'Logging, notifications & routing behavior' }
                 ]}
-                link={{ to: '/docs?tab=globalSettings', label: 'Learn about settings' }}
-                media={<Shot src="assets/screenshots/settings.png" alt="Global Settings Panel" onZoom={setSelectedImage} />}
+                link={{ to: '/docs/globalSettings', label: 'Learn about settings' }}
+                media={<Shot src="/assets/screenshots/settings.png" alt="Global Settings Panel" onZoom={setSelectedImage} />}
             />
 
             {/* ============ How it works ============ */}

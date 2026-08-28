@@ -14,7 +14,7 @@ const STEPS = [
             { c: '$ clawrouter start' },
             { c: '✓ running — dashboard at localhost:3030' },
         ],
-        link: { to: '/docs?tab=installation', label: 'Installation guide' },
+        link: { to: '/docs/installation', label: 'Installation guide' },
     },
     {
         icon: <Boxes size={17} aria-hidden="true" />,
@@ -26,7 +26,7 @@ const STEPS = [
             { c: '+ Gemini       (free tier)' },
             { c: '+ OpenCode Zen (keyless)' },
         ],
-        link: { to: '/docs?tab=firstProvider', label: 'Add your first provider' },
+        link: { to: '/docs/firstProvider', label: 'Add your first provider' },
     },
     {
         icon: <PlugZap size={17} aria-hidden="true" />,
@@ -38,7 +38,7 @@ const STEPS = [
             { c: '  http://localhost:3030/proxy/anthropic' },
             { c: '# done — requests are routed & translated' , m: true },
         ],
-        link: { to: '/docs?tab=aiClientSetup', label: 'Client setup guides' },
+        link: { to: '/docs/aiClientSetup', label: 'Client setup guides' },
     },
 ];
 

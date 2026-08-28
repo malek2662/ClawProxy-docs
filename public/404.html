@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ClawRouter</title>
+    <script>
+      /* GitHub Pages serves this file for any URL with no static file.
+         Stash the deep link and bounce to the SPA shell; index.html
+         restores it via history.replaceState before the router boots. */
+      try {
+        sessionStorage.setItem('spa-redirect', location.pathname + location.search + location.hash);
+      } catch (e) { /* private mode etc. — index.html still handles hashes */ }
+      location.replace('/');
+    </script>
+  </head>
+  <body></body>
+</html>

@@ -65,7 +65,7 @@ export default function Pricing() {
                         <p className="price-alt">
                             Prefer to read first? The full documentation is free.
                         </p>
-                        <Link to="/docs?tab=quickstart" className="btn-secondary price-docs">
+                        <Link to="/docs" className="btn-secondary price-docs">
                             Read the Quickstart <ArrowRight size={14} aria-hidden="true" />
                         </Link>
                         <p className="price-legal">

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 function easeOutCubic(t) {
     return 1 - Math.pow(1 - t, 3);
@@ -7,12 +8,13 @@ function easeOutCubic(t) {
 export default function StatCell({ num, suffix, label, delay = 0 }) {
     const ref = useRef(null);
     const target = parseInt(num, 10);
-    const [isReduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    const [display, setDisplay] = useState(isReduced ? String(target) : '0');
-    const [visible, setVisible] = useState(isReduced);
+    const isReduced = usePrefersReducedMotion();
+    const [display, setDisplay] = useState('0');
+    const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         const el = ref.current;
+        // Reduced motion: final value/visibility are derived below, no count-up.
         if (!el || isReduced) return;
         let raf = 0;
         let timer = 0;
@@ -43,9 +45,9 @@ export default function StatCell({ num, suffix, label, delay = 0 }) {
     }, [target, delay, isReduced]);
 
     return (
-        <div ref={ref} className={`stat-cell${visible ? ' stat-on' : ''}`} style={{ '--reveal-delay': `${delay}ms` }}>
+        <div ref={ref} className={`stat-cell${visible || isReduced ? ' stat-on' : ''}`} style={{ '--reveal-delay': `${delay}ms` }}>
             <div className="stat-num">
-                {display}
+                {isReduced ? String(target) : display}
                 <span className="stat-suffix">{suffix}</span>
             </div>
             <div className="stat-label">{label}</div>

@@ -6,20 +6,20 @@ This directory contains the professional, dashboard-inspired web page designed s
 
 To view the website on your local machine before deploying:
 
-1. Make sure you have Node.js installed.
+1. Make sure you have Node.js and [pnpm](https://pnpm.io) installed.
 2. Navigate into this directory:
    ```bash
    cd github-page
    ```
 3. Install the dependencies (if you haven't already):
    ```bash
-   npm install
+   pnpm install
    ```
 4. Start the Vite development server:
    ```bash
-   npm run dev
+   pnpm run dev
    ```
-5. Open your browser and navigate to `http://localhost:5173/` (or whatever URL Vite gives you in the terminal).
+5. Open your browser and navigate to `http://localhost:5174/` (or whatever URL Vite gives you in the terminal).
 
 ---
 
@@ -29,10 +29,10 @@ The most professional way to deploy this site is using **GitHub Actions**. This 
 
 ### 1. Create a New Repository
 1. Create a new repository on GitHub (e.g., `ClawProxy-docs`).
-2. **Important**: If your repository name is NOT `<your-username>.github.io`, you must update `vite.config.js`:
+2. **Base path**: the site is served from the custom domain root (`clawrouter.qzz.io`), so `vite.config.js` uses `base: '/'`. If you instead host under `https://<username>.github.io/<repo-name>/`, change it to:
    ```javascript
    export default defineConfig({
-     base: '/ClawProxy-docs/', // Change this to your repo name!
+     base: '/<repo-name>/', // Change this to your repo name!
      // ...
    })
    ```
@@ -58,12 +58,14 @@ Your site will be live at `https://<username>.github.io/<repo-name>/`!
 ## 🛠️ Local Development
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 ---
 
 ## Notes on Markdown Content
 
-The markdown files (`ClawRouter-Knowledge-Base.md`, `README.md`, etc.) are imported directly as raw text from the root of the project using Vite's `?raw` feature. You **do not** need to update the website codebase every time you alter your markdown documentation! Just modify the root `.md` files as you normally would, and the next time you run `npm run build` or `npm run deploy`, the changes will automatically sync into the frontend website.
+The markdown files in `src/docs-v2/` are imported directly as raw text using Vite's `?raw` feature. You **do not** need to update the website codebase every time you alter your markdown documentation! Just modify the `.md` files as you normally would, and the next time you run `pnpm run build`, the changes will automatically sync into the frontend website.
+
+Every docs page is prerendered to static HTML at build time (`scripts/prerender.js`), which also generates `sitemap.xml` and `llms.txt` — so every route is crawlable without JavaScript.

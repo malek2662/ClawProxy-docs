@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 let sharedObserver = null;
 const pending = new Map(); // element -> setVisible
@@ -56,14 +57,13 @@ function getObserver() {
 // so re-renders that rewrite className can never strip the revealed state.
 export function useReveal() {
     const ref = useRef(null);
-    const [visible, setVisible] = useState(
-        () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    );
+    const reduced = usePrefersReducedMotion();
+    const [visible, setVisible] = useState(false);
 
     useEffect(() => {
         const el = ref.current;
-        if (!el) return;
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        // Reduced motion: content is derived visible below, no scroll-watching.
+        if (!el || reduced) return;
         const observer = getObserver();
         const wasEmpty = pending.size === 0;
         pending.set(el, setVisible);
@@ -73,7 +73,7 @@ export function useReveal() {
             pending.delete(el);
             observer.unobserve(el);
         };
-    }, []);
+    }, [reduced]);
 
-    return [ref, visible];
+    return [ref, reduced || visible];
 }

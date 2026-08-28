@@ -56,7 +56,8 @@ function resolveContent(path) {
 }
 
 // Strip markdown syntax to get plain text for search
-function stripMarkdown(md) {
+// (exported: also used to derive meta descriptions and JSON-LD answers)
+export function stripMarkdown(md) {
     return md
         .replace(/```[\s\S]*?```/g, '')       // fenced code blocks
         .replace(/`[^`]+`/g, '')               // inline code

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 import ClaudeCodeColor from '@lobehub/icons/es/ClaudeCode/components/Color';
 import OpenCodeMono from '@lobehub/icons/es/OpenCode/components/Mono';
@@ -43,7 +44,7 @@ export default function ClientProviderDiagram() {
     const [active, setActive] = useState(false);
     const [inView, setInView] = useState(false);
     const [hover, setHover] = useState(null);
-    const [reduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const reduced = usePrefersReducedMotion();
 
     const measure = useCallback(() => {
         const root = rootRef.current;

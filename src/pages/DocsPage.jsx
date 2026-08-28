@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -8,6 +8,7 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check, Search, X, Menu, ListTree } from 'lucide-react';
 import { docs, DOC_SECTIONS, searchIndex } from '../data/docs';
+import { docPath } from '../seo/seo';
 
 /* ---------- Scrollable table wrapper with overflow detection ---------- */
 function ScrollableTable({ children, ...props }) {
@@ -338,12 +339,12 @@ function DocsNav({ activeTab, onSelect }) {
 
 export default function DocsPage() {
     const location = useLocation();
-    // Initialize tab from the URL on mount so deep links (/docs?tab=X) work
-    // on first render — the prevLoc pattern below only catches later changes.
-    const [activeTab, setActiveTab] = useState(() => {
-        const tab = new URLSearchParams(location.search).get('tab');
-        return tab && docs[tab] ? tab : 'quickstart';
-    });
+    const navigate = useNavigate();
+    const { key: routeKey } = useParams();
+    // The active doc is derived from the URL — /docs renders the quickstart,
+    // /docs/<key> renders that doc. No tab state: the router is the source
+    // of truth, so every doc is a real, deep-linkable, crawlable URL.
+    const activeTab = routeKey && docs[routeKey] ? routeKey : 'quickstart';
     const [activeHeading, setActiveHeading] = useState('');
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -353,35 +354,25 @@ export default function DocsPage() {
         return () => { document.body.style.overflow = 'unset'; };
     }, [drawerOpen]);
 
-    // Search result navigation — switch tab and scroll to heading
-    const handleSearchNavigate = useCallback((key, headingId) => {
-        setActiveTab(key);
-        setDrawerOpen(false);
-        if (headingId) {
-            setTimeout(() => {
-                const element = document.getElementById(headingId);
-                if (element) {
-                    const yOffset = -90;
-                    const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
-                    window.scrollTo({ top: y, behavior: 'smooth' });
-                    setActiveHeading(headingId);
-                }
-            }, 200);
-        } else {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setActiveHeading('');
-        }
-    }, []);
+    // Unknown doc keys (/docs/nonexistent) → canonical docs home
+    useEffect(() => {
+        if (routeKey && !docs[routeKey]) navigate(docPath('quickstart'), { replace: true });
+    }, [routeKey, navigate]);
 
-    const handleNavSelect = useCallback((key) => {
-        setActiveTab(key);
-        setDrawerOpen(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setActiveHeading('');
-    }, []);
+    // Legacy /docs?tab=X&anchor=Y links → canonical /docs/X#Y
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const tab = params.get('tab');
+        if (!tab) return;
+        const anchor = params.get('anchor');
+        navigate(
+            docs[tab] ? `${docPath(tab)}${anchor ? `#${anchor}` : ''}` : docPath('quickstart'),
+            { replace: true }
+        );
+    }, [location.search, navigate]);
 
     // Utility to scroll directly to the heading by ID
-    const scrollToHeading = (id) => {
+    const scrollToHeading = useCallback((id) => {
         const element = document.getElementById(id);
         if (element) {
             const yOffset = -90; // Offset for fixed navbar
@@ -389,36 +380,53 @@ export default function DocsPage() {
             window.scrollTo({ top: y, behavior: 'smooth' });
             setActiveHeading(id);
         }
-    };
+    }, []);
 
-    // URL parameter handling for deep linking — tab state derived during
-    // render (React-endorsed pattern); scrolling stays in an effect.
-    const [prevLoc, setPrevLoc] = useState(location);
-    if (prevLoc !== location) {
-        setPrevLoc(location);
-        const tab = new URLSearchParams(location.search).get('tab');
-        if (tab && docs[tab]) setActiveTab(tab);
-        setActiveHeading('');
-    }
+    // Search result navigation — go to the doc's URL and scroll to the heading
+    const handleSearchNavigate = useCallback((key, headingId) => {
+        setDrawerOpen(false);
+        const target = docPath(key) + (headingId ? `#${headingId}` : '');
+        if (location.pathname + location.hash === target) {
+            // Already on the exact target — the router won't re-render, so scroll manually
+            if (headingId) scrollToHeading(headingId);
+            else { window.scrollTo({ top: 0, behavior: 'smooth' }); setActiveHeading(''); }
+            return;
+        }
+        navigate(target);
+    }, [location.pathname, location.hash, navigate, scrollToHeading]);
 
+    const handleNavSelect = useCallback((key) => {
+        setDrawerOpen(false);
+        const target = docPath(key);
+        if (location.pathname === target) {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setActiveHeading('');
+            return;
+        }
+        navigate(target);
+    }, [location.pathname, navigate]);
+
+    // After navigation: scroll to the hash anchor (deep links like
+    // /docs/monitoring#view-and-filter-logs) or back to the top.
     useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const tab = params.get('tab');
-        const anchor = params.get('anchor');
-
-        if (tab && docs[tab] && anchor) {
+        if (location.hash) {
+            const id = location.hash.slice(1);
             // Wait for the content to render before scrolling to the heading
             const timer = setTimeout(() => {
-                const element = document.getElementById(anchor);
+                const element = document.getElementById(id);
                 if (element) {
                     const y = element.getBoundingClientRect().top + window.scrollY - 90;
                     window.scrollTo({ top: y, behavior: 'smooth' });
-                    setActiveHeading(anchor);
+                    setActiveHeading(id);
                 }
             }, 200);
             return () => clearTimeout(timer);
         }
         window.scrollTo(0, 0);
+        // Defer the highlight reset out of the effect body (sync setState in
+        // effects causes cascading renders) — one frame is enough.
+        const raf = requestAnimationFrame(() => setActiveHeading(''));
+        return () => cancelAnimationFrame(raf);
     }, [location]);
 
     // ScrollSpy logic to highlight active heading in TOC

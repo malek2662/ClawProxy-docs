@@ -3,6 +3,7 @@ import { LayoutGrid, KeyRound, ShieldCheck, Network, AudioWaveform, Combine, Arr
 import { Link } from 'react-router-dom';
 import Reveal from './Reveal';
 import { useCycle } from '../hooks/useCycle';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 import AnthropicMono from '@lobehub/icons/es/Anthropic/components/Mono';
 import OpenAIMono from '@lobehub/icons/es/OpenAI/components/Mono';
@@ -206,8 +207,10 @@ const STREAM_TEXT = 'Streaming tokens as they arrive — zero buffering, zero ad
 
 function Streaming() {
     const stageRef = useRef(null);
-    const [reduced] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-    const [chars, setChars] = useState(reduced ? STREAM_TEXT.length : 0);
+    const reduced = usePrefersReducedMotion();
+    const [chars, setChars] = useState(0);
+    // Reduced motion: full text, derived — no typewriter, no state churn.
+    const shown = reduced ? STREAM_TEXT.length : chars;
 
     useEffect(() => {
         if (reduced) return undefined;
@@ -250,12 +253,12 @@ function Streaming() {
                 <div className="sv-head">
                     <span className="sv-dots"><i /><i /><i /></span>
                     <span className="sv-tag">stream</span>
-                    <span className="sv-count">{Math.floor(chars / 4)} tok</span>
+                    <span className="sv-count">{Math.floor(shown / 4)} tok</span>
                 </div>
                 <div className="sv-body">
                     <span className="sv-line"><span className="sv-prompt">❯</span> POST /proxy/openai/v1/chat/completions</span>
                     <span className="sv-stream">
-                        {STREAM_TEXT.slice(0, chars)}
+                        {STREAM_TEXT.slice(0, shown)}
                         <span className="sv-cursor" />
                     </span>
                 </div>
@@ -443,7 +446,7 @@ function ComboBoard() {
                     <span className="vcb-k">Any format.</span>
                     <span className="vcb-s">Chat, Responses, Gemini, Claude — the right format out.</span>
                 </div>
-                <Link to="/docs?tab=virtualProviders" className="vcb-more link-arrow">
+                <Link to="/docs/virtualProviders" className="vcb-more link-arrow">
                     Explore the combos <ArrowRight size={14} aria-hidden="true" />
                 </Link>
             </div>

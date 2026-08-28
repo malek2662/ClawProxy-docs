@@ -2,10 +2,12 @@ import React, { useState, useEffect, useLayoutEffect, useCallback, useRef } from
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Book, Home, Mail, ArrowUp } from 'lucide-react';
 import clawLogo from '../assets/claw-logo.svg';
+import { usePageMeta } from '../hooks/usePageMeta';
 
 export default function Layout() {
     const location = useLocation();
     const navigate = useNavigate();
+    usePageMeta();
     const barRef = useRef(null);
     const scrollRaf = useRef(0);
     const [showScrollTop, setShowScrollTop] = useState(false);
@@ -187,7 +189,7 @@ export default function Layout() {
                             <h4 className="footer-heading">Project</h4>
                             <div className="footer-links">
                                 <Link to="/docs" className="footer-link">Documentation</Link>
-                                <Link to="/docs?tab=quickstart" className="footer-link">Quickstart Guide</Link>
+                                <Link to="/docs" className="footer-link">Quickstart Guide</Link>
                             </div>
                         </div>
 

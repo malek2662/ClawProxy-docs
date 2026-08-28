@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 import AnthropicMono from '@lobehub/icons/es/Anthropic/components/Mono';
 import AlibabaCloudColor from '@lobehub/icons/es/AlibabaCloud/components/Color';
@@ -91,12 +92,12 @@ export default function ProvidersMarquee() {
     const offsetRef = useRef(0);
     const headWidthRef = useRef(0);
 
+    // Fixed initial count — MUST be identical on server (prerender) and client
+    // (hydration), so no window.innerWidth here. The ensure() effect below
+    // grows the queue on wider screens right after mount.
     const initialCount = Math.min(
         PROVIDERS.length,
-        Math.max(
-            10,
-            Math.ceil(((typeof window !== 'undefined' ? window.innerWidth : 1440) + 500) / 160)
-        )
+        Math.max(10, Math.ceil((1440 + 500) / 160))
     );
 
     const pointerRef = useRef(initialCount % PROVIDERS.length);
@@ -107,9 +108,7 @@ export default function ProvidersMarquee() {
     const rafRef = useRef(0);
     const lastRef = useRef(0);
 
-    const reduced =
-        typeof window !== 'undefined' &&
-        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reduced = usePrefersReducedMotion();
 
     const nextItem = useCallback(() => {
         const p = PROVIDERS[pointerRef.current];
@@ -177,6 +176,7 @@ export default function ProvidersMarquee() {
             const width = track.scrollWidth;
             if (width >= need || track.children.length >= PROVIDERS.length * 3) return;
             const avg = width / track.children.length;
+            if (avg <= 0) return; // zero-layout environment (hidden/headless) — nothing to measure
             const addCount = Math.max(1, Math.ceil((need - width) / avg) + 1);
             setQueue((q) => [...q, ...Array.from({ length: addCount }, nextItem)]);
         };
@@ -214,7 +214,7 @@ export default function ProvidersMarquee() {
         <section ref={sectionRef} className="providers-strip" data-anim aria-label="Supported AI providers">
             <div className="container providers-strip-head">
                 <span className="providers-strip-label">Works with 50 built-in provider presets</span>
-                <Link to="/docs?tab=providerDirectory" className="link-arrow">
+                <Link to="/docs/providerDirectory" className="link-arrow">
                     Browse the provider directory <ArrowRight size={14} aria-hidden="true" />
                 </Link>
             </div>
