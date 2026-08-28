@@ -18,65 +18,64 @@
 
 ### Getting Started
 
-- [Quickstart Guide](https://clawrouter.qzz.io/docs)
-- [Installation & Activation](https://clawrouter.qzz.io/docs/installation)
-- [Your First Provider](https://clawrouter.qzz.io/docs/firstProvider)
+- [Quickstart Guide](https://clawrouter.qzz.io/docs): Get ClawRouter running and route your first AI request in minutes.
+- [Installation & Activation](https://clawrouter.qzz.io/docs/installation): ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.
+- [Your First Provider](https://clawrouter.qzz.io/docs/firstProvider): Step-by-step guide to adding your first AI provider to ClawRouter. Choose from Quick Setup presets or create a custom configuration.
 
 ### Core Concepts
 
-- [How ClawRouter Works](https://clawrouter.qzz.io/docs/howItWorks)
-- [Key Rotation](https://clawrouter.qzz.io/docs/keyRotation)
-- [Model Fallback](https://clawrouter.qzz.io/docs/modelFallback)
-- [Provider Fallback Chain](https://clawrouter.qzz.io/docs/providerFallback)
-- [Virtual Providers (Combos)](https://clawrouter.qzz.io/docs/virtualProviders)
-- [API Format Translation](https://clawrouter.qzz.io/docs/formatTranslation)
-- [Circuit Breaker](https://clawrouter.qzz.io/docs/circuitBreaker)
-- [Error Classification & Retry](https://clawrouter.qzz.io/docs/errorHandling)
-- [System Prompt Control](https://clawrouter.qzz.io/docs/systemPromptControl)
+- [How ClawRouter Works](https://clawrouter.qzz.io/docs/howItWorks): An overview of ClawRouter's architecture, request flow, and core design principles.
+- [Key Rotation](https://clawrouter.qzz.io/docs/keyRotation): ClawRouter allows you to add multiple API keys to the same provider. When one key hits a rate limit or fails, the next key is used instantly and transparently.
+- [Model Fallback](https://clawrouter.qzz.io/docs/modelFallback): Automatically retries a failed request with an alternative model, same provider, same API key.
+- [Provider Fallback Chain](https://clawrouter.qzz.io/docs/providerFallback): Switches to a completely different provider when the primary provider fails entirely (all keys exhausted or circuit breaker opens).
+- [Virtual Providers (Combos)](https://clawrouter.qzz.io/docs/virtualProviders): Merge models from multiple providers behind a single endpoint — add it to your AI client once and the client sees every member model.
+- [API Format Translation](https://clawrouter.qzz.io/docs/formatTranslation): ClawRouter automatically translates between AI API formats, so any AI client works with any provider -- regardless of which API format each side speaks.
+- [Circuit Breaker](https://clawrouter.qzz.io/docs/circuitBreaker): Automatic health monitoring that prevents cascading failures by temporarily stopping requests to a failing provider.
+- [Error Classification & Retry](https://clawrouter.qzz.io/docs/errorHandling): ClawRouter classifies upstream errors to determine the correct recovery action. Each error type triggers a specific behavior in the retry cascade.
+- [System Prompt Control](https://clawrouter.qzz.io/docs/systemPromptControl): Inject, replace, or surgically edit the system prompt of every request — per client, per provider, or per combo — directly at the gateway.
 
 ### How-To Guides
 
-- [Managing API Keys](https://clawrouter.qzz.io/docs/managingKeys)
-- [Configuring Models](https://clawrouter.qzz.io/docs/configuringModels)
-- [Configuring Fallback](https://clawrouter.qzz.io/docs/configuringFallback)
-- [Monitoring & Notifications](https://clawrouter.qzz.io/docs/monitoring)
-- [Provider Management](https://clawrouter.qzz.io/docs/providerManagement)
-- [Global Settings](https://clawrouter.qzz.io/docs/globalSettings)
+- [Managing API Keys](https://clawrouter.qzz.io/docs/managingKeys): Step-by-step guides for adding, managing, testing, and troubleshooting API keys in ClawRouter.
+- [Configuring Models](https://clawrouter.qzz.io/docs/configuringModels): Step-by-step guides for discovering models, adding them to your provider, and enabling Model Fallback.
+- [Configuring Fallback](https://clawrouter.qzz.io/docs/configuringFallback): Step-by-step guide for setting up provider fallback chains and building a complete multi-provider fallback system.
+- [Monitoring & Notifications](https://clawrouter.qzz.io/docs/monitoring): Step-by-step guides for monitoring proxy activity through notifications, request logs, and usage stats.
+- [Provider Management](https://clawrouter.qzz.io/docs/providerManagement): Step-by-step guides for managing provider lifecycle: testing connections, resetting the circuit breaker, configuring timeouts, enabling/disabling…
+- [Global Settings](https://clawrouter.qzz.io/docs/globalSettings): Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.
 
 ### Providers
 
-- [Provider Directory](https://clawrouter.qzz.io/docs/providerDirectory)
-- [Bypass Providers](https://clawrouter.qzz.io/docs/bypassProviders)
-- [Free Tier Providers](https://clawrouter.qzz.io/docs/freeTierProviders)
-- [Paid Providers](https://clawrouter.qzz.io/docs/paidProviders)
-- [ElevenLabs (Audio)](https://clawrouter.qzz.io/docs/elevenlabsAudio)
+- [Provider Directory](https://clawrouter.qzz.io/docs/providerDirectory): A complete list of all built-in provider presets in ClawRouter.
+- [Bypass Providers](https://clawrouter.qzz.io/docs/bypassProviders): Bypass providers access AI models without requiring an API key.
+- [Free Tier Providers](https://clawrouter.qzz.io/docs/freeTierProviders): These providers offer a genuine free tier or quota. You need a free API key from each provider -- no credit card required.
+- [Paid Providers](https://clawrouter.qzz.io/docs/paidProviders): Configure paid API providers securely in ClawRouter. All keys are stored locally -- never sent externally.
+- [ElevenLabs (Audio)](https://clawrouter.qzz.io/docs/elevenlabsAudio): Speech-to-Text (Scribe) and Text-to-Speech through ClawRouter.
 
 ### Client Setup
 
-- [Client Setup Overview](https://clawrouter.qzz.io/docs/aiClientSetup)
-- [OpenClaw](https://clawrouter.qzz.io/docs/openclawSetup)
-- [OpenCode](https://clawrouter.qzz.io/docs/opencodeSetup)
-- [Claude Code](https://clawrouter.qzz.io/docs/claudeCodeSetup)
-- [Codex CLI](https://clawrouter.qzz.io/docs/codexCliSetup)
-- [Qwen Code](https://clawrouter.qzz.io/docs/qwenCodeSetup)
-- [DeepSeek Harness](https://clawrouter.qzz.io/docs/deepseekHarnessSetup)
-- [Other / Custom Clients](https://clawrouter.qzz.io/docs/otherClients)
+- [Client Setup Overview](https://clawrouter.qzz.io/docs/aiClientSetup): ClawRouter works with any AI client that supports a custom base URL.
+- [OpenClaw](https://clawrouter.qzz.io/docs/openclawSetup): OpenClaw is an AI agent client configured through a JSON file (openclaw.json).
+- [OpenCode](https://clawrouter.qzz.io/docs/opencodeSetup): OpenCode is a terminal AI coding agent configured through an opencode.json file.
+- [Claude Code](https://clawrouter.qzz.io/docs/claudeCodeSetup): Claude Code is Anthropic's terminal coding agent.
+- [Codex CLI](https://clawrouter.qzz.io/docs/codexCliSetup): Codex CLI is OpenAI's terminal coding agent, configured through ~/.codex/config.toml.
+- [Qwen Code](https://clawrouter.qzz.io/docs/qwenCodeSetup): Qwen Code is Alibaba's terminal coding agent (a Gemini CLI fork).
+- [DeepSeek Harness](https://clawrouter.qzz.io/docs/deepseekHarnessSetup): DeepSeek Harness (dsh, npm @deepseek-ai/dsh) is DeepSeek's open-source agent harness -- the tools/files/sandbox/control-loop layer around a model…
+- [Other / Custom Clients](https://clawrouter.qzz.io/docs/otherClients): Any AI client that supports a custom base URL can route through ClawRouter.
 
 ### Reference
 
-- [CLI Commands](https://clawrouter.qzz.io/docs/cliCommands)
-- [Settings Reference](https://clawrouter.qzz.io/docs/settingsReference)
-- [API Reference](https://clawrouter.qzz.io/docs/apiReference)
-- [Environment Variables](https://clawrouter.qzz.io/docs/envVars)
+- [CLI Commands](https://clawrouter.qzz.io/docs/cliCommands): ClawRouter includes a built-in command-line interface (CLI) to manage the proxy as a background service.
+- [Settings Reference](https://clawrouter.qzz.io/docs/settingsReference): Complete reference of every configurable parameter, default value, and behavior in ClawRouter.
+- [API Reference](https://clawrouter.qzz.io/docs/apiReference): ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at http://localhost:3030.
+- [Environment Variables](https://clawrouter.qzz.io/docs/envVars): All environment variables that ClawRouter recognizes, with their defaults and descriptions.
 
 ### Help
 
-- [Troubleshooting](https://clawrouter.qzz.io/docs/troubleshooting)
-- [FAQ](https://clawrouter.qzz.io/docs/faq)
-- [Support & Contact](https://clawrouter.qzz.io/docs/support)
+- [Troubleshooting](https://clawrouter.qzz.io/docs/troubleshooting): Diagnose and resolve common issues with ClawRouter.
+- [FAQ](https://clawrouter.qzz.io/docs/faq): Answers to common questions about ClawRouter configuration and usage.
+- [Support & Contact](https://clawrouter.qzz.io/docs/support): ClawRouter is developed and maintained by Malek-Rsh.
 
 ## Optional
 
-- [Source repository](https://github.com/malek2662/ClawProxy-docs)
 - [Sitemap](https://clawrouter.qzz.io/sitemap.xml)
 - Contact: support@clawrouter.qzz.io
