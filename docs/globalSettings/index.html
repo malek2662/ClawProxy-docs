@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      /* Routing bootstrap — runs before anything renders.
+         1. Legacy hash-router URLs (#/docs?tab=x&anchor=y) are redirected to
+            their canonical path equivalents (/docs/x#y).
+         2. Deep links that hit GitHub Pages' 404.html are stashed in
+            sessionStorage by that page and restored here. */
+      (function () {
+        try {
+          if (location.hash.indexOf('#/') === 0) {
+            var legacy = location.hash.slice(1);
+            var qi = legacy.indexOf('?');
+            var path = qi === -1 ? legacy : legacy.slice(0, qi);
+            var query = qi === -1 ? '' : legacy.slice(qi + 1);
+            var tab = null;
+            var anchor = '';
+            query.split('&').forEach(function (pair) {
+              var kv = pair.split('=');
+              if (kv[0] === 'tab') tab = decodeURIComponent(kv[1] || '');
+              if (kv[0] === 'anchor') anchor = '#' + decodeURIComponent(kv[1] || '');
+            });
+            if (path === '/docs' && tab && tab !== 'quickstart') path = '/docs/' + tab;
+            location.replace(path + anchor);
+            return;
+          }
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            history.replaceState(null, '', redirect);
+          }
+        } catch (e) { /* routing must never block rendering */ }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention." />
+    <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://clawrouter.qzz.io/docs/globalSettings" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClawRouter" />
+    <meta property="og:url" content="https://clawrouter.qzz.io/docs/globalSettings" />
+    <meta property="og:title" content="Global Settings — ClawRouter Docs" />
+    <meta property="og:description" content="Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention." />
+    <meta property="og:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Global Settings — ClawRouter Docs" />
+    <meta name="twitter:description" content="Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention." />
+    <meta name="twitter:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <title>Global Settings — ClawRouter Docs</title>
+    <noscript>
+      <style>
+        /* Without JS the reveal-on-scroll observer never runs — show content. */
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/index-C8HBdYoP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CNgIYuop.css">
+      <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://clawrouter.qzz.io/#organization","name":"ClawRouter","url":"https://clawrouter.qzz.io","email":"support@clawrouter.qzz.io","logo":"https://clawrouter.qzz.io/favicon.svg","sameAs":["https://github.com/malek2662/ClawProxy-docs","https://reddit.com/user/Malek262"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://clawrouter.qzz.io/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://clawrouter.qzz.io/docs"},{"@type":"ListItem","position":3,"name":"Global Settings","item":"https://clawrouter.qzz.io/docs/globalSettings"}]},{"@type":"TechArticle","headline":"Global Settings","description":"Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.","url":"https://clawrouter.qzz.io/docs/globalSettings","image":"https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png","inLanguage":"en","articleSection":"How-To Guides","dateModified":"2026-08-28","author":{"@id":"https://clawrouter.qzz.io/#organization"},"isPartOf":{"@id":"https://clawrouter.qzz.io/#website"},"about":{"@id":"https://clawrouter.qzz.io/#app"}}]}</script>
+  </head>
+  <body>
+    <div id="root"><nav class="glass-nav"><div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%"><a class="nav-logo" href="/" data-discover="true"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:28px;height:28px"/><span class="nav-logo-text">ClawRouter</span></a><div style="display:flex;align-items:center;gap:20px"><span class="nav-version"><i aria-hidden="true"></i>v1.0.18</span><div style="display:flex;gap:6px"><a class="nav-link" href="/" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="nav-btn-label">Home</span></a><a class="nav-link active" href="/docs" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"></path></svg><span class="nav-btn-label">Documentation</span></a></div><div style="width:1px;height:24px;background:var(--border-light)"></div><div style="display:flex;align-items:center;gap:6px"><a href="mailto:support@clawrouter.qzz.io" title="Contact via Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Contact via Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.1.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div><button type="button" class="nav-cta">Get ClawRouter — $20</button></div></div></nav><div class="scroll-progress-track"><div class="scroll-progress-bar"></div></div><main class="page-content"><button type="button" class="docs-mobile-menu-btn" aria-label="Open navigation"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="animate-fade-in docs-layout"><div class="docs-layout-inner"><aside class="docs-side-left"><div class="docs-search-wrapper"><div class="docs-search-input-box"><span class="docs-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg></span><input type="text" class="docs-search-input" placeholder="Search docs..." value=""/><span class="docs-search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span></div></div><div class="docs-nav"><div class="docs-nav-section"><h3 class="docs-nav-label">Getting Started</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Quickstart Guide</button><button type="button" class="docs-nav-item">Installation &amp; Activation</button><button type="button" class="docs-nav-item">Your First Provider</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Core Concepts</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">How ClawRouter Works</button><button type="button" class="docs-nav-item">Key Rotation</button><button type="button" class="docs-nav-item">Model Fallback</button><button type="button" class="docs-nav-item">Provider Fallback Chain</button><button type="button" class="docs-nav-item">Virtual Providers (Combos)</button><button type="button" class="docs-nav-item">API Format Translation</button><button type="button" class="docs-nav-item">Circuit Breaker</button><button type="button" class="docs-nav-item">Error Classification &amp; Retry</button><button type="button" class="docs-nav-item">System Prompt Control</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">How-To Guides</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Managing API Keys</button><button type="button" class="docs-nav-item">Configuring Models</button><button type="button" class="docs-nav-item">Configuring Fallback</button><button type="button" class="docs-nav-item">Monitoring &amp; Notifications</button><button type="button" class="docs-nav-item">Provider Management</button><button type="button" class="docs-nav-item active">Global Settings</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Providers</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Provider Directory</button><button type="button" class="docs-nav-item">Bypass Providers</button><button type="button" class="docs-nav-item">Free Tier Providers</button><button type="button" class="docs-nav-item">Paid Providers</button><button type="button" class="docs-nav-item">ElevenLabs (Audio)</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Client Setup</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Client Setup Overview</button><button type="button" class="docs-nav-item">OpenClaw</button><button type="button" class="docs-nav-item">OpenCode</button><button type="button" class="docs-nav-item">Claude Code</button><button type="button" class="docs-nav-item">Codex CLI</button><button type="button" class="docs-nav-item">Qwen Code</button><button type="button" class="docs-nav-item">DeepSeek Harness</button><button type="button" class="docs-nav-item">Other / Custom Clients</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Reference</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">CLI Commands</button><button type="button" class="docs-nav-item">Settings Reference</button><button type="button" class="docs-nav-item">API Reference</button><button type="button" class="docs-nav-item">Environment Variables</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Help</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Troubleshooting</button><button type="button" class="docs-nav-item">FAQ</button><button type="button" class="docs-nav-item">Support &amp; Contact</button></div></div></div></aside><main class="docs-main"><div class="md-content md-tab-anim"><h1 id="global-settings">Global Settings</h1>
+<p>Step-by-step guide for configuring system-wide proxy behavior: key retry strategy, rate limit backoff, circuit breaker thresholds, and log retention.</p>
+<blockquote>
+<p><strong>Version 1.0.18</strong></p>
+</blockquote>
+<hr/>
+<h2 id="configure-global-settings">Configure Global Settings</h2>
+<p><strong>Goal:</strong> Adjust system-wide proxy behavior.</p>
+<ol>
+<li>Click <strong>Settings</strong> in the sidebar.</li>
+<li>The <strong>Global Settings</strong> page displays all configurable options with their current values.</li>
+<li>Adjust the settings you want to change:</li>
+</ol>
+<h3 id="key-retry-behavior">Key Retry Behavior</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><strong>Key Retry Mode</strong></td><td><code node="[object Object]">All</code></td><td><code node="[object Object]">All</code> = try every key before giving up. <code node="[object Object]">Fixed</code> = try up to a limit.</td></tr><tr><td><strong>Key Retry Limit</strong></td><td><code node="[object Object]">5</code></td><td>When mode is <code node="[object Object]">Fixed</code>, the maximum number of keys to try per request before triggering the fallback chain.</td></tr></tbody></table></div></div>
+<h3 id="rate-limit--circuit-breaker">Rate Limit &amp; Circuit Breaker</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><strong>Rate Limit Backoff</strong></td><td><code node="[object Object]">60</code> seconds</td><td>How long a key is put on cooldown after a rate limit error.</td></tr><tr><td><strong>Quota Backoff</strong></td><td><code node="[object Object]">1800</code> seconds</td><td>Fallback backoff for window-quota exhaustion (Kimi Coding 5-hour/weekly/monthly cycles, Z.AI 5-hour/7-day windows) when no exact reset time is known. When ClawRouter knows the key&#x27;s actual window reset (per-key quota snapshot, usage probe, or monthly-cycle anchor), that exact time is used instead. The key is never disabled -- it recovers at the window reset.</td></tr><tr><td><strong>Circuit Breaker Threshold</strong></td><td><code node="[object Object]">5</code></td><td>Number of provider-level failures within the time window before the circuit opens.</td></tr><tr><td><strong>Circuit Breaker Cooldown</strong></td><td><code node="[object Object]">30</code> seconds</td><td>How long before a tripped circuit enters the half-open state for a recovery test.</td></tr><tr><td><strong>Model Circuit Threshold</strong></td><td><code node="[object Object]">2</code></td><td>Consecutive failures before a model is skipped entirely (routed straight to the next fallback model).</td></tr><tr><td><strong>Model Circuit Permanent Cooldown</strong></td><td><code node="[object Object]">1800</code> seconds</td><td>Model-skip cooldown for not-found/invalid/gated model errors.</td></tr><tr><td><strong>Model Circuit Transient Cooldown</strong></td><td><code node="[object Object]">120</code> seconds</td><td>Model-skip cooldown for overloaded/rate-limited model failures.</td></tr></tbody></table></div></div>
+<h3 id="log-retention">Log Retention</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Setting</th><th>Default</th><th>Description</th></tr></thead><tbody><tr><td><strong>Auto Cleanup Logs</strong></td><td>Enabled</td><td>Toggle automatic cleanup of old request logs.</td></tr><tr><td><strong>Log Retention Days</strong></td><td><code node="[object Object]">7</code></td><td>Number of days to keep logs before auto-cleanup removes them.</td></tr></tbody></table></div></div>
+<ol start="4">
+<li>Click <strong>Save Settings</strong>.</li>
+<li>Changes take effect immediately -- no restart required.</li>
+</ol>
+<hr/>
+<h2 id="proxy-api-key">Proxy API Key</h2>
+<p>All requests to <code node="[object Object]">/proxy/*</code> require a <strong>proxy API key</strong> by default. This is separate from your upstream provider keys -- it authenticates your AI clients to ClawRouter itself.</p>
+<p>The key is managed from the <strong>Proxy API Key</strong> card on the <strong>Settings</strong> page:</p>
+<ul>
+<li><strong>Key format:</strong> <code node="[object Object]">cr_</code> followed by 48 hex characters. Auto-generated on first use and stored locally.</li>
+<li><strong>Copy:</strong> Click <strong>Copy</strong> to copy the full key.</li>
+<li><strong>Regenerate:</strong> Click <strong>Regenerate</strong> to issue a new key. The old key is <strong>invalidated immediately</strong> -- update all configured clients afterwards.</li>
+<li><strong>Require proxy API key toggle:</strong> On by default. Turning it off restores the old behavior where any key value is accepted (not recommended).</li>
+</ul>
+<p><strong>How clients send the key:</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Client Style</th><th>Header</th></tr></thead><tbody><tr><td>OpenAI style</td><td><code node="[object Object]">Authorization: Bearer &lt;key&gt;</code></td></tr><tr><td>Anthropic style</td><td><code node="[object Object]">x-api-key: &lt;key&gt;</code></td></tr></tbody></table></div></div>
+<p>Requests without a valid key get HTTP 401 with the error body shaped in the client&#x27;s API format: &quot;Invalid or missing API key. Use the proxy API key from the ClawRouter dashboard (Settings &gt; Proxy API Key).&quot;</p>
+<blockquote>
+<p><strong>Note:</strong> The <strong>&quot;Prompt for AI&quot;</strong> dialog embeds your real proxy key in its generated templates automatically -- no manual copying needed.</p>
+</blockquote>
+<blockquote>
+<p><strong>Dashboard API is unchanged:</strong> The admin API (<code node="[object Object]">/api/*</code>) still uses the dashboard password session token, not the proxy key.</p>
+</blockquote>
+<blockquote>
+<p><strong>Pass Through limitation:</strong> Providers with API Key Mode <strong>Pass Through</strong> forward the client&#x27;s credential to the upstream provider. With proxy auth enabled, that credential is the proxy key -- not a valid upstream key. Pass Through mode and proxy auth are effectively incompatible; use <strong>Managed</strong> or <strong>None</strong> mode for such providers.</p>
+</blockquote>
+<hr/>
+<h2 id="appearance-provider-icon-style">Appearance (Provider Icon Style)</h2>
+<p>Providers show <strong>real brand icons</strong> across the dashboard (provider cards, detail pages, fallback chains). The <strong>Appearance</strong> card on the <strong>Settings</strong> page controls how those icons are rendered:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Style</th><th>Description</th></tr></thead><tbody><tr><td><strong>Color</strong> (default)</td><td>Full brand colors</td></tr><tr><td><strong>Mono</strong></td><td>Single-tone glyphs that follow the dashboard text color</td></tr></tbody></table></div></div>
+<p>The toggle applies <strong>instantly</strong> and is remembered <strong>per browser</strong> (stored in local storage on this device -- it does not sync to other browsers or machines). Brands that have no color variant render mono in both modes, and unmapped/custom providers fall back to a 2-letter brand-color tile.</p>
+<hr/>
+<h2 id="when-to-use-fixed-key-retry-mode">When to Use Fixed Key Retry Mode</h2>
+<p>If you have many API keys (e.g., 50+) but want faster failover to a fallback provider, switch Key Retry Mode to <code node="[object Object]">Fixed</code> with a lower limit (e.g., 5-10). This prevents ClawRouter from trying every single key before moving to the fallback chain.</p>
+<ul>
+<li><strong>All</strong> (default): On failure, ClawRouter tries every available key for the provider before giving up.</li>
+<li><strong>Fixed</strong>: ClawRouter tries up to the configured <strong>Key Retry Limit</strong> number of keys, then triggers the fallback chain.</li>
+</ul></div></main><aside class="docs-side-right"><div class="toc-wrap"><div class="toc-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-tree" aria-hidden="true"><path d="M8 5h13"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="M3 10a2 2 0 0 0 2 2h3"></path><path d="M3 5v12a2 2 0 0 0 2 2h3"></path></svg>On this page</div><div class="toc-items"><button type="button" class="toc-link">Configure Global Settings</button><button type="button" class="toc-link toc-link-sub">Key Retry Behavior</button><button type="button" class="toc-link toc-link-sub">Rate Limit &amp; Circuit Breaker</button><button type="button" class="toc-link toc-link-sub">Log Retention</button><button type="button" class="toc-link">Proxy API Key</button><button type="button" class="toc-link">Appearance (Provider Icon Style)</button><button type="button" class="toc-link">When to Use Fixed Key Retry Mode</button></div></div></aside></div></div></main><footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand-row"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:30px;height:30px"/><span class="footer-brand-name">ClawRouter</span></div><p class="footer-tagline">High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.</p></div><div><h4 class="footer-heading">Project</h4><div class="footer-links"><a class="footer-link" href="/docs" data-discover="true">Documentation</a><a class="footer-link" href="/docs" data-discover="true">Quickstart Guide</a></div></div><div><h4 class="footer-heading">Connect</h4><div class="footer-social"><a href="mailto:support@clawrouter.qzz.io" title="Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div></div></div><div class="footer-bottom"><div><p class="footer-copy">© <!-- -->2026<!-- --> ClawRouter. All rights reserved.</p><p class="footer-legal"><strong>Terms &amp; Refund Policy:</strong> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.</p></div><div class="footer-author">Developed by Malek-Rsh</div></div></div></footer><button type="button" class="scroll-to-top" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></button></div>
+    <script src="https://cdn.jsdelivr.net/npm/@polar-sh/checkout@0.1/dist/embed.global.js" defer data-auto-init></script>
+  </body>
+</html>

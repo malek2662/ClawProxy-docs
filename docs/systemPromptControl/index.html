@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      /* Routing bootstrap — runs before anything renders.
+         1. Legacy hash-router URLs (#/docs?tab=x&anchor=y) are redirected to
+            their canonical path equivalents (/docs/x#y).
+         2. Deep links that hit GitHub Pages' 404.html are stashed in
+            sessionStorage by that page and restored here. */
+      (function () {
+        try {
+          if (location.hash.indexOf('#/') === 0) {
+            var legacy = location.hash.slice(1);
+            var qi = legacy.indexOf('?');
+            var path = qi === -1 ? legacy : legacy.slice(0, qi);
+            var query = qi === -1 ? '' : legacy.slice(qi + 1);
+            var tab = null;
+            var anchor = '';
+            query.split('&').forEach(function (pair) {
+              var kv = pair.split('=');
+              if (kv[0] === 'tab') tab = decodeURIComponent(kv[1] || '');
+              if (kv[0] === 'anchor') anchor = '#' + decodeURIComponent(kv[1] || '');
+            });
+            if (path === '/docs' && tab && tab !== 'quickstart') path = '/docs/' + tab;
+            location.replace(path + anchor);
+            return;
+          }
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            history.replaceState(null, '', redirect);
+          }
+        } catch (e) { /* routing must never block rendering */ }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="System Prompt Control (Prompt Injection)" />
+    <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://clawrouter.qzz.io/docs/systemPromptControl" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClawRouter" />
+    <meta property="og:url" content="https://clawrouter.qzz.io/docs/systemPromptControl" />
+    <meta property="og:title" content="System Prompt Control — ClawRouter Docs" />
+    <meta property="og:description" content="System Prompt Control (Prompt Injection)" />
+    <meta property="og:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="System Prompt Control — ClawRouter Docs" />
+    <meta name="twitter:description" content="System Prompt Control (Prompt Injection)" />
+    <meta name="twitter:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <title>System Prompt Control — ClawRouter Docs</title>
+    <noscript>
+      <style>
+        /* Without JS the reveal-on-scroll observer never runs — show content. */
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/index-C8HBdYoP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CNgIYuop.css">
+      <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://clawrouter.qzz.io/#organization","name":"ClawRouter","url":"https://clawrouter.qzz.io","email":"support@clawrouter.qzz.io","logo":"https://clawrouter.qzz.io/favicon.svg","sameAs":["https://github.com/malek2662/ClawProxy-docs","https://reddit.com/user/Malek262"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://clawrouter.qzz.io/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://clawrouter.qzz.io/docs"},{"@type":"ListItem","position":3,"name":"System Prompt Control","item":"https://clawrouter.qzz.io/docs/systemPromptControl"}]},{"@type":"TechArticle","headline":"System Prompt Control","description":"System Prompt Control (Prompt Injection)","url":"https://clawrouter.qzz.io/docs/systemPromptControl","image":"https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png","inLanguage":"en","articleSection":"Core Concepts","dateModified":"2026-08-28","author":{"@id":"https://clawrouter.qzz.io/#organization"},"isPartOf":{"@id":"https://clawrouter.qzz.io/#website"},"about":{"@id":"https://clawrouter.qzz.io/#app"}}]}</script>
+  </head>
+  <body>
+    <div id="root"><nav class="glass-nav"><div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%"><a class="nav-logo" href="/" data-discover="true"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:28px;height:28px"/><span class="nav-logo-text">ClawRouter</span></a><div style="display:flex;align-items:center;gap:20px"><span class="nav-version"><i aria-hidden="true"></i>v1.0.18</span><div style="display:flex;gap:6px"><a class="nav-link" href="/" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="nav-btn-label">Home</span></a><a class="nav-link active" href="/docs" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"></path></svg><span class="nav-btn-label">Documentation</span></a></div><div style="width:1px;height:24px;background:var(--border-light)"></div><div style="display:flex;align-items:center;gap:6px"><a href="mailto:support@clawrouter.qzz.io" title="Contact via Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Contact via Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.1.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div><button type="button" class="nav-cta">Get ClawRouter — $20</button></div></div></nav><div class="scroll-progress-track"><div class="scroll-progress-bar"></div></div><main class="page-content"><button type="button" class="docs-mobile-menu-btn" aria-label="Open navigation"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="animate-fade-in docs-layout"><div class="docs-layout-inner"><aside class="docs-side-left"><div class="docs-search-wrapper"><div class="docs-search-input-box"><span class="docs-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg></span><input type="text" class="docs-search-input" placeholder="Search docs..." value=""/><span class="docs-search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span></div></div><div class="docs-nav"><div class="docs-nav-section"><h3 class="docs-nav-label">Getting Started</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Quickstart Guide</button><button type="button" class="docs-nav-item">Installation &amp; Activation</button><button type="button" class="docs-nav-item">Your First Provider</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Core Concepts</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">How ClawRouter Works</button><button type="button" class="docs-nav-item">Key Rotation</button><button type="button" class="docs-nav-item">Model Fallback</button><button type="button" class="docs-nav-item">Provider Fallback Chain</button><button type="button" class="docs-nav-item">Virtual Providers (Combos)</button><button type="button" class="docs-nav-item">API Format Translation</button><button type="button" class="docs-nav-item">Circuit Breaker</button><button type="button" class="docs-nav-item">Error Classification &amp; Retry</button><button type="button" class="docs-nav-item active">System Prompt Control</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">How-To Guides</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Managing API Keys</button><button type="button" class="docs-nav-item">Configuring Models</button><button type="button" class="docs-nav-item">Configuring Fallback</button><button type="button" class="docs-nav-item">Monitoring &amp; Notifications</button><button type="button" class="docs-nav-item">Provider Management</button><button type="button" class="docs-nav-item">Global Settings</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Providers</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Provider Directory</button><button type="button" class="docs-nav-item">Bypass Providers</button><button type="button" class="docs-nav-item">Free Tier Providers</button><button type="button" class="docs-nav-item">Paid Providers</button><button type="button" class="docs-nav-item">ElevenLabs (Audio)</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Client Setup</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Client Setup Overview</button><button type="button" class="docs-nav-item">OpenClaw</button><button type="button" class="docs-nav-item">OpenCode</button><button type="button" class="docs-nav-item">Claude Code</button><button type="button" class="docs-nav-item">Codex CLI</button><button type="button" class="docs-nav-item">Qwen Code</button><button type="button" class="docs-nav-item">DeepSeek Harness</button><button type="button" class="docs-nav-item">Other / Custom Clients</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Reference</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">CLI Commands</button><button type="button" class="docs-nav-item">Settings Reference</button><button type="button" class="docs-nav-item">API Reference</button><button type="button" class="docs-nav-item">Environment Variables</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Help</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Troubleshooting</button><button type="button" class="docs-nav-item">FAQ</button><button type="button" class="docs-nav-item">Support &amp; Contact</button></div></div></div></aside><main class="docs-main"><div class="md-content md-tab-anim"><h1 id="system-prompt-control-prompt-injection">System Prompt Control (Prompt Injection)</h1>
+<p>Inject, replace, or surgically edit the system prompt of every request — per client, per provider, or per combo — directly at the gateway.</p>
+<blockquote>
+<p><strong>Version 1.0.18</strong></p>
+</blockquote>
+<hr/>
+<h2 id="what-is-system-prompt-control">What Is System Prompt Control?</h2>
+<p>ClawRouter can modify the <strong>system prompt</strong> of any request that passes through it, before the request is translated and sent upstream. You define a <strong>rule</strong> once — on a client, a provider, or a combo — and every matching request is adjusted automatically:</p>
+<div class="code-block"><div class="code-block-bar"><span class="code-lang"><i class="code-lang-dot" aria-hidden="true"></i>text</span><button type="button" class="code-copy" aria-label="Copy code block"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy</button></div><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.7;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:16px 18px;margin:0;overflow:auto;border-radius:0;border:none;font-size:0.85rem"><code style="white-space:pre;font-family:var(--font-mono)"><span>Client request → [client rule] → [combo rule] → [provider rule] → translation → upstream</span></code></pre></div>
+<p>No client reconfiguration. No per-project instruction files. The change lives in one place and applies everywhere the traffic flows.</p>
+<hr/>
+<h2 id="why-it-matters">Why It Matters</h2>
+<p>Not all instructions are equal. Modern models are trained to follow an <strong>instruction hierarchy</strong>: the system prompt outranks user messages, which outrank project files.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Layer</th><th>Example</th><th>Authority</th></tr></thead><tbody><tr><td>System prompt</td><td>The client&#x27;s built-in prompt, <strong>your injected rules</strong></td><td>Highest</td></tr><tr><td>User messages</td><td>What you type in the chat</td><td>Medium</td></tr><tr><td>Project files</td><td><code node="[object Object]">CLAUDE.md</code>, <code node="[object Object]">AGENTS.md</code> (sent as user-turn context)</td><td>Lowest</td></tr></tbody></table></div></div>
+<p>This is not folklore — it is how the clients are built. Claude Code, for example, deliberately injects <code node="[object Object]">CLAUDE.md</code> as <em>user-turn</em> context and lets its built-in system prompt win any conflict. <strong>A gateway rule sits at the same tier as the client&#x27;s own system prompt — strictly above every project file.</strong></p>
+<p>Concretely, that means you can:</p>
+<ul>
+<li><strong>Steer agent behavior globally</strong> — enforce planning-before-acting, verbosity, language, or tool-use discipline for every client at once, without editing a single client config.</li>
+<li><strong>Correct a provider&#x27;s behavior</strong> — append house rules only for traffic through a specific provider or combo.</li>
+<li><strong>Neutralize a bad instruction</strong> — surgically remove or rewrite one sentence inside a client&#x27;s 20,000-token system prompt without touching the rest.</li>
+<li><strong>Standardize a stack</strong> — one rule on the <code node="[object Object]">coding-stack</code> combo shapes every model behind it identically.</li>
+</ul>
+<hr/>
+<h2 id="the-three-tiers">The Three Tiers</h2>
+<p>Rules can live at three levels. When several match the same request, they compose in a fixed order:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Order</th><th>Tier</th><th>Scope</th><th>Typical use</th></tr></thead><tbody><tr><td>1</td><td><strong>Client</strong></td><td>Matches the detected client name (OpenCode, Claude Code, Codex…) — any provider</td><td>House rules per tool</td></tr><tr><td>2</td><td><strong>Combo</strong></td><td>Every request through that combo</td><td>Stack-wide behavior</td></tr><tr><td>3</td><td><strong>Provider</strong></td><td>Every request served by that provider — including via combos</td><td>Provider-specific corrections</td></tr></tbody></table></div></div>
+<p><strong>Composition semantics:</strong></p>
+<ul>
+<li><code node="[object Object]">prepend</code> / <code node="[object Object]">append</code> <strong>concatenate</strong> in tier order (client text first, then combo, then provider).</li>
+<li><code node="[object Object]">replace</code> <strong>resets</strong> the accumulated text — the tier closest to the model wins.</li>
+<li><code node="[object Object]">patch</code> rules run <strong>sequentially</strong>, each on the result of the previous tier.</li>
+</ul>
+<hr/>
+<h2 id="the-four-modes">The Four Modes</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Mode</th><th>What it does</th></tr></thead><tbody><tr><td><strong>Prepend</strong></td><td>Adds your text <em>before</em> the client&#x27;s system prompt (creates one when the client sends none).</td></tr><tr><td><strong>Append</strong></td><td>Adds your text <em>after</em> the client&#x27;s system prompt — still inside the system tier, so it keeps outranking user messages.</td></tr><tr><td><strong>Replace</strong></td><td>Discards the client&#x27;s system prompt entirely and installs yours. Maximum control — use deliberately.</td></tr><tr><td><strong>Patch</strong></td><td>Surgical find-and-replace <strong>inside the existing system prompt only</strong> (exact text or regex, up to 20 rules).</td></tr></tbody></table></div></div>
+<h3 id="patch-mode--surgical-edits">Patch mode — surgical edits</h3>
+<p>Patch rules are the precision instrument. Each rule is <code node="[object Object]">{ find, replace, regex? }</code>:</p>
+<div class="code-block"><div class="code-block-bar"><span class="code-lang"><i class="code-lang-dot" aria-hidden="true"></i>json</span><button type="button" class="code-copy" aria-label="Copy code block"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy</button></div><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.7;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:16px 18px;margin:0;overflow:auto;border-radius:0;border:none;font-size:0.85rem"><code style="white-space:pre;font-family:var(--font-mono)"><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span>
+</span><span>  </span><span class="token" style="color:hsl(355, 65%, 65%)">&quot;mode&quot;</span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> </span><span class="token" style="color:hsl(95, 38%, 62%)">&quot;patch&quot;</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span>
+</span><span>  </span><span class="token" style="color:hsl(355, 65%, 65%)">&quot;patches&quot;</span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">[</span><span>
+</span><span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span> </span><span class="token" style="color:hsl(355, 65%, 65%)">&quot;find&quot;</span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> </span><span class="token" style="color:hsl(95, 38%, 62%)">&quot;Never use emojis in code comments.&quot;</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> </span><span class="token" style="color:hsl(355, 65%, 65%)">&quot;replace&quot;</span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> </span><span class="token" style="color:hsl(95, 38%, 62%)">&quot;&quot;</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span>
+</span><span>    </span><span class="token" style="color:hsl(220, 14%, 71%)">{</span><span> </span><span class="token" style="color:hsl(355, 65%, 65%)">&quot;find&quot;</span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> </span><span class="token" style="color:hsl(95, 38%, 62%)">&quot;/always respond in English/i&quot;</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> </span><span class="token" style="color:hsl(355, 65%, 65%)">&quot;replace&quot;</span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> </span><span class="token" style="color:hsl(95, 38%, 62%)">&quot;always respond in the user&#x27;s language&quot;</span><span class="token" style="color:hsl(220, 14%, 71%)">,</span><span> </span><span class="token" style="color:hsl(355, 65%, 65%)">&quot;regex&quot;</span><span class="token" style="color:hsl(207, 82%, 66%)">:</span><span> </span><span class="token" style="color:hsl(29, 54%, 61%)">true</span><span> </span><span class="token" style="color:hsl(220, 14%, 71%)">}</span><span>
+</span><span>  </span><span class="token" style="color:hsl(220, 14%, 71%)">]</span><span>
+</span><span></span><span class="token" style="color:hsl(220, 14%, 71%)">}</span></code></pre></div>
+<p>Only the system prompt is ever touched. <strong>Conversation messages and <code node="[object Object]">tools[]</code> definitions are structurally untouchable</strong> — in every supported API format, tools are a separate field, so a patch can never break tool calling.</p>
+<hr/>
+<h2 id="where-to-manage-rules">Where to Manage Rules</h2>
+<p>Everything is managed from one place — <strong>Prompt Injection</strong> in the sidebar (syringe icon):</p>
+<ul>
+<li><strong>Client Rules tab</strong> — create rules matched by client identity, with a live list of <strong>detected clients</strong> from your logs (click one to pre-fill a rule). Priority decides which rule wins when several match (first enabled match, lowest priority number).</li>
+<li><strong>Provider Rules tab</strong> — every provider with its current rule status; edit in a slide-over.</li>
+<li><strong>Combo Rules tab</strong> — same for combos.</li>
+</ul>
+<p>The same rules can also be edited in place: a provider&#x27;s <strong>Prompt tab</strong>, or a combo&#x27;s <strong>System Prompt card</strong>.</p>
+<h3 id="seeing-what-actually-happened--the-inspector">Seeing what actually happened — the Inspector</h3>
+<p>Open any request in <strong>Logs → System Prompt tab</strong>:</p>
+<ul>
+<li>The client&#x27;s <strong>original</strong> system prompt, extracted per API format.</li>
+<li>An <strong>Original / Effective</strong> toggle — <em>Effective</em> shows the exact text the model received after all matching rules were applied (with a &quot;after N rules&quot; indicator).</li>
+<li>Badges for every rule tier that fired, and an <strong>Edit rule</strong> button that jumps straight to that rule&#x27;s editor.</li>
+</ul>
+<p>The logged request body always preserves what the client sent (pre-injection); the Effective view is computed from that body plus the active rules.</p>
+<hr/>
+<h2 id="format-coverage">Format Coverage</h2>
+<p>Rules work identically across all four supported API formats — OpenAI Chat, OpenAI Responses, Anthropic Messages, and Google Gemini — <strong>including translated traffic</strong>. Injection happens on the client-format body <em>before</em> translation, so the pivot engine carries your text into the provider&#x27;s native dialect for free:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Target format</th><th>Where the text lands</th></tr></thead><tbody><tr><td>OpenAI Chat</td><td>A <code node="[object Object]">system</code> message in the leading system/developer run</td></tr><tr><td>OpenAI Responses</td><td>Joined into <code node="[object Object]">instructions</code></td></tr><tr><td>Anthropic Messages</td><td>A <code node="[object Object]">system</code> block (cache-control breakpoints preserved)</td></tr><tr><td>Google Gemini</td><td>Joined into <code node="[object Object]">systemInstruction</code></td></tr></tbody></table></div></div>
+<p>Non-chat traffic (e.g. ElevenLabs audio passthrough) is never modified. When no rule matches, the request body is forwarded <strong>byte-identical</strong> — zero parsing, zero copying.</p>
+<p>Rules are also <strong>prompt-cache friendly</strong>: injection only ever adds or sets stable text, so provider-side prompt caching keeps working.</p>
+<hr/>
+<h2 id="recipes">Recipes</h2>
+<p><strong>Enforce planning discipline on every coding client:</strong></p>
+<blockquote>
+<p>Client rule, match <code node="[object Object]">opencode</code> (or <code node="[object Object]">Claude Code</code>), mode <em>Append</em>:
+&quot;Before writing code, state a 3-step plan. Prefer existing project conventions over new abstractions.&quot;</p>
+</blockquote>
+<p><strong>Provider-specific correction:</strong></p>
+<blockquote>
+<p>Provider rule on your Kimi provider, mode <em>Append</em>:
+&quot;Always answer in English, regardless of the conversation language.&quot;</p>
+</blockquote>
+<p><strong>Replace a weak built-in prompt entirely:</strong></p>
+<blockquote>
+<p>Provider rule, mode <em>Replace</em> — your full battle-tested system prompt. Every request through that provider runs on your prompt.</p>
+</blockquote>
+<p><strong>Remove one bad line from a huge client prompt:</strong></p>
+<blockquote>
+<p>Client rule, mode <em>Patch</em>: find the exact sentence → replace with nothing. The other ~20k tokens pass through untouched.</p>
+</blockquote>
+<hr/>
+<h2 id="notes--limits">Notes &amp; Limits</h2>
+<ul>
+<li>Patch mode needs an existing system prompt to edit — if the client sends none, a patch rule has no effect (use prepend instead).</li>
+<li>Client rules match against the client name ClawRouter detects from headers/User-Agent (case-insensitive <em>contains</em>). Check the Detected Clients list on the Prompt Injection page for the exact names seen in your traffic.</li>
+<li>Rule text is limited to 100,000 characters; patch <code node="[object Object]">find</code> to 5,000 per rule (20 rules max) — validated on save.</li>
+<li>Error responses from upstream providers are passed through unchanged; rules apply to requests, not responses.</li>
+</ul></div></main><aside class="docs-side-right"><div class="toc-wrap"><div class="toc-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-tree" aria-hidden="true"><path d="M8 5h13"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="M3 10a2 2 0 0 0 2 2h3"></path><path d="M3 5v12a2 2 0 0 0 2 2h3"></path></svg>On this page</div><div class="toc-items"><button type="button" class="toc-link">What Is System Prompt Control?</button><button type="button" class="toc-link">Why It Matters</button><button type="button" class="toc-link">The Three Tiers</button><button type="button" class="toc-link">The Four Modes</button><button type="button" class="toc-link toc-link-sub">Patch mode — surgical edits</button><button type="button" class="toc-link">Where to Manage Rules</button><button type="button" class="toc-link toc-link-sub">Seeing what actually happened — the Inspector</button><button type="button" class="toc-link">Format Coverage</button><button type="button" class="toc-link">Recipes</button><button type="button" class="toc-link">Notes &amp; Limits</button></div></div></aside></div></div></main><footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand-row"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:30px;height:30px"/><span class="footer-brand-name">ClawRouter</span></div><p class="footer-tagline">High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.</p></div><div><h4 class="footer-heading">Project</h4><div class="footer-links"><a class="footer-link" href="/docs" data-discover="true">Documentation</a><a class="footer-link" href="/docs" data-discover="true">Quickstart Guide</a></div></div><div><h4 class="footer-heading">Connect</h4><div class="footer-social"><a href="mailto:support@clawrouter.qzz.io" title="Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div></div></div><div class="footer-bottom"><div><p class="footer-copy">© <!-- -->2026<!-- --> ClawRouter. All rights reserved.</p><p class="footer-legal"><strong>Terms &amp; Refund Policy:</strong> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.</p></div><div class="footer-author">Developed by Malek-Rsh</div></div></div></footer><button type="button" class="scroll-to-top" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></button></div>
+    <script src="https://cdn.jsdelivr.net/npm/@polar-sh/checkout@0.1/dist/embed.global.js" defer data-auto-init></script>
+  </body>
+</html>

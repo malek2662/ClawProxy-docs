@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      /* Routing bootstrap — runs before anything renders.
+         1. Legacy hash-router URLs (#/docs?tab=x&anchor=y) are redirected to
+            their canonical path equivalents (/docs/x#y).
+         2. Deep links that hit GitHub Pages' 404.html are stashed in
+            sessionStorage by that page and restored here. */
+      (function () {
+        try {
+          if (location.hash.indexOf('#/') === 0) {
+            var legacy = location.hash.slice(1);
+            var qi = legacy.indexOf('?');
+            var path = qi === -1 ? legacy : legacy.slice(0, qi);
+            var query = qi === -1 ? '' : legacy.slice(qi + 1);
+            var tab = null;
+            var anchor = '';
+            query.split('&').forEach(function (pair) {
+              var kv = pair.split('=');
+              if (kv[0] === 'tab') tab = decodeURIComponent(kv[1] || '');
+              if (kv[0] === 'anchor') anchor = '#' + decodeURIComponent(kv[1] || '');
+            });
+            if (path === '/docs' && tab && tab !== 'quickstart') path = '/docs/' + tab;
+            location.replace(path + anchor);
+            return;
+          }
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            history.replaceState(null, '', redirect);
+          }
+        } catch (e) { /* routing must never block rendering */ }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at ." />
+    <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://clawrouter.qzz.io/docs/apiReference" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClawRouter" />
+    <meta property="og:url" content="https://clawrouter.qzz.io/docs/apiReference" />
+    <meta property="og:title" content="API Reference — ClawRouter Docs" />
+    <meta property="og:description" content="ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at ." />
+    <meta property="og:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="API Reference — ClawRouter Docs" />
+    <meta name="twitter:description" content="ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at ." />
+    <meta name="twitter:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <title>API Reference — ClawRouter Docs</title>
+    <noscript>
+      <style>
+        /* Without JS the reveal-on-scroll observer never runs — show content. */
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/index-C8HBdYoP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CNgIYuop.css">
+      <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://clawrouter.qzz.io/#organization","name":"ClawRouter","url":"https://clawrouter.qzz.io","email":"support@clawrouter.qzz.io","logo":"https://clawrouter.qzz.io/favicon.svg","sameAs":["https://github.com/malek2662/ClawProxy-docs","https://reddit.com/user/Malek262"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://clawrouter.qzz.io/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://clawrouter.qzz.io/docs"},{"@type":"ListItem","position":3,"name":"API Reference","item":"https://clawrouter.qzz.io/docs/apiReference"}]},{"@type":"TechArticle","headline":"API Reference","description":"ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at .","url":"https://clawrouter.qzz.io/docs/apiReference","image":"https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png","inLanguage":"en","articleSection":"Reference","dateModified":"2026-08-28","author":{"@id":"https://clawrouter.qzz.io/#organization"},"isPartOf":{"@id":"https://clawrouter.qzz.io/#website"},"about":{"@id":"https://clawrouter.qzz.io/#app"}}]}</script>
+  </head>
+  <body>
+    <div id="root"><nav class="glass-nav"><div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%"><a class="nav-logo" href="/" data-discover="true"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:28px;height:28px"/><span class="nav-logo-text">ClawRouter</span></a><div style="display:flex;align-items:center;gap:20px"><span class="nav-version"><i aria-hidden="true"></i>v1.0.18</span><div style="display:flex;gap:6px"><a class="nav-link" href="/" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="nav-btn-label">Home</span></a><a class="nav-link active" href="/docs" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"></path></svg><span class="nav-btn-label">Documentation</span></a></div><div style="width:1px;height:24px;background:var(--border-light)"></div><div style="display:flex;align-items:center;gap:6px"><a href="mailto:support@clawrouter.qzz.io" title="Contact via Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Contact via Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.1.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div><button type="button" class="nav-cta">Get ClawRouter — $20</button></div></div></nav><div class="scroll-progress-track"><div class="scroll-progress-bar"></div></div><main class="page-content"><button type="button" class="docs-mobile-menu-btn" aria-label="Open navigation"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="animate-fade-in docs-layout"><div class="docs-layout-inner"><aside class="docs-side-left"><div class="docs-search-wrapper"><div class="docs-search-input-box"><span class="docs-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg></span><input type="text" class="docs-search-input" placeholder="Search docs..." value=""/><span class="docs-search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span></div></div><div class="docs-nav"><div class="docs-nav-section"><h3 class="docs-nav-label">Getting Started</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Quickstart Guide</button><button type="button" class="docs-nav-item">Installation &amp; Activation</button><button type="button" class="docs-nav-item">Your First Provider</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Core Concepts</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">How ClawRouter Works</button><button type="button" class="docs-nav-item">Key Rotation</button><button type="button" class="docs-nav-item">Model Fallback</button><button type="button" class="docs-nav-item">Provider Fallback Chain</button><button type="button" class="docs-nav-item">Virtual Providers (Combos)</button><button type="button" class="docs-nav-item">API Format Translation</button><button type="button" class="docs-nav-item">Circuit Breaker</button><button type="button" class="docs-nav-item">Error Classification &amp; Retry</button><button type="button" class="docs-nav-item">System Prompt Control</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">How-To Guides</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Managing API Keys</button><button type="button" class="docs-nav-item">Configuring Models</button><button type="button" class="docs-nav-item">Configuring Fallback</button><button type="button" class="docs-nav-item">Monitoring &amp; Notifications</button><button type="button" class="docs-nav-item">Provider Management</button><button type="button" class="docs-nav-item">Global Settings</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Providers</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Provider Directory</button><button type="button" class="docs-nav-item">Bypass Providers</button><button type="button" class="docs-nav-item">Free Tier Providers</button><button type="button" class="docs-nav-item">Paid Providers</button><button type="button" class="docs-nav-item">ElevenLabs (Audio)</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Client Setup</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Client Setup Overview</button><button type="button" class="docs-nav-item">OpenClaw</button><button type="button" class="docs-nav-item">OpenCode</button><button type="button" class="docs-nav-item">Claude Code</button><button type="button" class="docs-nav-item">Codex CLI</button><button type="button" class="docs-nav-item">Qwen Code</button><button type="button" class="docs-nav-item">DeepSeek Harness</button><button type="button" class="docs-nav-item">Other / Custom Clients</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Reference</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">CLI Commands</button><button type="button" class="docs-nav-item">Settings Reference</button><button type="button" class="docs-nav-item active">API Reference</button><button type="button" class="docs-nav-item">Environment Variables</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Help</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Troubleshooting</button><button type="button" class="docs-nav-item">FAQ</button><button type="button" class="docs-nav-item">Support &amp; Contact</button></div></div></div></aside><main class="docs-main"><div class="md-content md-tab-anim"><h1 id="api-reference">API Reference</h1>
+<p>ClawRouter exposes a RESTful API for managing providers, keys, models, and settings programmatically. All endpoints are available at <code node="[object Object]">http://localhost:3030</code>.</p>
+<blockquote>
+<p><strong>Version 1.0.18</strong></p>
+</blockquote>
+<hr/>
+<h2 id="provider-management">Provider Management</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/providers</code></td><td>List all providers with key/today stats</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers</code></td><td>Create a new provider. Accepts optional <code node="[object Object]">models[]</code> (<code node="[object Object]">{id,name}</code> or <code node="[object Object]">{model_id,display_name}</code>) to seed the Models tab, and optional <code node="[object Object]">default_headers</code> (object of strings)</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id</code></td><td>Get single provider details</td></tr><tr><td>PUT</td><td><code node="[object Object]">/api/providers/:id</code></td><td>Update provider settings (<code node="[object Object]">default_headers: null</code> clears static headers; <code node="[object Object]">system_prompt_rule</code> accepts a rule object or <code node="[object Object]">null</code> to clear — see System Prompt Control)</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/providers/:id</code></td><td>Delete provider (cascades)</td></tr><tr><td>PATCH</td><td><code node="[object Object]">/api/providers/:id/toggle</code></td><td>Toggle enabled/disabled</td></tr><tr><td>PATCH</td><td><code node="[object Object]">/api/providers/:id/favorite</code></td><td>Toggle the favorite flag (Favorites section on the Providers page)</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="dashboard-authentication">Dashboard Authentication</h2>
+<p>All <code node="[object Object]">/api/*</code> endpoints (except <code node="[object Object]">/api/health</code> and <code node="[object Object]">/api/auth/*</code>) require a session token from login -- send it as <code node="[object Object]">Authorization: Bearer &lt;token&gt;</code>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>POST</td><td><code node="[object Object]">/api/auth/login</code></td><td>Verify the dashboard password (<code node="[object Object]">{ password }</code>). Returns <code node="[object Object]">{ token }</code> (12-hour session)</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/auth/logout</code></td><td>Invalidate the current session token</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/auth/session</code></td><td>Validate the current session token</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/auth/change-password</code></td><td>Change the dashboard password (<code node="[object Object]">{ currentPassword, newPassword }</code>). Invalidates all sessions</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="connection-testing">Connection Testing</h2>
+<p>Every test runs a free <code node="[object Object]">/models</code> check <strong>followed by a 1-token generation probe</strong> (<code node="[object Object]">max_tokens: 1</code>) -- the <code node="[object Object]">/models</code> 200 alone only proves authentication, not usable credit. Returns <code node="[object Object]">{ valid, latencyMs, status?, error?, errorType?, softWarning? }</code>. 401/403 and hard billing (402, &quot;insufficient balance&quot; / <code node="[object Object]">insufficient_quota</code> -- reported as &quot;recharge required&quot;) = invalid; window-quota, transient 429, and gated probe models = valid with a soft warning.</p>
+<p>Key-level tests <strong>auto-disable</strong> a key when the test proves it definitively invalid (<code node="[object Object]">!valid</code> + <code node="[object Object]">errorType: &quot;AUTH_ERROR&quot;</code> -- bad/expired key or hard billing), via the same record-error path as real traffic; the response gains <code node="[object Object]">auto_disabled: true</code>. Never disabled on transient/network/timeout, rate limits, window quota, or content-moderation rejections. Re-testing an already-disabled key reports <code node="[object Object]">auto_disabled: true</code> without re-firing the notification. The provider-level test does <strong>not</strong> disable keys.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/test</code></td><td>Test provider connection. Uses the first eligible key in managed mode, keyless otherwise. Accepts optional <code node="[object Object]">{ &quot;key_value&quot;: &quot;...&quot; }</code> to test an unsaved key (test-before-save). Does not disable keys</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/keys/:keyId/test</code></td><td>Test one key; persists <code node="[object Object]">test_status</code>, <code node="[object Object]">test_latency_ms</code>, <code node="[object Object]">tested_at</code>, <code node="[object Object]">last_test_error</code> on the key row. Auto-disables on a definitive invalid verdict (adds <code node="[object Object]">auto_disabled: true</code>)</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/keys/test-all</code></td><td>Test all enabled keys sequentially; persists each result, same auto-disable rule per key. Returns <code node="[object Object]">{ results: [...] }</code> (per-item <code node="[object Object]">auto_disabled</code> flag)</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="api-key-management">API Key Management</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/keys</code></td><td>List all keys for provider</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/keys</code></td><td>Add a single key (400 if the provider&#x27;s API Key Mode is <code node="[object Object]">none</code>)</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/keys/bulk</code></td><td>Bulk add keys (newline-separated)</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/keys/bulk-delete</code></td><td>Bulk delete keys (<code node="[object Object]">{ key_ids }</code>, provider-scoped, max 500 per call). Returns <code node="[object Object]">{ deleted }</code></td></tr><tr><td>PUT</td><td><code node="[object Object]">/api/providers/:id/keys/:keyId</code></td><td>Update key (label, priority)</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/providers/:id/keys/:keyId</code></td><td>Delete key</td></tr><tr><td>PATCH</td><td><code node="[object Object]">/api/providers/:id/keys/:keyId/toggle</code></td><td>Toggle key enabled/disabled</td></tr><tr><td>PATCH</td><td><code node="[object Object]">/api/providers/:id/keys/:keyId/reset</code></td><td>Reset key stats to zero</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/keys/reorder</code></td><td>Reorder key priorities</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/keys/:keyId/errors</code></td><td>Get last 50 errors for key</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="provider-fallback-chain">Provider Fallback Chain</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/fallbacks</code></td><td>List ALL fallback rows across providers, ordered by provider_id + priority (powers the global Fallback page)</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/fallbacks</code></td><td>List fallback entries</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/fallbacks</code></td><td>Add fallback entry (<code node="[object Object]">fallback_model_id: null</code> = Automatic)</td></tr><tr><td>PUT</td><td><code node="[object Object]">/api/providers/:id/fallbacks/:fbId</code></td><td>Update fallback entry</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/providers/:id/fallbacks/:fbId</code></td><td>Delete fallback entry</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/fallbacks/reorder</code></td><td>Reorder fallback chain</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="model-management">Model Management</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/models</code></td><td>List saved models</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/models</code></td><td>Add a model</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/models/bulk</code></td><td>Bulk add models (<code node="[object Object]">{ models: [{ model_id, display_name? }] }</code>)</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/providers/:id/models/:modelId</code></td><td>Delete a model</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/models/reorder</code></td><td>Reorder model priorities</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/models/fetch</code></td><td>Fetch models from upstream. Returns <code node="[object Object]">{ models, fetched_at, cached }</code>. 5-min in-memory cache; <code node="[object Object]">?force=1</code> bypasses. Cache invalidated on key add/delete/toggle</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="model-circuits--usage">Model Circuits &amp; Usage</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/model-circuits</code></td><td>Open model circuits for the provider. Returns <code node="[object Object]">[{ model_id, failures, remaining_s, last_error_type }]</code> -- powers the Models-tab &quot;Skipped&quot; badges</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/usage</code></td><td>Provider quota/usage probe (Kimi Coding, Z.AI GLM Coding). Uses the first eligible key, falling back to <strong>any</strong> enabled key when all are quota-backed-off. Returns <code node="[object Object]">{ supported, membership, region, parallelLimit, disabled, windows: [{ kind, label, limit, used, remaining, resetTime, exhausted }], billing: { usedCents, limitCents, currency, exhausted } | null }</code>. Returns <code node="[object Object]">{ supported: false }</code> for providers without a known usage endpoint</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/usage?all=1</code></td><td>Probes <strong>every enabled key</strong> in parallel (each key is a separate quota account) -- powers the provider <strong>Quota tab</strong>. Returns <code node="[object Object]">{ supported, keys: [{ key_id, label, hint, usage | null, invalid? }] }</code></td></tr></tbody></table></div></div>
+<p>Both usage modes <strong>auto-disable definitively rejected keys</strong>: the rejection runs through the same error classification as real traffic and only an auth-error outcome (401/403, hard-billing codes) disables the key (disable + error history + <code node="[object Object]">key_disabled</code> notification). Network failures, transient 5xx, rate limits, window-quota rejections, and no-plan payloads never disable. Z.AI&#x27;s HTTP-200 <code node="[object Object]">{&quot;code&quot;:1000,&quot;msg&quot;:&quot;Authentication Failed&quot;}</code> dead-key envelope is detected and treated like a real 401.</p>
+<hr/>
+<h2 id="virtual-providers-combos">Virtual Providers (Combos)</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/virtual-providers</code></td><td>List all combos with members and 24h request stats</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/virtual-providers</code></td><td>Create a combo — <code node="[object Object]">{ &quot;name&quot;, &quot;id&quot;?, &quot;members&quot;? }</code> (name-only create allowed; id must not collide with a provider)</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/virtual-providers/:id</code></td><td>Combo detail with members and 24h stats</td></tr><tr><td>PUT</td><td><code node="[object Object]">/api/virtual-providers/:id</code></td><td>Update <code node="[object Object]">name</code> / <code node="[object Object]">enabled</code> / replace <code node="[object Object]">members</code> (priority defaults to array position)</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/virtual-providers/:id</code></td><td>Delete the combo (members cascade)</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/virtual-providers/:id</code> <code node="[object Object]">/models</code></td><td>Public model list — aliases with captured metadata (Prompt for AI source)</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="client-rules-system-prompt-control">Client Rules (System Prompt Control)</h2>
+<p>Client rules inject/modify the system prompt for requests from a matching client (case-insensitive <code node="[object Object]">match</code> against the detected client name; the first enabled rule by <code node="[object Object]">priority</code> wins). Rule shape: <code node="[object Object]">{ &quot;mode&quot;: &quot;prepend&quot; | &quot;append&quot; | &quot;replace&quot; | &quot;patch&quot;, &quot;text&quot;?, &quot;patches&quot;? }</code> — see the System Prompt Control concept page. Provider and combo rules use the same shape via the <code node="[object Object]">system_prompt_rule</code> field on their PUT endpoints.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/client-rules</code></td><td>List all client rules (<code node="[object Object]">{ rules: [...] }</code>)</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/client-rules</code></td><td>Create a rule — <code node="[object Object]">{ &quot;name&quot;, &quot;match&quot;, &quot;rule&quot;, &quot;priority&quot;?, &quot;enabled&quot;? }</code></td></tr><tr><td>PUT</td><td><code node="[object Object]">/api/client-rules/:id</code></td><td>Update any subset of fields (<code node="[object Object]">rule: null</code> is rejected — a client rule without injection has no effect)</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/client-rules/:id</code></td><td>Delete the rule</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="circuit-breaker">Circuit Breaker</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/circuit-status</code></td><td>Get circuit breaker state</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/providers/:id/circuit-reset</code></td><td>Reset circuit breaker</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="notifications">Notifications</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/notifications</code></td><td>List all notifications</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/notifications/:id/read</code></td><td>Mark as read</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/notifications</code></td><td>Clear all notifications</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="logs">Logs</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/logs</code></td><td>List logs (paginated, filterable)</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/logs/clients</code></td><td>List distinct client names seen in logs (powers the client filter)</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/logs/:id</code></td><td>Get single log detail</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/logs/:id/raw</code></td><td>Get parsed raw request/response headers and bodies for a log</td></tr><tr><td>DELETE</td><td><code node="[object Object]">/api/logs</code></td><td>Clear all logs</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="global-settings">Global Settings</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/settings</code></td><td>Get all global settings</td></tr><tr><td>PUT</td><td><code node="[object Object]">/api/settings</code></td><td>Update global settings (includes <code node="[object Object]">proxy_auth_enabled</code> -- toggle proxy API key requirement on <code node="[object Object]">/proxy/*</code>, default <code node="[object Object]">true</code>)</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="proxy-api-key">Proxy API Key</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/settings/proxy-key</code></td><td>Get the proxy API key and auth state. Returns <code node="[object Object]">{ key, enabled }</code></td></tr><tr><td>POST</td><td><code node="[object Object]">/api/settings/proxy-key/regenerate</code></td><td>Generate a new proxy API key. Returns <code node="[object Object]">{ key, enabled }</code>. The old key stops working immediately</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="system">System</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td>GET</td><td><code node="[object Object]">/api/health</code></td><td>Health check (status, uptime)</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/stats</code></td><td>Global stats (range: 24h, 7d, all). <code node="[object Object]">today.estimated_cost</code> = sum of request costs since local midnight</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/providers/:id/stats</code></td><td>Provider-specific stats</td></tr><tr><td>GET</td><td><code node="[object Object]">/api/license-status</code></td><td>Activation/license status</td></tr><tr><td>POST</td><td><code node="[object Object]">/api/check-activation</code></td><td>Trigger manual activation check</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="websocket">WebSocket</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td><code node="[object Object]">/ws/logs</code></td><td>Real-time log updates + notification broadcasts</td></tr></tbody></table></div></div>
+<hr/>
+<h2 id="proxy">Proxy</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Endpoint</th><th>Description</th></tr></thead><tbody><tr><td><code node="[object Object]">POST /proxy/{providerId}/*</code></td><td>Main proxy endpoint (all AI requests)</td></tr></tbody></table></div></div>
+<p>Requests require the <strong>proxy API key</strong> by default -- sent as <code node="[object Object]">Authorization: Bearer &lt;key&gt;</code> (OpenAI style) or <code node="[object Object]">x-api-key: &lt;key&gt;</code> (Anthropic style). Requests without a valid key get HTTP 401. The key is shown in the dashboard under <strong>Settings &gt; Proxy API Key</strong>. The requirement can be toggled via the <code node="[object Object]">proxy_auth_enabled</code> global setting (<code node="[object Object]">PUT /api/settings</code>).</p></div></main><aside class="docs-side-right"><div class="toc-wrap"><div class="toc-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-tree" aria-hidden="true"><path d="M8 5h13"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="M3 10a2 2 0 0 0 2 2h3"></path><path d="M3 5v12a2 2 0 0 0 2 2h3"></path></svg>On this page</div><div class="toc-items"><button type="button" class="toc-link">Provider Management</button><button type="button" class="toc-link">Dashboard Authentication</button><button type="button" class="toc-link">Connection Testing</button><button type="button" class="toc-link">API Key Management</button><button type="button" class="toc-link">Provider Fallback Chain</button><button type="button" class="toc-link">Model Management</button><button type="button" class="toc-link">Model Circuits &amp; Usage</button><button type="button" class="toc-link">Virtual Providers (Combos)</button><button type="button" class="toc-link">Client Rules (System Prompt Control)</button><button type="button" class="toc-link">Circuit Breaker</button><button type="button" class="toc-link">Notifications</button><button type="button" class="toc-link">Logs</button><button type="button" class="toc-link">Global Settings</button><button type="button" class="toc-link">Proxy API Key</button><button type="button" class="toc-link">System</button><button type="button" class="toc-link">WebSocket</button><button type="button" class="toc-link">Proxy</button></div></div></aside></div></div></main><footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand-row"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:30px;height:30px"/><span class="footer-brand-name">ClawRouter</span></div><p class="footer-tagline">High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.</p></div><div><h4 class="footer-heading">Project</h4><div class="footer-links"><a class="footer-link" href="/docs" data-discover="true">Documentation</a><a class="footer-link" href="/docs" data-discover="true">Quickstart Guide</a></div></div><div><h4 class="footer-heading">Connect</h4><div class="footer-social"><a href="mailto:support@clawrouter.qzz.io" title="Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div></div></div><div class="footer-bottom"><div><p class="footer-copy">© <!-- -->2026<!-- --> ClawRouter. All rights reserved.</p><p class="footer-legal"><strong>Terms &amp; Refund Policy:</strong> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.</p></div><div class="footer-author">Developed by Malek-Rsh</div></div></div></footer><button type="button" class="scroll-to-top" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></button></div>
+    <script src="https://cdn.jsdelivr.net/npm/@polar-sh/checkout@0.1/dist/embed.global.js" defer data-auto-init></script>
+  </body>
+</html>

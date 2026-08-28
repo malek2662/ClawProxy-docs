@@ -1,0 +1,82 @@
+# ClawRouter
+
+> ClawRouter is a self-hosted AI routing gateway: a single local endpoint
+> (localhost:3030) that routes, manages and monitors AI API requests across
+> 50+ providers, with automatic API format translation (OpenAI, Anthropic,
+> Gemini, Google AI Studio), key rotation, model/provider failover and quota
+> tracking. One-time $20 lifetime license — no subscription. All data, keys
+> and logs stay on the user's machine. Works with Claude Code, OpenCode,
+> Codex CLI, OpenClaw, Qwen Code, Cline, Aider and any client that accepts a
+> custom API base URL. Runs on Linux, macOS and Windows.
+
+## Site
+
+- [Home](https://clawrouter.qzz.io/): product overview, pricing ($20 lifetime) and FAQ
+- [Documentation](https://clawrouter.qzz.io/docs): full documentation index (quickstart)
+
+## Docs
+
+### Getting Started
+
+- [Quickstart Guide](https://clawrouter.qzz.io/docs)
+- [Installation & Activation](https://clawrouter.qzz.io/docs/installation)
+- [Your First Provider](https://clawrouter.qzz.io/docs/firstProvider)
+
+### Core Concepts
+
+- [How ClawRouter Works](https://clawrouter.qzz.io/docs/howItWorks)
+- [Key Rotation](https://clawrouter.qzz.io/docs/keyRotation)
+- [Model Fallback](https://clawrouter.qzz.io/docs/modelFallback)
+- [Provider Fallback Chain](https://clawrouter.qzz.io/docs/providerFallback)
+- [Virtual Providers (Combos)](https://clawrouter.qzz.io/docs/virtualProviders)
+- [API Format Translation](https://clawrouter.qzz.io/docs/formatTranslation)
+- [Circuit Breaker](https://clawrouter.qzz.io/docs/circuitBreaker)
+- [Error Classification & Retry](https://clawrouter.qzz.io/docs/errorHandling)
+- [System Prompt Control](https://clawrouter.qzz.io/docs/systemPromptControl)
+
+### How-To Guides
+
+- [Managing API Keys](https://clawrouter.qzz.io/docs/managingKeys)
+- [Configuring Models](https://clawrouter.qzz.io/docs/configuringModels)
+- [Configuring Fallback](https://clawrouter.qzz.io/docs/configuringFallback)
+- [Monitoring & Notifications](https://clawrouter.qzz.io/docs/monitoring)
+- [Provider Management](https://clawrouter.qzz.io/docs/providerManagement)
+- [Global Settings](https://clawrouter.qzz.io/docs/globalSettings)
+
+### Providers
+
+- [Provider Directory](https://clawrouter.qzz.io/docs/providerDirectory)
+- [Bypass Providers](https://clawrouter.qzz.io/docs/bypassProviders)
+- [Free Tier Providers](https://clawrouter.qzz.io/docs/freeTierProviders)
+- [Paid Providers](https://clawrouter.qzz.io/docs/paidProviders)
+- [ElevenLabs (Audio)](https://clawrouter.qzz.io/docs/elevenlabsAudio)
+
+### Client Setup
+
+- [Client Setup Overview](https://clawrouter.qzz.io/docs/aiClientSetup)
+- [OpenClaw](https://clawrouter.qzz.io/docs/openclawSetup)
+- [OpenCode](https://clawrouter.qzz.io/docs/opencodeSetup)
+- [Claude Code](https://clawrouter.qzz.io/docs/claudeCodeSetup)
+- [Codex CLI](https://clawrouter.qzz.io/docs/codexCliSetup)
+- [Qwen Code](https://clawrouter.qzz.io/docs/qwenCodeSetup)
+- [DeepSeek Harness](https://clawrouter.qzz.io/docs/deepseekHarnessSetup)
+- [Other / Custom Clients](https://clawrouter.qzz.io/docs/otherClients)
+
+### Reference
+
+- [CLI Commands](https://clawrouter.qzz.io/docs/cliCommands)
+- [Settings Reference](https://clawrouter.qzz.io/docs/settingsReference)
+- [API Reference](https://clawrouter.qzz.io/docs/apiReference)
+- [Environment Variables](https://clawrouter.qzz.io/docs/envVars)
+
+### Help
+
+- [Troubleshooting](https://clawrouter.qzz.io/docs/troubleshooting)
+- [FAQ](https://clawrouter.qzz.io/docs/faq)
+- [Support & Contact](https://clawrouter.qzz.io/docs/support)
+
+## Optional
+
+- [Source repository](https://github.com/malek2662/ClawProxy-docs)
+- [Sitemap](https://clawrouter.qzz.io/sitemap.xml)
+- Contact: support@clawrouter.qzz.io

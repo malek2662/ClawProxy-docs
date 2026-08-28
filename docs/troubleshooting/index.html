@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      /* Routing bootstrap — runs before anything renders.
+         1. Legacy hash-router URLs (#/docs?tab=x&anchor=y) are redirected to
+            their canonical path equivalents (/docs/x#y).
+         2. Deep links that hit GitHub Pages' 404.html are stashed in
+            sessionStorage by that page and restored here. */
+      (function () {
+        try {
+          if (location.hash.indexOf('#/') === 0) {
+            var legacy = location.hash.slice(1);
+            var qi = legacy.indexOf('?');
+            var path = qi === -1 ? legacy : legacy.slice(0, qi);
+            var query = qi === -1 ? '' : legacy.slice(qi + 1);
+            var tab = null;
+            var anchor = '';
+            query.split('&').forEach(function (pair) {
+              var kv = pair.split('=');
+              if (kv[0] === 'tab') tab = decodeURIComponent(kv[1] || '');
+              if (kv[0] === 'anchor') anchor = '#' + decodeURIComponent(kv[1] || '');
+            });
+            if (path === '/docs' && tab && tab !== 'quickstart') path = '/docs/' + tab;
+            location.replace(path + anchor);
+            return;
+          }
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            history.replaceState(null, '', redirect);
+          }
+        } catch (e) { /* routing must never block rendering */ }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Diagnose and resolve common issues with ClawRouter." />
+    <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://clawrouter.qzz.io/docs/troubleshooting" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClawRouter" />
+    <meta property="og:url" content="https://clawrouter.qzz.io/docs/troubleshooting" />
+    <meta property="og:title" content="Troubleshooting — ClawRouter Docs" />
+    <meta property="og:description" content="Diagnose and resolve common issues with ClawRouter." />
+    <meta property="og:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Troubleshooting — ClawRouter Docs" />
+    <meta name="twitter:description" content="Diagnose and resolve common issues with ClawRouter." />
+    <meta name="twitter:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <title>Troubleshooting — ClawRouter Docs</title>
+    <noscript>
+      <style>
+        /* Without JS the reveal-on-scroll observer never runs — show content. */
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/index-C8HBdYoP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CNgIYuop.css">
+      <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://clawrouter.qzz.io/#organization","name":"ClawRouter","url":"https://clawrouter.qzz.io","email":"support@clawrouter.qzz.io","logo":"https://clawrouter.qzz.io/favicon.svg","sameAs":["https://github.com/malek2662/ClawProxy-docs","https://reddit.com/user/Malek262"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://clawrouter.qzz.io/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://clawrouter.qzz.io/docs"},{"@type":"ListItem","position":3,"name":"Troubleshooting","item":"https://clawrouter.qzz.io/docs/troubleshooting"}]},{"@type":"TechArticle","headline":"Troubleshooting","description":"Diagnose and resolve common issues with ClawRouter.","url":"https://clawrouter.qzz.io/docs/troubleshooting","image":"https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png","inLanguage":"en","articleSection":"Help","dateModified":"2026-08-28","author":{"@id":"https://clawrouter.qzz.io/#organization"},"isPartOf":{"@id":"https://clawrouter.qzz.io/#website"},"about":{"@id":"https://clawrouter.qzz.io/#app"}}]}</script>
+  </head>
+  <body>
+    <div id="root"><nav class="glass-nav"><div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%"><a class="nav-logo" href="/" data-discover="true"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:28px;height:28px"/><span class="nav-logo-text">ClawRouter</span></a><div style="display:flex;align-items:center;gap:20px"><span class="nav-version"><i aria-hidden="true"></i>v1.0.18</span><div style="display:flex;gap:6px"><a class="nav-link" href="/" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="nav-btn-label">Home</span></a><a class="nav-link active" href="/docs" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"></path></svg><span class="nav-btn-label">Documentation</span></a></div><div style="width:1px;height:24px;background:var(--border-light)"></div><div style="display:flex;align-items:center;gap:6px"><a href="mailto:support@clawrouter.qzz.io" title="Contact via Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Contact via Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.1.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div><button type="button" class="nav-cta">Get ClawRouter — $20</button></div></div></nav><div class="scroll-progress-track"><div class="scroll-progress-bar"></div></div><main class="page-content"><button type="button" class="docs-mobile-menu-btn" aria-label="Open navigation"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="animate-fade-in docs-layout"><div class="docs-layout-inner"><aside class="docs-side-left"><div class="docs-search-wrapper"><div class="docs-search-input-box"><span class="docs-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg></span><input type="text" class="docs-search-input" placeholder="Search docs..." value=""/><span class="docs-search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span></div></div><div class="docs-nav"><div class="docs-nav-section"><h3 class="docs-nav-label">Getting Started</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Quickstart Guide</button><button type="button" class="docs-nav-item">Installation &amp; Activation</button><button type="button" class="docs-nav-item">Your First Provider</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Core Concepts</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">How ClawRouter Works</button><button type="button" class="docs-nav-item">Key Rotation</button><button type="button" class="docs-nav-item">Model Fallback</button><button type="button" class="docs-nav-item">Provider Fallback Chain</button><button type="button" class="docs-nav-item">Virtual Providers (Combos)</button><button type="button" class="docs-nav-item">API Format Translation</button><button type="button" class="docs-nav-item">Circuit Breaker</button><button type="button" class="docs-nav-item">Error Classification &amp; Retry</button><button type="button" class="docs-nav-item">System Prompt Control</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">How-To Guides</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Managing API Keys</button><button type="button" class="docs-nav-item">Configuring Models</button><button type="button" class="docs-nav-item">Configuring Fallback</button><button type="button" class="docs-nav-item">Monitoring &amp; Notifications</button><button type="button" class="docs-nav-item">Provider Management</button><button type="button" class="docs-nav-item">Global Settings</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Providers</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Provider Directory</button><button type="button" class="docs-nav-item">Bypass Providers</button><button type="button" class="docs-nav-item">Free Tier Providers</button><button type="button" class="docs-nav-item">Paid Providers</button><button type="button" class="docs-nav-item">ElevenLabs (Audio)</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Client Setup</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Client Setup Overview</button><button type="button" class="docs-nav-item">OpenClaw</button><button type="button" class="docs-nav-item">OpenCode</button><button type="button" class="docs-nav-item">Claude Code</button><button type="button" class="docs-nav-item">Codex CLI</button><button type="button" class="docs-nav-item">Qwen Code</button><button type="button" class="docs-nav-item">DeepSeek Harness</button><button type="button" class="docs-nav-item">Other / Custom Clients</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Reference</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">CLI Commands</button><button type="button" class="docs-nav-item">Settings Reference</button><button type="button" class="docs-nav-item">API Reference</button><button type="button" class="docs-nav-item">Environment Variables</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Help</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item active">Troubleshooting</button><button type="button" class="docs-nav-item">FAQ</button><button type="button" class="docs-nav-item">Support &amp; Contact</button></div></div></div></aside><main class="docs-main"><div class="md-content md-tab-anim"><h1 id="troubleshooting">Troubleshooting</h1>
+<p>Diagnose and resolve common issues with ClawRouter.</p>
+<blockquote>
+<p><strong>Version 1.0.18</strong></p>
+</blockquote>
+<hr/>
+<h2 id="activation-issues">Activation Issues</h2>
+<h3 id="problem-not_activated-http-403-on-proxy-requests">Problem: &quot;not_activated&quot; (HTTP 403) on proxy requests</h3>
+<p><strong>Cause:</strong> Your ClawRouter installation has not been activated yet.
+<strong>Solution:</strong></p>
+<ol>
+<li>Open the dashboard at <code node="[object Object]">http://localhost:3030</code>.</li>
+<li>Copy your <strong>Installation ID</strong> from the Awaiting Activation screen.</li>
+<li>Send it to <a href="mailto:support@clawrouter.qzz.io" target="_self" rel="noopener noreferrer" node="[object Object]">support@clawrouter.qzz.io</a> or <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" node="[object Object]">Reddit u/Malek262</a>.</li>
+<li>Once the developer confirms activation, click <strong>Check Activation</strong>.</li>
+</ol>
+<h3 id="problem-was-activated-but-now-shows-awaiting-activation">Problem: Was activated but now shows &quot;Awaiting Activation&quot;</h3>
+<p><strong>Possible causes:</strong></p>
+<ul>
+<li>You moved ClawRouter to a different machine (the Installation ID is machine-specific).</li>
+<li>Local data was reset.
+<strong>Solution:</strong> Contact the developer. If on a new machine, send the new Installation ID.</li>
+</ul>
+<h3 id="problem-check-activation-button-doesnt-work">Problem: &quot;Check Activation&quot; button doesn&#x27;t work</h3>
+<p><strong>Cause:</strong> Network issue preventing ClawRouter from reaching the activation server.
+<strong>Solution:</strong> Check your internet connection. If you&#x27;re behind a firewall, ensure outbound HTTPS requests are allowed.</p>
+<hr/>
+<h2 id="proxy-request-errors">Proxy Request Errors</h2>
+<h3 id="problem-http-401-invalid-or-missing-api-key">Problem: HTTP 401 &quot;Invalid or missing API key&quot;</h3>
+<p><strong>Cause:</strong> Your client did not send a valid <strong>proxy API key</strong> -- the key is missing, wrong, or was regenerated (regenerating invalidates the old key immediately).
+<strong>Solution:</strong></p>
+<ol>
+<li>Open the dashboard &gt; <strong>Settings</strong> &gt; <strong>Proxy API Key</strong> card.</li>
+<li>Click <strong>Copy</strong> and update the key in your client configuration (sent as <code node="[object Object]">Authorization: Bearer &lt;key&gt;</code> or <code node="[object Object]">x-api-key: &lt;key&gt;</code>).</li>
+<li>Or use the <strong>&quot;Prompt for AI&quot;</strong> dialog on the provider page -- it embeds the current key automatically.</li>
+<li>If you intentionally want to allow any key value, check the <strong>Require proxy API key</strong> toggle on the same card (not recommended).</li>
+</ol>
+<blockquote>
+<p><strong>Note:</strong> This 401 comes from ClawRouter itself, before any upstream request. A 401/403 from the <em>upstream provider</em> is a different issue -- see below.</p>
+</blockquote>
+<h3 id="problem-http-502-bad-gateway">Problem: HTTP 502 &quot;Bad Gateway&quot;</h3>
+<p><strong>Cause:</strong> ClawRouter could not reach the upstream provider.
+<strong>Possible fixes:</strong></p>
+<ol>
+<li>Check the <strong>Upstream URL</strong> in the provider&#x27;s Settings tab -- make sure it&#x27;s correct.</li>
+<li>Test the upstream URL directly in your browser or with <code node="[object Object]">curl</code>.</li>
+<li>Check your internet connection.</li>
+<li>The provider may be temporarily down -- check their status page.</li>
+</ol>
+<h3 id="problem-http-504-gateway-timeout">Problem: HTTP 504 &quot;Gateway Timeout&quot;</h3>
+<p><strong>Cause:</strong> The upstream provider took too long to respond.
+<strong>Possible fixes:</strong></p>
+<ol>
+<li>Increase the <strong>Timeout</strong> setting in the provider&#x27;s Settings tab (default: 120000ms / 2 minutes).</li>
+<li>For slow reasoning models, set to 300000ms (5 minutes) or higher.</li>
+<li>Enable <strong>Retry on Timeout</strong> to automatically try the next key.</li>
+</ol>
+<h3 id="problem-http-429-rate-limited">Problem: HTTP 429 &quot;Rate Limited&quot;</h3>
+<p><strong>Cause:</strong> Your API key hit the provider&#x27;s rate limit.
+<strong>What ClawRouter does:</strong> Automatically rotates to the next key with a cooldown on the rate-limited key (default 60 seconds, configurable in <strong>Settings</strong> &gt; <strong>Rate Limit Backoff</strong>).
+<strong>If all keys rate-limited:</strong></p>
+<ol>
+<li>Add more API keys to spread the load.</li>
+<li>Consider switching to Round Robin rotation to distribute requests more evenly.</li>
+<li>Wait for the backoff period to expire -- keys automatically recover from cooldown.</li>
+</ol>
+<h3 id="problem-http-401403-unauthorized">Problem: HTTP 401/403 &quot;Unauthorized&quot;</h3>
+<p><strong>Cause:</strong> The API key is invalid, expired, or revoked.
+<strong>What ClawRouter does:</strong> Permanently disables the key and tries the next one.
+<strong>Solution:</strong></p>
+<ol>
+<li>Check the key&#x27;s Error History for details.</li>
+<li>Verify the key is valid in the provider&#x27;s developer console.</li>
+<li>If the key was disabled incorrectly, re-enable it from the API Keys tab.</li>
+<li>Add a new valid key if needed.</li>
+</ol>
+<blockquote>
+<p><strong>Exceptions:</strong> Not every 403 is an auth error. A 403 &quot;requires a subscription&quot; body (Ollama Cloud gated models) is a <strong>model error</strong> -- the key stays enabled. A 403 <code node="[object Object]">access_terminated_error</code> (Kimi Coding quota windows) is <strong>quota exhaustion</strong> -- the key backs off until the window resets and is never disabled. And not every 429 is a rate limit: Z.AI puts a business code in <code node="[object Object]">error.code</code> that decides the outcome (1113 = hard billing &gt; key disabled; 1308-1321 = quota windows &gt; backoff only). See the provider-specific sections below.</p>
+</blockquote>
+<h3 id="problem-key-backed-off-for-a-long-time-but-not-disabled-kimi-coding">Problem: Key backed off for a long time but not disabled (Kimi Coding)</h3>
+<p><strong>Cause:</strong> A Kimi Coding quota window (5-hour, weekly, or monthly) is full. Kimi returns HTTP 403 <code node="[object Object]">access_terminated_error</code>, which ClawRouter classifies as quota exhaustion -- not an auth error.
+<strong>What ClawRouter does:</strong> Backs the key off until <strong>its own exhausted window&#x27;s reset</strong> -- read from the key&#x27;s saved quota snapshot, so a 5-hour exhaustion cools down until the 5-hour reset and a weekly exhaustion until the weekly reset (no shared blanket cooldown). The key is never disabled and recovers automatically.
+<strong>Solution:</strong> No action needed. Check the provider&#x27;s <strong>Quota</strong> tab (<strong>Fetch Quota</strong> button) for live per-key, per-window remaining quota and reset countdowns -- usable keys are sorted first. Add more keys if you regularly exhaust windows.</p>
+<h3 id="problem-monthly-usage-cycle-exhausted-but-the-quota-tab-shows-5-hourweekly-quota-available">Problem: &quot;Monthly usage cycle exhausted&quot; but the Quota tab shows 5-hour/weekly quota available</h3>
+<p><strong>Cause:</strong> The key&#x27;s <strong>monthly billing cycle</strong> is exhausted -- a separate limit from the 5-hour and weekly windows.
+<strong>What ClawRouter does:</strong> The key is <strong>not disabled</strong>. It is retried in ~10-day steps anchored to its last successful use until the monthly cycle renews.
+<strong>Solution:</strong> No action needed -- the key recovers when the billing cycle renews. Route around it by adding more keys or a fallback provider if this happens regularly.</p>
+<h3 id="problem-requests-succeed-but-return-wrongempty-responses">Problem: Requests succeed but return wrong/empty responses</h3>
+<p><strong>Possible causes:</strong></p>
+<ul>
+<li>Incorrect API format configured for the provider.</li>
+<li>Model ID is wrong or outdated.
+<strong>Solution:</strong></li>
+</ul>
+<ol>
+<li>Verify the <strong>API Format</strong> matches the provider (e.g., use <code node="[object Object]">google-generative-ai</code> for Gemini, not <code node="[object Object]">openai-completions</code>).</li>
+<li>Use <strong>Fetch Models</strong> to get the latest model IDs.</li>
+</ol>
+<hr/>
+<h2 id="api-key-issues">API Key Issues</h2>
+<h3 id="problem-key-marked-as-disabled----how-to-re-enable">Problem: Key marked as &quot;Disabled&quot; -- how to re-enable?</h3>
+<ol>
+<li>Open the provider&#x27;s <strong>API Keys</strong> tab.</li>
+<li>Find the disabled key.</li>
+<li>Click the <strong>enable/disable toggle</strong> to re-enable it.</li>
+<li>Check the <strong>Error History</strong> first to understand why it was disabled -- it may have genuine auth issues.</li>
+</ol>
+<h3 id="problem-how-do-i-check-if-a-key-actually-works">Problem: How do I check if a key actually works?</h3>
+<p>Use the built-in <strong>connection testing</strong>: click the test button on the key&#x27;s row (or <strong>Test All Keys</strong>). Each test runs a free <code node="[object Object]">/models</code> check followed by a 1-token generation probe. A 401/403 means the key is invalid; hard billing (HTTP 402, &quot;insufficient balance&quot; / <code node="[object Object]">insufficient_quota</code>) means the account is out of money (&quot;recharge required&quot;); a window-quota body (Kimi <code node="[object Object]">access_terminated</code>, Z.AI codes 1308-1321) means the key is valid and recovers at the window reset; other results confirm the credential is accepted. The latest result persists in the <strong>Last Test</strong> column.</p>
+<blockquote>
+<p><strong>Auto-disable:</strong> When a test proves a key definitively invalid (bad/expired key or hard billing), the key is <strong>auto-disabled</strong> -- you&#x27;ll see a <strong>&quot;Failed · disabled&quot;</strong> badge and a warning toast naming the key. Transient failures, rate limits, window quota, and content-moderation rejections never disable a key.</p>
+</blockquote>
+<h3 id="problem-this-provider-uses-no-api-keys-error-when-adding-a-key">Problem: &quot;This provider uses no API keys&quot; error when adding a key</h3>
+<p><strong>Cause:</strong> The provider&#x27;s API Key Mode is <code node="[object Object]">None</code> (keyless presets like OpenCode Zen, Kilo AI (Free), Ollama Local). These providers need no keys -- ClawRouter sends the required headers automatically.
+<strong>Solution:</strong> Nothing to fix -- use the provider as-is. If you intended to use your own key (e.g., a Kilo AI account key), create the provider from the <strong>Kilo AI</strong> preset (Managed mode) instead of <strong>Kilo AI (Free)</strong>.</p>
+<h3 id="problem-key-shows-unstable-status">Problem: Key shows &quot;Unstable&quot; status</h3>
+<p><strong>Cause:</strong> The key has more than 3 consecutive errors but hasn&#x27;t been disabled (errors are not auth-related).
+<strong>Solution:</strong> Check the Error History. The key may be experiencing temporary server issues. It will auto-recover when a request succeeds.</p>
+<h3 id="problem-all-keys-in-cooldown-at-the-same-time">Problem: All keys in cooldown at the same time</h3>
+<p><strong>Cause:</strong> All keys hit rate limits simultaneously.
+<strong>Solutions:</strong></p>
+<ol>
+<li>Add more keys to the pool.</li>
+<li>Switch to Round Robin rotation to distribute load.</li>
+<li>Reduce request frequency from your client.</li>
+<li>Wait for the backoff period (default 60 seconds, configurable in <strong>Settings</strong>) -- cooldowns expire automatically.</li>
+</ol>
+<h3 id="problem-key-stats-seem-wrong-or-inflated">Problem: Key stats seem wrong or inflated</h3>
+<p><strong>Solution:</strong> Click the <strong>Reset Stats</strong> button on the key to zero all counters (total, success, failed, consecutive errors).</p>
+<hr/>
+<h2 id="model-errors">Model Errors</h2>
+<h3 id="problem-model-not-found-http-404">Problem: &quot;Model not found&quot; (HTTP 404)</h3>
+<p><strong>Cause:</strong> The model ID is invalid or the model has been deprecated by the provider.
+<strong>Solutions:</strong></p>
+<ol>
+<li>Go to the provider&#x27;s <strong>Models</strong> tab &gt; <strong>Fetch Models</strong> to get the current list.</li>
+<li>Update the model ID in your client configuration.</li>
+<li>Enable <strong>Model Fallback</strong> with alternative models as backups.</li>
+</ol>
+<h3 id="problem-model-fallback-not-triggering">Problem: Model Fallback not triggering</h3>
+<p><strong>Checklist:</strong></p>
+<ol>
+<li>Is <strong>Model Fallback</strong> toggled to <strong>Enabled</strong> in the Models tab?</li>
+<li>Are there models saved in the fallback list? (Must have at least 2 models.)</li>
+<li>Is the error actually a model error? Check the log -- only MODEL_ERROR classification triggers fallback. Rate limits and auth errors do NOT trigger model fallback.</li>
+</ol>
+<h3 id="problem-paid_model_auth_required-error">Problem: &quot;PAID_MODEL_AUTH_REQUIRED&quot; error</h3>
+<p><strong>Cause:</strong> You&#x27;re trying to use a paid model on a bypass provider (Kilo AI or OpenCode Zen) without a paid subscription.
+<strong>Solution:</strong> Use only <strong>Free</strong> models. Go to <strong>Models</strong> tab &gt; <strong>Fetch Models</strong> and look for models with the <strong>Free</strong> badge.</p>
+<hr/>
+<h2 id="provider-fallback-issues">Provider Fallback Issues</h2>
+<h3 id="problem-fallback-chain-not-triggering">Problem: Fallback chain not triggering</h3>
+<p><strong>Checklist:</strong></p>
+<ol>
+<li>Is a Provider Fallback Chain configured? (Check the provider&#x27;s <strong>Fallback</strong> tab.)</li>
+<li>Is the fallback provider enabled?</li>
+<li>Have all keys on the primary provider been exhausted? (Fallback only triggers after all keys fail, not on a single key error.)</li>
+<li>Is the circuit breaker OPEN? (If so, it should skip directly to the fallback chain.)</li>
+</ol>
+<h3 id="problem-no-fallback-providers-in-notification">Problem: &quot;No fallback providers&quot; in notification</h3>
+<p><strong>Cause:</strong> The primary provider failed but no fallback chain is configured.
+<strong>Solution:</strong> Go to the provider&#x27;s <strong>Fallback</strong> tab (or the global <strong>Fallback</strong> page) &gt; Add Fallback Provider.</p>
+<h3 id="problem-fallback-provider-dropdown-is-empty">Problem: Fallback provider dropdown is empty</h3>
+<p><strong>Cause:</strong> No other providers exist yet (a provider cannot be its own fallback).
+<strong>Solution:</strong> Create another provider first, then add it as a fallback. Any provider can be a fallback target -- different API formats are translated automatically.</p>
+<h3 id="problem-fallback-succeeds-but-with-wrong-model">Problem: Fallback succeeds but with wrong model</h3>
+<p><strong>Cause:</strong> The fallback provider uses different model naming conventions.
+<strong>Solution:</strong> Edit the fallback entry (click its model) and pin the exact model ID the fallback provider expects. Alternatively, leave it on <strong>Automatic</strong> and enable Model Fallback on the target provider so ClawRouter cascades through its saved model list.</p>
+<hr/>
+<h2 id="circuit-breaker-issues">Circuit Breaker Issues</h2>
+<h3 id="problem-circuit-breaker-keeps-tripping-open">Problem: Circuit breaker keeps tripping (OPEN)</h3>
+<p><strong>Cause:</strong> The provider is consistently failing (default: 5+ failures in 60 seconds; threshold is configurable in <strong>Settings</strong> &gt; <strong>Circuit Breaker Threshold</strong>).
+<strong>Solutions:</strong></p>
+<ol>
+<li>Check the provider&#x27;s status -- it may be genuinely down.</li>
+<li>Verify your API keys are valid.</li>
+<li>Check for rate limiting across all keys.</li>
+<li>Increase the circuit breaker threshold in <strong>Settings</strong> if the current value is too sensitive.</li>
+<li>Manually reset the circuit breaker from the provider&#x27;s Settings tab after the issue resolves.</li>
+</ol>
+<h3 id="problem-requests-going-to-fallback-even-though-provider-seems-healthy">Problem: Requests going to fallback even though provider seems healthy</h3>
+<p><strong>Cause:</strong> Circuit breaker might be OPEN from a recent failure burst.
+<strong>Solution:</strong></p>
+<ol>
+<li>Check the circuit breaker status in the Settings tab.</li>
+<li>Click <strong>Reset</strong> to force it back to CLOSED.</li>
+<li>The next request will go to the primary provider.</li>
+</ol>
+<h3 id="problem-circuit-breaker-state-lost-after-restart">Problem: Circuit breaker state lost after restart</h3>
+<p><strong>Expected behavior:</strong> The circuit breaker is in-memory by design and resets to CLOSED on every restart. This ensures no stale state persists.</p>
+<hr/>
+<h2 id="connection--network-issues">Connection &amp; Network Issues</h2>
+<h3 id="problem-dashboard-not-loading-at-localhost3030">Problem: Dashboard not loading at localhost:3030</h3>
+<p><strong>Possible causes:</strong></p>
+<ol>
+<li>ClawRouter is not running -- run <code node="[object Object]">clawrouter status</code> to check.</li>
+<li>Wrong port -- check if a custom port is configured.</li>
+<li>Firewall blocking local connections.
+<strong>Solutions:</strong></li>
+<li>Run <code node="[object Object]">clawrouter start</code> to start the server.</li>
+<li>Check <code node="[object Object]">clawrouter status</code> for the actual port.</li>
+<li>Try accessing via <code node="[object Object]">http://127.0.0.1:3030</code> instead.</li>
+</ol>
+<h3 id="problem-websocket-reconnecting-status-on-logs-page">Problem: WebSocket &quot;Reconnecting&quot; status on Logs page</h3>
+<p><strong>Cause:</strong> The WebSocket connection to the server dropped.
+<strong>Solution:</strong> Usually reconnects automatically within 3 seconds. If persistent:</p>
+<ol>
+<li>Check that ClawRouter is still running (<code node="[object Object]">clawrouter status</code>).</li>
+<li>Refresh the page.</li>
+<li>Check for network issues between your browser and the server.</li>
+</ol>
+<h3 id="problem-eaddrinuse-error-on-startup">Problem: &quot;EADDRINUSE&quot; error on startup</h3>
+<p><strong>Cause:</strong> Port 3030 (or your configured port) is already in use.
+<strong>Solutions:</strong></p>
+<ol>
+<li>Run <code node="[object Object]">clawrouter stop</code> first, then <code node="[object Object]">clawrouter start</code>.</li>
+<li>Use a different port: <code node="[object Object]">clawrouter start --port 8080</code>.</li>
+<li>Find and kill the process using the port: <code node="[object Object]">lsof -i :3030</code> (Linux/macOS).</li>
+</ol>
+<hr/>
+<h2 id="dashboard--ui-issues">Dashboard &amp; UI Issues</h2>
+<h3 id="problem-stats-show-0-even-though-requests-are-being-made">Problem: Stats show &quot;0&quot; even though requests are being made</h3>
+<p><strong>Possible causes:</strong></p>
+<ol>
+<li>Stats use a 5-second cache -- wait a moment and refresh.</li>
+<li>Requests might be failing before reaching the logging stage.
+<strong>Solution:</strong> Check the Logs page for detailed request entries.</li>
+</ol>
+<h3 id="problem-notifications-not-appearing">Problem: Notifications not appearing</h3>
+<p><strong>Possible causes:</strong></p>
+<ol>
+<li>WebSocket connection might be down -- check the connection indicator on the Logs page.</li>
+<li>The event type might not generate a notification (e.g., successful requests don&#x27;t notify).
+<strong>Solution:</strong> Refresh the page to re-establish the WebSocket connection.</li>
+</ol>
+<h3 id="problem-provider-list-seems-outdated">Problem: Provider list seems outdated</h3>
+<p><strong>Solution:</strong> Navigate away from the Providers page and back. The data has a short stale time and will refresh.</p>
+<hr/>
+<h2 id="cli-issues">CLI Issues</h2>
+<h3 id="problem-clawrouter-command-not-found">Problem: <code node="[object Object]">clawrouter: command not found</code></h3>
+<p><strong>Cause:</strong> ClawRouter is not in your system PATH.
+<strong>Solutions:</strong></p>
+<ol>
+<li>Run the install command again.</li>
+<li>Restart your terminal to reload PATH.</li>
+<li>Run directly from the installation directory: <code node="[object Object]">node /path/to/clawrouter/bin/clawrouter.js</code></li>
+</ol>
+<h3 id="problem-clawrouter-status-says-not-running-but-dashboard-works">Problem: <code node="[object Object]">clawrouter status</code> says &quot;not running&quot; but dashboard works</h3>
+<p><strong>Cause:</strong> ClawRouter might have been started in a different way (directly via <code node="[object Object]">npm start</code> instead of the CLI service manager).
+<strong>Solution:</strong> Use <code node="[object Object]">clawrouter stop</code> then <code node="[object Object]">clawrouter start</code> to ensure it runs through the service manager.</p>
+<h3 id="problem-clawrouter-logs-shows-nothing">Problem: <code node="[object Object]">clawrouter logs</code> shows nothing</h3>
+<p><strong>Cause:</strong> No requests have been made, or the service is writing logs elsewhere.
+<strong>Solution:</strong> Make a test request through the proxy and check again.</p>
+<hr/>
+<h2 id="provider-specific-issues">Provider-Specific Issues</h2>
+<h3 id="opencode-zen----http-401-but-key-is-correct">OpenCode Zen -- HTTP 401 but key is correct</h3>
+<p><strong>Explanation:</strong> OpenCode returns HTTP 401 for unsupported models with a &quot;ModelError&quot; in the body. ClawRouter correctly classifies this as MODEL_ERROR (not AUTH_ERROR), so your key won&#x27;t be disabled.
+<strong>Solution:</strong> Check that the model ID exists. Use <strong>Fetch Models</strong> to get the current list.</p>
+<h3 id="kilo-ai----http-401-for-certain-models">Kilo AI -- HTTP 401 for certain models</h3>
+<p><strong>Explanation:</strong> Kilo returns HTTP 401 with &quot;PAID_MODEL_AUTH_REQUIRED&quot; for models that require a paid subscription. ClawRouter classifies this as MODEL_ERROR.
+<strong>Solution:</strong> Use only <strong>Free</strong> models. Check the <strong>Free/Paid</strong> badges in Fetch Models. Note there are two Kilo presets: <strong>Kilo AI (Free)</strong> is keyless (free models only); <strong>Kilo AI</strong> takes an API key for the full catalog.</p>
+<h3 id="anthropic-format-providers-anthropic-kimi-minimax----missing-anthropic-version-errors">Anthropic-format providers (Anthropic, Kimi, MiniMax) -- missing anthropic-version errors</h3>
+<p><strong>Explanation:</strong> Anthropic-format upstreams require the <code node="[object Object]">anthropic-version</code> header. ClawRouter auto-fills <code node="[object Object]">anthropic-version: 2023-06-01</code> when your client doesn&#x27;t send it, so this should not occur.
+<strong>Solution:</strong> If you see this error, check that your client isn&#x27;t sending an empty <code node="[object Object]">anthropic-version</code> header of its own.</p>
+<h3 id="google-gemini----http-400-and-key-gets-disabled">Google Gemini -- HTTP 400 and key gets disabled</h3>
+<p><strong>Explanation:</strong> Google returns HTTP 400 (not 401) for invalid API keys with &quot;API_KEY_INVALID&quot; in the body. ClawRouter correctly classifies this as AUTH_ERROR.
+<strong>Solution:</strong> Verify your API key at <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer" node="[object Object]">Google AI Studio</a>.</p>
+<h3 id="google-gemini----wrong-base-url-format">Google Gemini -- Wrong Base URL format</h3>
+<p><strong>Reminder:</strong> Google Gemini uses <code node="[object Object]">/v1beta</code> in the proxy URL, not <code node="[object Object]">/v1</code>. The correct Base URL format is:</p>
+<div class="code-block"><div class="code-block-bar"><span class="code-lang"><i class="code-lang-dot" aria-hidden="true"></i>text</span><button type="button" class="code-copy" aria-label="Copy code block"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy</button></div><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.7;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:16px 18px;margin:0;overflow:auto;border-radius:0;border:none;font-size:0.85rem"><code style="white-space:pre;font-family:var(--font-mono)"><span>http://localhost:3030/proxy/{provider-id}/v1beta</span></code></pre></div>
+<h3 id="anthropic----http-529-errors">Anthropic -- HTTP 529 errors</h3>
+<p><strong>Explanation:</strong> Anthropic uses a custom HTTP 529 status for overloaded servers. ClawRouter classifies this as OVERLOADED and retries the same key after 2 seconds (up to 2 times).
+<strong>Solution:</strong> If persistent, add more providers to your fallback chain or wait for Anthropic to recover.</p>
+<h3 id="groq----http-498-errors">Groq -- HTTP 498 errors</h3>
+<p><strong>Explanation:</strong> Groq uses a custom HTTP 498 for flex tier capacity limits. ClawRouter classifies this as RATE_LIMIT.
+<strong>Solution:</strong> Wait for the rate limit backoff period (default 60 seconds, configurable in <strong>Settings</strong>), or add more keys / a fallback provider.</p>
+<h3 id="zai----key-disabled-after-a-429-rate-limit">Z.AI -- Key disabled after a 429 &quot;rate limit&quot;</h3>
+<p><strong>Explanation:</strong> Z.AI returns almost every error as HTTP 429 with a numeric-string business code in <code node="[object Object]">error.code</code>. The code decides the outcome: <strong>1113</strong> (insufficient balance) is hard billing and disables the key; <strong>1309/1314/1315</strong> (expired/wrong plan) also disable it; <strong>1308/1310/1316-1321</strong> are self-resetting 5-hour/7-day quota windows (backoff only, never disabled); <strong>1302/1313</strong> are real rate limits; <strong>1311</strong> means your plan doesn&#x27;t include the model (model fallback).
+<strong>Solution:</strong> Check the key&#x27;s Error History for the actual business code. For 1113, recharge the account; for window codes, wait for the reset (visible on the <strong>Quota</strong> tab).</p>
+<h3 id="zai-glm-coding----quota-tab-shows-key-valid-no-active-plan">Z.AI GLM Coding -- Quota tab shows &quot;key valid, no active plan&quot;</h3>
+<p><strong>Explanation:</strong> The key authenticates, but the account has no active GLM Coding Plan. Z.AI&#x27;s monitor endpoint returns a &quot;coding plan&quot; error payload for such keys. The key is <strong>valid</strong> and is never disabled for this.
+<strong>Solution:</strong> Subscribe to a GLM Coding Plan on Z.AI, or use the key with the <strong>Z.AI API</strong> (general) preset instead, which is balance-based.</p>
+<h3 id="zai----key-auto-disabled-from-the-quota-tab-even-though-the-api-returned-http-200">Z.AI -- Key auto-disabled from the Quota tab even though the API returned HTTP 200</h3>
+<p><strong>Explanation:</strong> This is expected. Z.AI&#x27;s monitor endpoint returns HTTP 200 with <code node="[object Object]">{&quot;code&quot;:1000,&quot;msg&quot;:&quot;Authentication Failed&quot;,&quot;success&quot;:false}</code> for a <strong>dead key</strong>. ClawRouter detects this envelope and treats it exactly like a real 401 -- the key is disabled, with the same error history and notification as a real failed request.
+<strong>Solution:</strong> Verify the key in your Z.AI console, replace it if revoked, or re-enable it from the API Keys tab if you believe it was a mistake.</p>
+<h3 id="minimax----requests-succeed-but-errors-in-body">MiniMax -- Requests succeed but errors in body</h3>
+<p><strong>Explanation:</strong> MiniMax returns HTTP 200 for most errors with custom status codes in the response body. ClawRouter parses the body to detect these:</p>
+<ul>
+<li>Status 1004, 2049, 1008 &gt; AUTH_ERROR</li>
+<li>Status 1002, 2045, 2056 &gt; RATE_LIMIT
+<strong>Solution:</strong> Check the Error History for the actual error codes.</li>
+</ul>
+<h3 id="ollama-cloud----key-requirements">Ollama Cloud -- Key requirements</h3>
+<p><strong>Note:</strong> Ollama Cloud uses header-based auth managed by ClawRouter. Add <code node="[object Object]">sk-not-required</code> as the key. Do not leave the keys tab empty as the managed mode requires at least one key entry.</p>
+<h3 id="ollama-cloud----http-403-requires-a-subscription-on-some-models">Ollama Cloud -- HTTP 403 &quot;requires a subscription&quot; on some models</h3>
+<p><strong>Explanation:</strong> Ollama Cloud returns HTTP 403 &quot;this model requires a subscription, upgrade for access&quot; for plan-gated models. ClawRouter classifies this as MODEL_ERROR, not an auth error -- your key is <strong>not</strong> disabled. Ollama&#x27;s API does not mark which models are free vs paid, so gated models are discovered at runtime: after repeated failures they show an amber <strong>&quot;Skipped&quot;</strong> badge on the Models tab (model circuit breaker).
+<strong>Solution:</strong> Remove the gated model from your fallback list (or upgrade your Ollama plan). With Model Fallback enabled, requests automatically cascade to the next working model.</p>
+<h3 id="perplexity----no-models-returned-from-fetch">Perplexity -- No models returned from Fetch</h3>
+<p><strong>Explanation:</strong> Perplexity does not have a public <code node="[object Object]">/v1/models</code> endpoint. ClawRouter returns a hardcoded list of known supported models instead.
+<strong>Solution:</strong> Use the models shown by Fetch Models, or check Perplexity&#x27;s documentation for the latest model list.</p>
+<hr/>
+<h2 id="complete-reset">Complete Reset</h2>
+<p>If all else fails and you need to start fresh:</p>
+<ol>
+<li>Stop ClawRouter:
+<div class="code-block"><div class="code-block-bar"><span class="code-lang"><i class="code-lang-dot" aria-hidden="true"></i>bash</span><button type="button" class="code-copy" aria-label="Copy code block"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy</button></div><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.7;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:16px 18px;margin:0;overflow:auto;border-radius:0;border:none;font-size:0.85rem"><code style="white-space:pre;font-family:var(--font-mono)"><span>clawrouter stop</span></code></pre></div>
+</li>
+<li>Delete the local database file <code node="[object Object]">clawrouter.db</code> (in the ClawRouter installation directory), then restart:
+<div class="code-block"><div class="code-block-bar"><span class="code-lang"><i class="code-lang-dot" aria-hidden="true"></i>bash</span><button type="button" class="code-copy" aria-label="Copy code block"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy</button></div><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.7;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:16px 18px;margin:0;overflow:auto;border-radius:0;border:none;font-size:0.85rem"><code style="white-space:pre;font-family:var(--font-mono)"><span>clawrouter start</span></code></pre></div>
+</li>
+<li>You will need to reconfigure all providers and keys. Contact the developer if re-activation is needed.</li>
+</ol>
+<blockquote>
+<p><strong>Warning:</strong> This removes all providers, keys, and logs.</p>
+</blockquote></div></main><aside class="docs-side-right"><div class="toc-wrap"><div class="toc-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-tree" aria-hidden="true"><path d="M8 5h13"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="M3 10a2 2 0 0 0 2 2h3"></path><path d="M3 5v12a2 2 0 0 0 2 2h3"></path></svg>On this page</div><div class="toc-items"><button type="button" class="toc-link">Activation Issues</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;not_activated&quot; (HTTP 403) on proxy requests</button><button type="button" class="toc-link toc-link-sub">Problem: Was activated but now shows &quot;Awaiting Activation&quot;</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;Check Activation&quot; button doesn&#x27;t work</button><button type="button" class="toc-link">Proxy Request Errors</button><button type="button" class="toc-link toc-link-sub">Problem: HTTP 401 &quot;Invalid or missing API key&quot;</button><button type="button" class="toc-link toc-link-sub">Problem: HTTP 502 &quot;Bad Gateway&quot;</button><button type="button" class="toc-link toc-link-sub">Problem: HTTP 504 &quot;Gateway Timeout&quot;</button><button type="button" class="toc-link toc-link-sub">Problem: HTTP 429 &quot;Rate Limited&quot;</button><button type="button" class="toc-link toc-link-sub">Problem: HTTP 401/403 &quot;Unauthorized&quot;</button><button type="button" class="toc-link toc-link-sub">Problem: Key backed off for a long time but not disabled (Kimi Coding)</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;Monthly usage cycle exhausted&quot; but the Quota tab shows 5-hour/weekly quota available</button><button type="button" class="toc-link toc-link-sub">Problem: Requests succeed but return wrong/empty responses</button><button type="button" class="toc-link">API Key Issues</button><button type="button" class="toc-link toc-link-sub">Problem: Key marked as &quot;Disabled&quot; -- how to re-enable?</button><button type="button" class="toc-link toc-link-sub">Problem: How do I check if a key actually works?</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;This provider uses no API keys&quot; error when adding a key</button><button type="button" class="toc-link toc-link-sub">Problem: Key shows &quot;Unstable&quot; status</button><button type="button" class="toc-link toc-link-sub">Problem: All keys in cooldown at the same time</button><button type="button" class="toc-link toc-link-sub">Problem: Key stats seem wrong or inflated</button><button type="button" class="toc-link">Model Errors</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;Model not found&quot; (HTTP 404)</button><button type="button" class="toc-link toc-link-sub">Problem: Model Fallback not triggering</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;PAID_MODEL_AUTH_REQUIRED&quot; error</button><button type="button" class="toc-link">Provider Fallback Issues</button><button type="button" class="toc-link toc-link-sub">Problem: Fallback chain not triggering</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;No fallback providers&quot; in notification</button><button type="button" class="toc-link toc-link-sub">Problem: Fallback provider dropdown is empty</button><button type="button" class="toc-link toc-link-sub">Problem: Fallback succeeds but with wrong model</button><button type="button" class="toc-link">Circuit Breaker Issues</button><button type="button" class="toc-link toc-link-sub">Problem: Circuit breaker keeps tripping (OPEN)</button><button type="button" class="toc-link toc-link-sub">Problem: Requests going to fallback even though provider seems healthy</button><button type="button" class="toc-link toc-link-sub">Problem: Circuit breaker state lost after restart</button><button type="button" class="toc-link">Connection &amp; Network Issues</button><button type="button" class="toc-link toc-link-sub">Problem: Dashboard not loading at localhost:3030</button><button type="button" class="toc-link toc-link-sub">Problem: WebSocket &quot;Reconnecting&quot; status on Logs page</button><button type="button" class="toc-link toc-link-sub">Problem: &quot;EADDRINUSE&quot; error on startup</button><button type="button" class="toc-link">Dashboard &amp; UI Issues</button><button type="button" class="toc-link toc-link-sub">Problem: Stats show &quot;0&quot; even though requests are being made</button><button type="button" class="toc-link toc-link-sub">Problem: Notifications not appearing</button><button type="button" class="toc-link toc-link-sub">Problem: Provider list seems outdated</button><button type="button" class="toc-link">CLI Issues</button><button type="button" class="toc-link toc-link-sub">Problem: `clawrouter: command not found`</button><button type="button" class="toc-link toc-link-sub">Problem: `clawrouter status` says &quot;not running&quot; but dashboard works</button><button type="button" class="toc-link toc-link-sub">Problem: `clawrouter logs` shows nothing</button><button type="button" class="toc-link">Provider-Specific Issues</button><button type="button" class="toc-link toc-link-sub">OpenCode Zen -- HTTP 401 but key is correct</button><button type="button" class="toc-link toc-link-sub">Kilo AI -- HTTP 401 for certain models</button><button type="button" class="toc-link toc-link-sub">Anthropic-format providers (Anthropic, Kimi, MiniMax) -- missing anthropic-version errors</button><button type="button" class="toc-link toc-link-sub">Google Gemini -- HTTP 400 and key gets disabled</button><button type="button" class="toc-link toc-link-sub">Google Gemini -- Wrong Base URL format</button><button type="button" class="toc-link toc-link-sub">Anthropic -- HTTP 529 errors</button><button type="button" class="toc-link toc-link-sub">Groq -- HTTP 498 errors</button><button type="button" class="toc-link toc-link-sub">Z.AI -- Key disabled after a 429 &quot;rate limit&quot;</button><button type="button" class="toc-link toc-link-sub">Z.AI GLM Coding -- Quota tab shows &quot;key valid, no active plan&quot;</button><button type="button" class="toc-link toc-link-sub">Z.AI -- Key auto-disabled from the Quota tab even though the API returned HTTP 200</button><button type="button" class="toc-link toc-link-sub">MiniMax -- Requests succeed but errors in body</button><button type="button" class="toc-link toc-link-sub">Ollama Cloud -- Key requirements</button><button type="button" class="toc-link toc-link-sub">Ollama Cloud -- HTTP 403 &quot;requires a subscription&quot; on some models</button><button type="button" class="toc-link toc-link-sub">Perplexity -- No models returned from Fetch</button><button type="button" class="toc-link">Complete Reset</button></div></div></aside></div></div></main><footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand-row"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:30px;height:30px"/><span class="footer-brand-name">ClawRouter</span></div><p class="footer-tagline">High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.</p></div><div><h4 class="footer-heading">Project</h4><div class="footer-links"><a class="footer-link" href="/docs" data-discover="true">Documentation</a><a class="footer-link" href="/docs" data-discover="true">Quickstart Guide</a></div></div><div><h4 class="footer-heading">Connect</h4><div class="footer-social"><a href="mailto:support@clawrouter.qzz.io" title="Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div></div></div><div class="footer-bottom"><div><p class="footer-copy">© <!-- -->2026<!-- --> ClawRouter. All rights reserved.</p><p class="footer-legal"><strong>Terms &amp; Refund Policy:</strong> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.</p></div><div class="footer-author">Developed by Malek-Rsh</div></div></div></footer><button type="button" class="scroll-to-top" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></button></div>
+    <script src="https://cdn.jsdelivr.net/npm/@polar-sh/checkout@0.1/dist/embed.global.js" defer data-auto-init></script>
+  </body>
+</html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      /* Routing bootstrap — runs before anything renders.
+         1. Legacy hash-router URLs (#/docs?tab=x&anchor=y) are redirected to
+            their canonical path equivalents (/docs/x#y).
+         2. Deep links that hit GitHub Pages' 404.html are stashed in
+            sessionStorage by that page and restored here. */
+      (function () {
+        try {
+          if (location.hash.indexOf('#/') === 0) {
+            var legacy = location.hash.slice(1);
+            var qi = legacy.indexOf('?');
+            var path = qi === -1 ? legacy : legacy.slice(0, qi);
+            var query = qi === -1 ? '' : legacy.slice(qi + 1);
+            var tab = null;
+            var anchor = '';
+            query.split('&').forEach(function (pair) {
+              var kv = pair.split('=');
+              if (kv[0] === 'tab') tab = decodeURIComponent(kv[1] || '');
+              if (kv[0] === 'anchor') anchor = '#' + decodeURIComponent(kv[1] || '');
+            });
+            if (path === '/docs' && tab && tab !== 'quickstart') path = '/docs/' + tab;
+            location.replace(path + anchor);
+            return;
+          }
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            history.replaceState(null, '', redirect);
+          }
+        } catch (e) { /* routing must never block rendering */ }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard." />
+    <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://clawrouter.qzz.io/docs/installation" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClawRouter" />
+    <meta property="og:url" content="https://clawrouter.qzz.io/docs/installation" />
+    <meta property="og:title" content="Installation &amp; Activation — ClawRouter Docs" />
+    <meta property="og:description" content="ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard." />
+    <meta property="og:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Installation &amp; Activation — ClawRouter Docs" />
+    <meta name="twitter:description" content="ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard." />
+    <meta name="twitter:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <title>Installation &amp; Activation — ClawRouter Docs</title>
+    <noscript>
+      <style>
+        /* Without JS the reveal-on-scroll observer never runs — show content. */
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/index-C8HBdYoP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CNgIYuop.css">
+      <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://clawrouter.qzz.io/#organization","name":"ClawRouter","url":"https://clawrouter.qzz.io","email":"support@clawrouter.qzz.io","logo":"https://clawrouter.qzz.io/favicon.svg","sameAs":["https://github.com/malek2662/ClawProxy-docs","https://reddit.com/user/Malek262"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://clawrouter.qzz.io/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://clawrouter.qzz.io/docs"},{"@type":"ListItem","position":3,"name":"Installation & Activation","item":"https://clawrouter.qzz.io/docs/installation"}]},{"@type":"TechArticle","headline":"Installation & Activation","description":"ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.","url":"https://clawrouter.qzz.io/docs/installation","image":"https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png","inLanguage":"en","articleSection":"Getting Started","dateModified":"2026-08-28","author":{"@id":"https://clawrouter.qzz.io/#organization"},"isPartOf":{"@id":"https://clawrouter.qzz.io/#website"},"about":{"@id":"https://clawrouter.qzz.io/#app"}}]}</script>
+  </head>
+  <body>
+    <div id="root"><nav class="glass-nav"><div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%"><a class="nav-logo" href="/" data-discover="true"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:28px;height:28px"/><span class="nav-logo-text">ClawRouter</span></a><div style="display:flex;align-items:center;gap:20px"><span class="nav-version"><i aria-hidden="true"></i>v1.0.18</span><div style="display:flex;gap:6px"><a class="nav-link" href="/" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="nav-btn-label">Home</span></a><a class="nav-link active" href="/docs" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"></path></svg><span class="nav-btn-label">Documentation</span></a></div><div style="width:1px;height:24px;background:var(--border-light)"></div><div style="display:flex;align-items:center;gap:6px"><a href="mailto:support@clawrouter.qzz.io" title="Contact via Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Contact via Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.1.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div><button type="button" class="nav-cta">Get ClawRouter — $20</button></div></div></nav><div class="scroll-progress-track"><div class="scroll-progress-bar"></div></div><main class="page-content"><button type="button" class="docs-mobile-menu-btn" aria-label="Open navigation"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="animate-fade-in docs-layout"><div class="docs-layout-inner"><aside class="docs-side-left"><div class="docs-search-wrapper"><div class="docs-search-input-box"><span class="docs-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg></span><input type="text" class="docs-search-input" placeholder="Search docs..." value=""/><span class="docs-search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span></div></div><div class="docs-nav"><div class="docs-nav-section"><h3 class="docs-nav-label">Getting Started</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Quickstart Guide</button><button type="button" class="docs-nav-item active">Installation &amp; Activation</button><button type="button" class="docs-nav-item">Your First Provider</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Core Concepts</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">How ClawRouter Works</button><button type="button" class="docs-nav-item">Key Rotation</button><button type="button" class="docs-nav-item">Model Fallback</button><button type="button" class="docs-nav-item">Provider Fallback Chain</button><button type="button" class="docs-nav-item">Virtual Providers (Combos)</button><button type="button" class="docs-nav-item">API Format Translation</button><button type="button" class="docs-nav-item">Circuit Breaker</button><button type="button" class="docs-nav-item">Error Classification &amp; Retry</button><button type="button" class="docs-nav-item">System Prompt Control</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">How-To Guides</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Managing API Keys</button><button type="button" class="docs-nav-item">Configuring Models</button><button type="button" class="docs-nav-item">Configuring Fallback</button><button type="button" class="docs-nav-item">Monitoring &amp; Notifications</button><button type="button" class="docs-nav-item">Provider Management</button><button type="button" class="docs-nav-item">Global Settings</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Providers</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Provider Directory</button><button type="button" class="docs-nav-item">Bypass Providers</button><button type="button" class="docs-nav-item">Free Tier Providers</button><button type="button" class="docs-nav-item">Paid Providers</button><button type="button" class="docs-nav-item">ElevenLabs (Audio)</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Client Setup</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Client Setup Overview</button><button type="button" class="docs-nav-item">OpenClaw</button><button type="button" class="docs-nav-item">OpenCode</button><button type="button" class="docs-nav-item">Claude Code</button><button type="button" class="docs-nav-item">Codex CLI</button><button type="button" class="docs-nav-item">Qwen Code</button><button type="button" class="docs-nav-item">DeepSeek Harness</button><button type="button" class="docs-nav-item">Other / Custom Clients</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Reference</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">CLI Commands</button><button type="button" class="docs-nav-item">Settings Reference</button><button type="button" class="docs-nav-item">API Reference</button><button type="button" class="docs-nav-item">Environment Variables</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Help</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Troubleshooting</button><button type="button" class="docs-nav-item">FAQ</button><button type="button" class="docs-nav-item">Support &amp; Contact</button></div></div></div></aside><main class="docs-main"><div class="md-content md-tab-anim"><h1 id="installation--activation">Installation &amp; Activation</h1>
+<p>ClawRouter requires a one-time activation after installation. This guide covers the full process from first launch to a fully functional dashboard.</p>
+<blockquote>
+<p><strong>Version 1.0.18</strong></p>
+</blockquote>
+<hr/>
+<h2 id="system-requirements">System Requirements</h2>
+<p>ClawRouter runs on <strong>Linux</strong>, <strong>macOS</strong>, and <strong>Windows</strong>. The CLI auto-detects the best service manager for your platform:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Platform</th><th>Service Backend</th></tr></thead><tbody><tr><td>Linux</td><td>systemd (<code node="[object Object]">systemctl --user</code>)</td></tr><tr><td>macOS</td><td>launchd (<code node="[object Object]">~/Library/LaunchAgents</code>)</td></tr><tr><td>Windows</td><td>node-windows (Windows Service)</td></tr></tbody></table></div></div>
+<p>If the native service manager isn&#x27;t available, ClawRouter falls back to a built-in process manager.</p>
+<hr/>
+<h2 id="installing-clawrouter">Installing ClawRouter</h2>
+<p>ClawRouter is premium software. After your payment is confirmed, you will receive the installation command and setup instructions automatically.</p>
+<p><strong>Install as a system service (recommended):</strong></p>
+<div class="code-block"><div class="code-block-bar"><span class="code-lang"><i class="code-lang-dot" aria-hidden="true"></i>bash</span><button type="button" class="code-copy" aria-label="Copy code block"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy</button></div><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.7;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:16px 18px;margin:0;overflow:auto;border-radius:0;border:none;font-size:0.85rem"><code style="white-space:pre;font-family:var(--font-mono)"><span>clawrouter </span><span class="token" style="color:hsl(207, 82%, 66%)">install</span></code></pre></div>
+<p>This installs ClawRouter as a background system service, starts it, and opens the dashboard in your default browser.</p>
+<p><strong>Or start manually:</strong></p>
+<div class="code-block"><div class="code-block-bar"><span class="code-lang"><i class="code-lang-dot" aria-hidden="true"></i>bash</span><button type="button" class="code-copy" aria-label="Copy code block"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> Copy</button></div><pre style="background:transparent;color:hsl(220, 14%, 71%);text-shadow:0 1px rgba(0, 0, 0, 0.3);font-family:&quot;Fira Code&quot;, &quot;Fira Mono&quot;, Menlo, Consolas, &quot;DejaVu Sans Mono&quot;, monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;line-height:1.7;-moz-tab-size:2;-o-tab-size:2;tab-size:2;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none;padding:16px 18px;margin:0;overflow:auto;border-radius:0;border:none;font-size:0.85rem"><code style="white-space:pre;font-family:var(--font-mono)"><span>clawrouter start</span></code></pre></div>
+<hr/>
+<h2 id="activation-process">Activation Process</h2>
+<h3 id="step-1-get-your-installation-id">Step 1: Get Your Installation ID</h3>
+<ol>
+<li>Open your browser and go to <code node="[object Object]">http://localhost:3030</code>.</li>
+<li><strong>Sign in</strong> with the dashboard password. On first run the password is <code node="[object Object]">changeme</code> -- change it from <strong>Settings</strong> &gt; <strong>Dashboard Security</strong> once you are in.</li>
+<li>You will see the <strong>Awaiting Activation</strong> screen.</li>
+<li>Your unique <strong>Installation ID</strong> is displayed on screen.</li>
+<li>Click <strong>Copy</strong> to copy the Installation ID to your clipboard.</li>
+</ol>
+<h3 id="step-2-request-activation">Step 2: Request Activation</h3>
+<p>Send the Installation ID to the developer:</p>
+<ul>
+<li><strong>Email:</strong> <a href="mailto:support@clawrouter.qzz.io" target="_self" rel="noopener noreferrer" node="[object Object]">support@clawrouter.qzz.io</a></li>
+<li><strong>Reddit:</strong> <a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" node="[object Object]">u/Malek262</a></li>
+</ul>
+<h3 id="step-3-confirm-activation">Step 3: Confirm Activation</h3>
+<ol>
+<li>Wait for the developer to confirm your activation.</li>
+<li>Once confirmed, click <strong>Check Activation</strong> on the Awaiting Activation screen.</li>
+<li>The dashboard loads and you can begin adding providers.</li>
+</ol>
+<hr/>
+<h2 id="update-check">Update Check</h2>
+<p>ClawRouter checks for updates automatically during its periodic license check.</p>
+<p>If a newer version is available:</p>
+<ol>
+<li>An <strong>Update Available</strong> badge appears in the sidebar.</li>
+<li>Click the badge to open the <strong>Update Modal</strong>.</li>
+<li>The modal shows:
+<ul>
+<li><strong>Current version</strong> &gt; <strong>Latest version</strong></li>
+<li><strong>Changelog</strong> (if provided)</li>
+<li><strong>Install/update commands</strong> for your platform</li>
+</ul>
+</li>
+<li>Run the provided command in your terminal to update.</li>
+</ol>
+<hr/>
+<h2 id="activation-troubleshooting">Activation Troubleshooting</h2>
+<h3 id="not_activated-http-403-on-proxy-requests">&quot;not_activated&quot; (HTTP 403) on proxy requests</h3>
+<p>Your ClawRouter installation has not been activated yet. Open the dashboard, copy your Installation ID, send it to the developer, and click <strong>Check Activation</strong> once confirmed.</p>
+<h3 id="was-activated-but-now-shows-awaiting-activation">Was activated but now shows &quot;Awaiting Activation&quot;</h3>
+<p>Possible causes:</p>
+<ul>
+<li>You moved ClawRouter to a different machine (the Installation ID is machine-specific).</li>
+<li>Local data was reset.</li>
+</ul>
+<p><strong>Solution:</strong> Contact the developer. If on a new machine, send the new Installation ID.</p>
+<h3 id="check-activation-button-doesnt-work">&quot;Check Activation&quot; button doesn&#x27;t work</h3>
+<p>The activation server may be unreachable. Check your internet connection. If you&#x27;re behind a firewall, ensure outbound HTTPS requests are allowed.</p>
+<hr/>
+<h2 id="data-storage--privacy">Data Storage &amp; Privacy</h2>
+<p>Everything is stored locally on your machine. Providers, keys, logs, and configurations are kept in a local SQLite database in the installation directory.</p>
+<p>The only external requests ClawRouter makes are:</p>
+<ol>
+<li><strong>To the AI providers you configure</strong> -- forwarding your API requests.</li>
+<li><strong>Periodic license check</strong> -- a lightweight check for activation status and available updates.</li>
+</ol></div></main><aside class="docs-side-right"><div class="toc-wrap"><div class="toc-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-tree" aria-hidden="true"><path d="M8 5h13"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="M3 10a2 2 0 0 0 2 2h3"></path><path d="M3 5v12a2 2 0 0 0 2 2h3"></path></svg>On this page</div><div class="toc-items"><button type="button" class="toc-link">System Requirements</button><button type="button" class="toc-link">Installing ClawRouter</button><button type="button" class="toc-link">Activation Process</button><button type="button" class="toc-link toc-link-sub">Step 1: Get Your Installation ID</button><button type="button" class="toc-link toc-link-sub">Step 2: Request Activation</button><button type="button" class="toc-link toc-link-sub">Step 3: Confirm Activation</button><button type="button" class="toc-link">Update Check</button><button type="button" class="toc-link">Activation Troubleshooting</button><button type="button" class="toc-link toc-link-sub">&quot;not_activated&quot; (HTTP 403) on proxy requests</button><button type="button" class="toc-link toc-link-sub">Was activated but now shows &quot;Awaiting Activation&quot;</button><button type="button" class="toc-link toc-link-sub">&quot;Check Activation&quot; button doesn&#x27;t work</button><button type="button" class="toc-link">Data Storage &amp; Privacy</button></div></div></aside></div></div></main><footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand-row"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:30px;height:30px"/><span class="footer-brand-name">ClawRouter</span></div><p class="footer-tagline">High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.</p></div><div><h4 class="footer-heading">Project</h4><div class="footer-links"><a class="footer-link" href="/docs" data-discover="true">Documentation</a><a class="footer-link" href="/docs" data-discover="true">Quickstart Guide</a></div></div><div><h4 class="footer-heading">Connect</h4><div class="footer-social"><a href="mailto:support@clawrouter.qzz.io" title="Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div></div></div><div class="footer-bottom"><div><p class="footer-copy">© <!-- -->2026<!-- --> ClawRouter. All rights reserved.</p><p class="footer-legal"><strong>Terms &amp; Refund Policy:</strong> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.</p></div><div class="footer-author">Developed by Malek-Rsh</div></div></div></footer><button type="button" class="scroll-to-top" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></button></div>
+    <script src="https://cdn.jsdelivr.net/npm/@polar-sh/checkout@0.1/dist/embed.global.js" defer data-auto-init></script>
+  </body>
+</html>

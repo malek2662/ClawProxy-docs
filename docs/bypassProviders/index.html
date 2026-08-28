@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      /* Routing bootstrap — runs before anything renders.
+         1. Legacy hash-router URLs (#/docs?tab=x&anchor=y) are redirected to
+            their canonical path equivalents (/docs/x#y).
+         2. Deep links that hit GitHub Pages' 404.html are stashed in
+            sessionStorage by that page and restored here. */
+      (function () {
+        try {
+          if (location.hash.indexOf('#/') === 0) {
+            var legacy = location.hash.slice(1);
+            var qi = legacy.indexOf('?');
+            var path = qi === -1 ? legacy : legacy.slice(0, qi);
+            var query = qi === -1 ? '' : legacy.slice(qi + 1);
+            var tab = null;
+            var anchor = '';
+            query.split('&').forEach(function (pair) {
+              var kv = pair.split('=');
+              if (kv[0] === 'tab') tab = decodeURIComponent(kv[1] || '');
+              if (kv[0] === 'anchor') anchor = '#' + decodeURIComponent(kv[1] || '');
+            });
+            if (path === '/docs' && tab && tab !== 'quickstart') path = '/docs/' + tab;
+            location.replace(path + anchor);
+            return;
+          }
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            history.replaceState(null, '', redirect);
+          }
+        } catch (e) { /* routing must never block rendering */ }
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add,…" />
+    <meta name="theme-color" content="#121212" />
+    <link rel="canonical" href="https://clawrouter.qzz.io/docs/bypassProviders" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="ClawRouter" />
+    <meta property="og:url" content="https://clawrouter.qzz.io/docs/bypassProviders" />
+    <meta property="og:title" content="Bypass Providers — ClawRouter Docs" />
+    <meta property="og:description" content="Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add,…" />
+    <meta property="og:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Bypass Providers — ClawRouter Docs" />
+    <meta name="twitter:description" content="Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add,…" />
+    <meta name="twitter:image" content="https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png" />
+    <title>Bypass Providers — ClawRouter Docs</title>
+    <noscript>
+      <style>
+        /* Without JS the reveal-on-scroll observer never runs — show content. */
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
+    <script type="module" crossorigin src="/assets/index-C8HBdYoP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CNgIYuop.css">
+      <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://clawrouter.qzz.io/#organization","name":"ClawRouter","url":"https://clawrouter.qzz.io","email":"support@clawrouter.qzz.io","logo":"https://clawrouter.qzz.io/favicon.svg","sameAs":["https://github.com/malek2662/ClawProxy-docs","https://reddit.com/user/Malek262"]},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://clawrouter.qzz.io/"},{"@type":"ListItem","position":2,"name":"Docs","item":"https://clawrouter.qzz.io/docs"},{"@type":"ListItem","position":3,"name":"Bypass Providers","item":"https://clawrouter.qzz.io/docs/bypassProviders"}]},{"@type":"TechArticle","headline":"Bypass Providers","description":"Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add,…","url":"https://clawrouter.qzz.io/docs/bypassProviders","image":"https://clawrouter.qzz.io/assets/screenshots/dashboard-overview.png","inLanguage":"en","articleSection":"Providers","dateModified":"2026-08-28","author":{"@id":"https://clawrouter.qzz.io/#organization"},"isPartOf":{"@id":"https://clawrouter.qzz.io/#website"},"about":{"@id":"https://clawrouter.qzz.io/#app"}}]}</script>
+  </head>
+  <body>
+    <div id="root"><nav class="glass-nav"><div class="container" style="display:flex;justify-content:space-between;align-items:center;width:100%"><a class="nav-logo" href="/" data-discover="true"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:28px;height:28px"/><span class="nav-logo-text">ClawRouter</span></a><div style="display:flex;align-items:center;gap:20px"><span class="nav-version"><i aria-hidden="true"></i>v1.0.18</span><div style="display:flex;gap:6px"><a class="nav-link" href="/" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg><span class="nav-btn-label">Home</span></a><a class="nav-link active" href="/docs" data-discover="true"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-book" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20"></path></svg><span class="nav-btn-label">Documentation</span></a></div><div style="width:1px;height:24px;background:var(--border-light)"></div><div style="display:flex;align-items:center;gap:6px"><a href="mailto:support@clawrouter.qzz.io" title="Contact via Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Contact via Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.1.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div><button type="button" class="nav-cta">Get ClawRouter — $20</button></div></div></nav><div class="scroll-progress-track"><div class="scroll-progress-bar"></div></div><main class="page-content"><button type="button" class="docs-mobile-menu-btn" aria-label="Open navigation"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu" aria-hidden="true"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg></button><div class="animate-fade-in docs-layout"><div class="docs-layout-inner"><aside class="docs-side-left"><div class="docs-search-wrapper"><div class="docs-search-input-box"><span class="docs-search-icon"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg></span><input type="text" class="docs-search-input" placeholder="Search docs..." value=""/><span class="docs-search-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span></div></div><div class="docs-nav"><div class="docs-nav-section"><h3 class="docs-nav-label">Getting Started</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Quickstart Guide</button><button type="button" class="docs-nav-item">Installation &amp; Activation</button><button type="button" class="docs-nav-item">Your First Provider</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Core Concepts</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">How ClawRouter Works</button><button type="button" class="docs-nav-item">Key Rotation</button><button type="button" class="docs-nav-item">Model Fallback</button><button type="button" class="docs-nav-item">Provider Fallback Chain</button><button type="button" class="docs-nav-item">Virtual Providers (Combos)</button><button type="button" class="docs-nav-item">API Format Translation</button><button type="button" class="docs-nav-item">Circuit Breaker</button><button type="button" class="docs-nav-item">Error Classification &amp; Retry</button><button type="button" class="docs-nav-item">System Prompt Control</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">How-To Guides</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Managing API Keys</button><button type="button" class="docs-nav-item">Configuring Models</button><button type="button" class="docs-nav-item">Configuring Fallback</button><button type="button" class="docs-nav-item">Monitoring &amp; Notifications</button><button type="button" class="docs-nav-item">Provider Management</button><button type="button" class="docs-nav-item">Global Settings</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Providers</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Provider Directory</button><button type="button" class="docs-nav-item active">Bypass Providers</button><button type="button" class="docs-nav-item">Free Tier Providers</button><button type="button" class="docs-nav-item">Paid Providers</button><button type="button" class="docs-nav-item">ElevenLabs (Audio)</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Client Setup</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Client Setup Overview</button><button type="button" class="docs-nav-item">OpenClaw</button><button type="button" class="docs-nav-item">OpenCode</button><button type="button" class="docs-nav-item">Claude Code</button><button type="button" class="docs-nav-item">Codex CLI</button><button type="button" class="docs-nav-item">Qwen Code</button><button type="button" class="docs-nav-item">DeepSeek Harness</button><button type="button" class="docs-nav-item">Other / Custom Clients</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Reference</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">CLI Commands</button><button type="button" class="docs-nav-item">Settings Reference</button><button type="button" class="docs-nav-item">API Reference</button><button type="button" class="docs-nav-item">Environment Variables</button></div></div><div class="docs-nav-section"><h3 class="docs-nav-label">Help</h3><div class="docs-nav-items"><button type="button" class="docs-nav-item">Troubleshooting</button><button type="button" class="docs-nav-item">FAQ</button><button type="button" class="docs-nav-item">Support &amp; Contact</button></div></div></div></aside><main class="docs-main"><div class="md-content md-tab-anim"><h1 id="bypass-providers">Bypass Providers</h1>
+<p>Bypass providers access AI models without requiring an API key. ClawRouter handles authentication internally via static default headers -- no keys to add, no signup required.</p>
+<blockquote>
+<p><strong>Version 1.0.18</strong></p>
+</blockquote>
+<blockquote>
+<p><strong>No Setup Tricks Needed:</strong> Keyless presets ship with API Key Mode <code node="[object Object]">None</code> pre-selected. Just pick the preset and click <strong>Create Provider</strong> -- do <strong>not</strong> add any API keys. The keys table is replaced by an informational card, and the add-key endpoint rejects keys for these providers.</p>
+</blockquote>
+<blockquote>
+<p><strong>Client configuration:</strong> Ready-to-paste setups for every client (OpenClaw, OpenCode, Claude Code, Codex CLI, Qwen Code, DeepSeek Harness, custom) live in the <strong>Client Setup</strong> section -- or open the provider&#x27;s <strong>Prompt for AI</strong> dialog in the dashboard, which generates the config for you with your real proxy key and current model list included.</p>
+</blockquote>
+<hr/>
+<h2 id="how-keyless-providers-work">How Keyless Providers Work</h2>
+<p>Providers with API Key Mode <code node="[object Object]">None</code> need no keys. Instead, each preset carries <strong>default headers</strong> that ClawRouter merges into every upstream request automatically. For example, OpenCode Zen sends <code node="[object Object]">Authorization: Bearer public</code> and <code node="[object Object]">x-opencode-client: desktop</code> on your behalf.</p>
+<p>You never see or manage these headers -- they are part of the preset.</p>
+<hr/>
+<h2 id="opencode-zen">OpenCode Zen</h2>
+<p>Free high-performance coding and reasoning models, no signup.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td><strong>Template</strong></td><td>Quick Setup &gt; <strong>OpenCode Zen</strong></td></tr><tr><td><strong>Upstream URL</strong></td><td><code node="[object Object]">https://opencode.ai/zen/v1</code></td></tr><tr><td><strong>API Format</strong></td><td><code node="[object Object]">openai-completions</code></td></tr><tr><td><strong>API Key Mode</strong></td><td><code node="[object Object]">None</code> (automatic)</td></tr></tbody></table></div></div>
+<h3 id="available-free-models">Available Free Models</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Model ID</th><th>Description</th><th>Context</th></tr></thead><tbody><tr><td><code node="[object Object]">nemotron-3-ultra-free</code></td><td>NVIDIA Nemotron 3 Ultra (free)</td><td>1M</td></tr><tr><td><code node="[object Object]">nemotron-3.5-lightning-free</code></td><td>NVIDIA Nemotron 3.5 Lightning (free)</td><td>262k</td></tr><tr><td><code node="[object Object]">x-preview-f-free</code></td><td>&quot;Ox Alpha&quot; stealth preview (free, unlimited)</td><td>1M</td></tr><tr><td><code node="[object Object]">muse-spark-1.2-contributor-free</code></td><td>Muse Spark 1.2 (contributor free)</td><td>1M</td></tr><tr><td><code node="[object Object]">laguna-s-2.1-free</code></td><td>Poolside Laguna S 2.1 (free)</td><td>256k</td></tr><tr><td><code node="[object Object]">deepseek-v4-flash-free</code></td><td>DeepSeek V4 Flash (free)</td><td>200k</td></tr><tr><td><code node="[object Object]">mimo-v2.5-free</code></td><td>Xiaomi MiMo V2.5 (free)</td><td>200k</td></tr><tr><td><code node="[object Object]">big-pickle</code></td><td>High-speed stealth model optimized for development</td><td>200k</td></tr><tr><td><code node="[object Object]">hy3-free</code></td><td>Tencent Hy3 (free)</td><td>190k</td></tr></tbody></table></div></div>
+<blockquote>
+<p><strong>Free models rotate.</strong> Zen&#x27;s free set is limited-time and changes frequently -- this is a snapshot (August 2026), and <code node="[object Object]">deepseek-v4-flash-free</code> / <code node="[object Object]">laguna-s-2.1-free</code> are already marked deprecated upstream and may fail at generation. The dashboard&#x27;s <strong>Models tab &gt; Fetch Models</strong> always shows today&#x27;s free/paid set. Official list: <a href="https://opencode.ai/docs/zen/" target="_blank" rel="noopener noreferrer" node="[object Object]">opencode.ai/docs/zen</a>.</p>
+</blockquote>
+<h3 id="dashboard-setup-steps">Dashboard Setup Steps</h3>
+<ol>
+<li>Go to <strong>Providers</strong> &gt; <strong>Add Provider</strong> &gt; <strong>Quick Setup</strong> &gt; select <strong>OpenCode Zen</strong>.</li>
+<li>Click <strong>Create Provider</strong> -- API Key Mode is already set to <code node="[object Object]">None</code>.</li>
+<li>Do <strong>not</strong> add any API keys.</li>
+<li>Copy the generated <strong>Base URL</strong> and use it in your AI client.</li>
+<li><em>(Optional)</em> Go to <strong>Models</strong> tab &gt; <strong>Fetch Models</strong> to see all available models with Free/Paid badges.</li>
+</ol>
+<hr/>
+<h2 id="kilo-ai-free">Kilo AI (Free)</h2>
+<p>Free models on the Kilo AI gateway, no key needed.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td><strong>Template</strong></td><td>Quick Setup &gt; <strong>Kilo AI (Free)</strong></td></tr><tr><td><strong>Upstream URL</strong></td><td><code node="[object Object]">https://api.kilo.ai/api/gateway</code></td></tr><tr><td><strong>API Format</strong></td><td><code node="[object Object]">openai-completions</code></td></tr><tr><td><strong>API Key Mode</strong></td><td><code node="[object Object]">None</code> (automatic)</td></tr></tbody></table></div></div>
+<blockquote>
+<p><strong>Two Kilo presets:</strong> <strong>Kilo AI (Free)</strong> is keyless and gives access to the free models below. The <strong>Kilo AI</strong> preset uses API Key Mode <code node="[object Object]">Managed</code> for accounts with a Kilo API key -- it unlocks the full model catalog including paid models.</p>
+</blockquote>
+<h3 id="available-free-models-1">Available Free Models</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Model ID</th><th>Description</th><th>Context</th></tr></thead><tbody><tr><td><code node="[object Object]">kilo-auto/free</code></td><td>Dynamic router -- auto-routes to available free models</td><td>256k</td></tr><tr><td><code node="[object Object]">meituan/longcat-2.0-free</code></td><td>Meituan LongCat 2.0</td><td>1M</td></tr><tr><td><code node="[object Object]">nvidia/nemotron-3-ultra-550b-a55b:free</code></td><td>NVIDIA Nemotron 3 Ultra 550B</td><td>1M</td></tr><tr><td><code node="[object Object]">nvidia/nemotron-3.5-lightning:free</code></td><td>NVIDIA Nemotron 3.5 Lightning</td><td>1M</td></tr><tr><td><code node="[object Object]">dots-studio/dots-3-note-preview:free</code></td><td>Dots Studio Dots3-Note Preview</td><td>512k</td></tr><tr><td><code node="[object Object]">stepfun/step-3.7-flash:free</code></td><td>StepFun Step 3.7 Flash</td><td>256k</td></tr><tr><td><code node="[object Object]">tencent/hy3:free</code></td><td>Tencent Hy3</td><td>256k</td></tr><tr><td><code node="[object Object]">poolside/laguna-s-2.1:free</code></td><td>Poolside Laguna S 2.1</td><td>256k</td></tr><tr><td><code node="[object Object]">poolside/laguna-xs-2.1:free</code></td><td>Poolside Laguna XS 2.1</td><td>256k</td></tr><tr><td><code node="[object Object]">cohere/north-mini-code:free</code></td><td>Cohere North Mini Code</td><td>256k</td></tr><tr><td><code node="[object Object]">nvidia/nemotron-3-super-120b-a12b:free</code></td><td>NVIDIA Nemotron 3 Super 120B</td><td>256k</td></tr><tr><td><code node="[object Object]">liquid/lfm-2.5-2.6b:free</code></td><td>LiquidAI LFM2.5-2.6B</td><td>65k</td></tr><tr><td><code node="[object Object]">openrouter/free</code></td><td>Auto-routes to random free models on OpenRouter</td><td>200k</td></tr></tbody></table></div></div>
+<blockquote>
+<p><strong>Free models rotate.</strong> This is a snapshot (August 2026) of the gateway&#x27;s free set. <strong>Models tab &gt; Fetch Models</strong> shows the live list with Free/Paid badges and per-model metadata (context, max output, modalities). Live catalog: <a href="https://api.kilo.ai/api/gateway/models" target="_blank" rel="noopener noreferrer" node="[object Object]">api.kilo.ai/api/gateway/models</a>.</p>
+</blockquote>
+<h3 id="dashboard-setup-steps-1">Dashboard Setup Steps</h3>
+<ol>
+<li>Go to <strong>Providers</strong> &gt; <strong>Add Provider</strong> &gt; <strong>Quick Setup</strong> &gt; select <strong>Kilo AI (Free)</strong>.</li>
+<li>Click <strong>Create Provider</strong> -- API Key Mode is already set to <code node="[object Object]">None</code>.</li>
+<li>Do <strong>not</strong> add any API keys.</li>
+<li>Copy the generated <strong>Base URL</strong> and use it in your AI client.</li>
+<li><em>(Optional)</em> Go to <strong>Models</strong> tab &gt; <strong>Fetch Models</strong> to see all available models with Free/Paid badges.</li>
+</ol>
+<hr/>
+<h2 id="ollama-local">Ollama (Local)</h2>
+<p>Routes to a locally running Ollama instance -- completely offline, no key.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div><div class="table-scroll-wrapper"><table node="[object Object]"><thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody><tr><td><strong>Template</strong></td><td>Quick Setup &gt; <strong>Ollama (Local)</strong></td></tr><tr><td><strong>Upstream URL</strong></td><td><code node="[object Object]">http://localhost:11434/v1</code></td></tr><tr><td><strong>API Format</strong></td><td><code node="[object Object]">openai-completions</code></td></tr><tr><td><strong>API Key Mode</strong></td><td><code node="[object Object]">None</code> (automatic)</td></tr></tbody></table></div></div>
+<ol>
+<li>Install and start <a href="https://ollama.com/" target="_blank" rel="noopener noreferrer" node="[object Object]">Ollama</a> on the same machine.</li>
+<li>Quick Setup &gt; <strong>Ollama (Local)</strong> &gt; <strong>Create Provider</strong>.</li>
+<li>Pull models with <code node="[object Object]">ollama pull &lt;model&gt;</code>, then use <strong>Fetch Models</strong> in the Models tab to discover them.</li>
+</ol>
+<hr/>
+<h2 id="discovering-models">Discovering Models</h2>
+<p>For both hosted bypass providers:</p>
+<ol>
+<li>Open the provider&#x27;s detail page.</li>
+<li>Go to the <strong>Models</strong> tab.</li>
+<li>Click <strong>Fetch Models</strong>.</li>
+<li>A list of all available models appears with <strong>Free</strong> and <strong>Paid</strong> badges.</li>
+<li>Click <strong>+ Add</strong> next to any model to add it to your fallback list, or <strong>Add All Free</strong> to add every free model at once.</li>
+<li>To use a model in your AI client, copy the <strong>Model ID</strong> shown in the list.</li>
+</ol>
+<h3 id="what-do-the-freepaid-badges-mean">What Do the Free/Paid Badges Mean?</h3>
+<ul>
+<li><strong>Free</strong>: The model is accessible without a paid subscription.</li>
+<li><strong>Paid</strong>: The model requires an active subscription or credits on the provider&#x27;s platform. Using a paid model without a subscription will result in a &quot;PAID_MODEL_AUTH_REQUIRED&quot; error, which ClawRouter classifies as MODEL_ERROR (not AUTH_ERROR).</li>
+</ul></div></main><aside class="docs-side-right"><div class="toc-wrap"><div class="toc-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-tree" aria-hidden="true"><path d="M8 5h13"></path><path d="M13 12h8"></path><path d="M13 19h8"></path><path d="M3 10a2 2 0 0 0 2 2h3"></path><path d="M3 5v12a2 2 0 0 0 2 2h3"></path></svg>On this page</div><div class="toc-items"><button type="button" class="toc-link">How Keyless Providers Work</button><button type="button" class="toc-link">OpenCode Zen</button><button type="button" class="toc-link toc-link-sub">Available Free Models</button><button type="button" class="toc-link toc-link-sub">Dashboard Setup Steps</button><button type="button" class="toc-link">Kilo AI (Free)</button><button type="button" class="toc-link toc-link-sub">Available Free Models</button><button type="button" class="toc-link toc-link-sub">Dashboard Setup Steps</button><button type="button" class="toc-link">Ollama (Local)</button><button type="button" class="toc-link">Discovering Models</button><button type="button" class="toc-link toc-link-sub">What Do the Free/Paid Badges Mean?</button></div></div></aside></div></div></main><footer class="site-footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><div class="footer-brand-row"><img src="data:image/svg+xml,%3csvg%20viewBox=&#x27;0%200%20120%20120&#x27;%20fill=&#x27;none&#x27;%20xmlns=&#x27;http://www.w3.org/2000/svg&#x27;%3e%3cdefs%3e%3clinearGradient%20id=&#x27;lobster-gradient&#x27;%20x1=&#x27;0%25&#x27;%20y1=&#x27;0%25&#x27;%20x2=&#x27;100%25&#x27;%20y2=&#x27;100%25&#x27;%3e%3cstop%20offset=&#x27;0%25&#x27;%20stop-color=&#x27;%234ade80&#x27;/%3e%3cstop%20offset=&#x27;100%25&#x27;%20stop-color=&#x27;%23064e3b&#x27;/%3e%3c/linearGradient%3e%3c/defs%3e%3c!--%20Body%20--%3e%3cpath%20d=&#x27;M60%2010%20C30%2010%2015%2035%2015%2055%20C15%2075%2030%2095%2045%20100%20L45%20110%20L55%20110%20L55%20100%20C55%20100%2060%20102%2065%20100%20L65%20110%20L75%20110%20L75%20100%20C90%2095%20105%2075%20105%2055%20C105%2035%2090%2010%2060%2010Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Left%20Claw%20--%3e%3cpath%20d=&#x27;M20%2045%20C5%2040%200%2050%205%2060%20C10%2070%2020%2065%2025%2055%20C28%2048%2025%2045%2020%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Right%20Claw%20--%3e%3cpath%20d=&#x27;M100%2045%20C115%2040%20120%2050%20115%2060%20C110%2070%20100%2065%2095%2055%20C92%2048%2095%2045%20100%2045Z&#x27;%20fill=&#x27;url(%23lobster-gradient)&#x27;/%3e%3c!--%20Antenna%20--%3e%3cpath%20d=&#x27;M45%2015%20Q35%205%2030%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3cpath%20d=&#x27;M75%2015%20Q85%205%2090%208&#x27;%20stroke=&#x27;%234ade80&#x27;%20stroke-width=&#x27;3&#x27;%20stroke-linecap=&#x27;round&#x27;/%3e%3c!--%20Eyes%20--%3e%3ccircle%20cx=&#x27;45&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;75&#x27;%20cy=&#x27;35&#x27;%20r=&#x27;6&#x27;%20fill=&#x27;%23050810&#x27;/%3e%3ccircle%20cx=&#x27;46&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3ccircle%20cx=&#x27;76&#x27;%20cy=&#x27;34&#x27;%20r=&#x27;2.5&#x27;%20fill=&#x27;%2300e5cc&#x27;/%3e%3c/svg%3e" alt="ClawRouter Logo" style="width:30px;height:30px"/><span class="footer-brand-name">ClawRouter</span></div><p class="footer-tagline">High-performance, self-hosted AI routing gateway. Designed for reliability, privacy, and seamless API management.</p></div><div><h4 class="footer-heading">Project</h4><div class="footer-links"><a class="footer-link" href="/docs" data-discover="true">Documentation</a><a class="footer-link" href="/docs" data-discover="true">Quickstart Guide</a></div></div><div><h4 class="footer-heading">Connect</h4><div class="footer-social"><a href="mailto:support@clawrouter.qzz.io" title="Email" aria-label="Contact via Email" class="nav-icon-btn"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail" aria-hidden="true"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path><rect x="2" y="4" width="20" height="16" rx="2"></rect></svg></a><a href="https://reddit.com/user/Malek262" target="_blank" rel="noopener noreferrer" title="Reddit" aria-label="Contact via Reddit" class="nav-icon-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm6.01 10.26a1.6 1.6 0 0 1 .66 1.3c0 .23-.05.46-.14.67.08.2.13.42.13.65 0 2.56-2.98 4.63-6.65 4.63S5.34 15.44 5.34 12.88c0-.23.04-.45.13-.65a1.61 1.61 0 0 1 .53-3.11c.43 0 .82.17 1.11.45 1.11-.74 2.6-1.22 4.25-1.27l.82-3.69 2.64.61a1.22 1.22 0 1 0 .23-.01l-2.34-.54-.73 3.25c1.6.07 3.04.55 4.12 1.28.29-.28.68-.45 1.11-.45.49 0 .93.22 1.24.56zM9 12.5a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm5 0a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm-3.88 2.76c.46.46 1.15.7 1.88.7s1.42-.24 1.88-.7a.38.38 0 0 0-.54-.54c-.35.35-.87.53-1.34.53s-.99-.18-1.34-.53a.38.38 0 0 0-.54.54z"></path></svg></a><span title="X — coming soon" aria-label="X profile (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg></span><span title="YouTube — coming soon" aria-label="YouTube channel (coming soon)" class="nav-icon-btn nav-icon-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"></path></svg></span></div></div></div><div class="footer-bottom"><div><p class="footer-copy">© <!-- -->2026<!-- --> ClawRouter. All rights reserved.</p><p class="footer-legal"><strong>Terms &amp; Refund Policy:</strong> All sales are final. Due to the nature of digital goods and open-source software, no refunds are provided. Please verify compatibility before purchasing.</p></div><div class="footer-author">Developed by Malek-Rsh</div></div></div></footer><button type="button" class="scroll-to-top" aria-label="Scroll to top"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up" aria-hidden="true"><path d="m5 12 7-7 7 7"></path><path d="M12 19V5"></path></svg></button></div>
+    <script src="https://cdn.jsdelivr.net/npm/@polar-sh/checkout@0.1/dist/embed.global.js" defer data-auto-init></script>
+  </body>
+</html>
