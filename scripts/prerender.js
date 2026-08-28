@@ -126,6 +126,12 @@ for (const section of indexData.sections) {
 }
 const docPathOf = (key) => (key === 'quickstart' ? '/docs' : `/docs/${key}`);
 
+// Per-route meta descriptions (derived from each doc's first paragraph in
+// seo.js) double as the one-line link summaries, collapsed to a single line.
+const descByPath = new Map(
+    routes.map((r) => [r.path, (r.description || '').replace(/\s+/g, ' ').trim()])
+);
+
 const llmsTxt = `# ClawRouter
 
 > ClawRouter is a self-hosted AI routing gateway: a single local endpoint
@@ -148,13 +154,18 @@ ${[...docsBySection.entries()]
     .map(
         ([section, items]) => `### ${section}
 
-${items.map((item) => `- [${item.title}](${SITE_URL}${docPathOf(item.key)})`).join('\n')}`
+${items
+    .map((item) => {
+        const p = docPathOf(item.key);
+        const d = descByPath.get(p);
+        return `- [${item.title}](${SITE_URL}${p})${d ? `: ${d}` : ''}`;
+    })
+    .join('\n')}`
     )
     .join('\n\n')}
 
 ## Optional
 
-- [Source repository](https://github.com/malek2662/ClawProxy-docs)
 - [Sitemap](${SITE_URL}/sitemap.xml)
 - Contact: support@clawrouter.qzz.io
 `;

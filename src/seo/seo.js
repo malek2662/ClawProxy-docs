@@ -42,18 +42,42 @@ export function docPath(key) {
 }
 
 // Derive a meta description from the first real paragraph of the markdown.
+// Heading lines are removed first so the doc's own title is never picked.
 export function deriveDescription(key) {
     const doc = docs[key];
     if (!doc) return HOME_META.description;
-    const plain = stripMarkdown(doc.content || '');
+    const noHeadings = (doc.content || '').replace(/^\s{0,3}#{1,6}\s+.*$/gm, '');
+    const plain = stripMarkdown(noHeadings);
     const paragraph = plain
         .split('\n')
         .map((p) => p.trim())
         .find((p) => p.length >= 40 && !p.toLowerCase().startsWith('table of contents'));
     if (!paragraph) return `${doc.title} — ClawRouter documentation.`;
     if (paragraph.length <= 160) return paragraph;
+    // Prefer whole sentences that fit the ~160-char meta budget.
+    // A period only ends a sentence when followed by whitespace + uppercase
+    // (so "opencode.json", "v1.0.18", "e.g." don't split mid-token).
+    // Split with captured delimiters so no text is ever dropped, and use
+    // lookahead only (no lookbehind) to stay compatible with older Safari.
+    const parts = paragraph.split(/([.!?]+\s+(?=[A-Z]))/);
+    const sentences = [];
+    for (let i = 0; i < parts.length; i += 2) {
+        const s = (parts[i] + (parts[i + 1] || '')).trim();
+        if (s) sentences.push(s);
+    }
+    let out = '';
+    for (const s of sentences) {
+        const next = `${out} ${s.trim()}`.trim();
+        if (next.length > 160) break;
+        out = next;
+    }
+    if (out.length >= 40) return out;
+    // Single long sentence: cut at the last clause boundary (comma/colon),
+    // falling back to the last word boundary.
     const cut = paragraph.slice(0, 157);
-    return `${cut.slice(0, cut.lastIndexOf(' '))}…`;
+    const clause = Math.max(cut.lastIndexOf(','), cut.lastIndexOf(':'), cut.lastIndexOf(';'));
+    const at = clause >= 80 ? clause : cut.lastIndexOf(' ');
+    return `${cut.slice(0, at).replace(/[,:;]\s*$/, '')}…`;
 }
 
 export function getDocMeta(key) {

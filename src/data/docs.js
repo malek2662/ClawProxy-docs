@@ -60,10 +60,11 @@ function resolveContent(path) {
 export function stripMarkdown(md) {
     return md
         .replace(/```[\s\S]*?```/g, '')       // fenced code blocks
-        .replace(/`[^`]+`/g, '')               // inline code
+        .replace(/`([^`]+)`/g, '$1')           // inline code: keep the text, drop backticks
         .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // links & images
         .replace(/^\s{0,3}#{1,6}\s+/gm, '')   // heading markers
-        .replace(/[*_~]{1,3}/g, '')            // bold/italic/strikethrough
+        .replace(/[*_]{1,3}/g, '')             // bold/italic
+        .replace(/~~/g, '')                    // strikethrough markers (single ~ is kept, e.g. ~/paths)
         .replace(/^\s*[-*+]\s+/gm, '')         // unordered list markers
         .replace(/^\s*\d+\.\s+/gm, '')         // ordered list markers
         .replace(/^\s*>\s?/gm, '')             // blockquotes
