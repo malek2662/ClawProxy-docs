@@ -9,6 +9,7 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, Check, Search, X, Menu, ListTree } from 'lucide-react';
 import { docs, DOC_SECTIONS, searchIndex } from '../data/docs';
 import { docPath } from '../seo/seo';
+import { useIsMac } from '../hooks/useIsMac';
 
 /* ---------- Scrollable table wrapper with overflow detection ---------- */
 function ScrollableTable({ children, ...props }) {
@@ -93,6 +94,7 @@ function DocSearch({ onNavigate }) {
     const inputRef = useRef(null);
     const resultsRef = useRef(null);
     const debounceRef = useRef(null);
+    const isMac = useIsMac();
 
     // Perform search with debounce
     const handleSearch = useCallback((q) => {
@@ -240,7 +242,7 @@ function DocSearch({ onNavigate }) {
                     </button>
                 ) : (
                     <span className="docs-search-kbd">
-                        <kbd>{navigator.platform?.includes('Mac') ? '⌘' : 'Ctrl'}</kbd>
+                        <kbd>{isMac ? '⌘' : 'Ctrl'}</kbd>
                         <kbd>K</kbd>
                     </span>
                 )}
